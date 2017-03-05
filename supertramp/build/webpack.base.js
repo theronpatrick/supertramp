@@ -24,6 +24,7 @@ module.exports = {
       root: path.join(__dirname, '../client'),
       components: path.join(__dirname, '../client/components'),
       lib: path.resolve(__dirname, '../client/lib'),
+      styles: path.resolve(__dirname, '../client/styles'),
     },
     modules: [
       _.cwd('node_modules'),
