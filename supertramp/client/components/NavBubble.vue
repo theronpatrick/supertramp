@@ -3,6 +3,7 @@
     role="button"
     :class="navBubbleClasses"
     @click="() => {onClick(navBubbleClass)}"
+    :style="bubbleStyle"
   >
     <div class="nav-bubble-content">Inner</div>
   </div>
@@ -13,9 +14,7 @@
 export default {
   components: {
   },
-  data: function() {
-    return {
-    }
+  created: function() {
   },
   computed: {
     navBubbleClasses: function() {
@@ -28,6 +27,80 @@ export default {
       classObject[this.navBubbleClass] = true;
       return classObject;
 
+    },
+    bubbleStyle: function() {
+      // Have to do all these calculations in JS instead of using transforms because of COURSE
+      // animating translateX and translateY doesn't work smoothly on safari
+
+      let style;
+
+      let radius = this.diameter / 2
+
+      // Sizes for all bubbles
+      if (!this.isActive) {
+        style = {
+          width: `${this.diameter}px`,
+          height: `${this.diameter}px`
+        }
+      } else {
+        style = {
+          width: `100%`,
+          height: `100%`
+        }
+      }
+
+      // Adjustments that basically replicatie translateX and translateY adjustments based on type
+      switch (this.navBubbleClass) {
+        case "top":
+          if (!this.isActive) {
+            style.top = `0%`
+            style.left = `50%`
+            style["margin-left"] = `${0 - radius}px`
+          } else {
+            style.top = `0%`;
+            style.left = `0%`;
+            style["margin-left"] = `0px`
+          }
+          break;
+        case "bottom":
+          if (!this.isActive) {
+            style.bottom = `0%`
+            style.left = `50%`
+            style["margin-left"] = `${0 - radius}px`
+          } else {
+            style.bottom = `0%`;
+            style.left = `0%`;
+            style["margin-left"] = `0px`
+          }
+          break;
+        case "left":
+          if (!this.isActive) {
+            style.top = `50%`
+            style.left = `0%`
+            style["margin-top"] = `${0 - radius}px`
+          } else {
+            style.top = `0%`;
+            style.left = `0%`;
+            style["margin-top"] = `0px`
+          }
+          break;
+        case "right":
+          if (!this.isActive) {
+            style.top = `50%`
+            style.right = `0%`
+            style["margin-top"] = `${0 - radius}px`
+          } else {
+            style.top = `0%`;
+            style.right = `0%`;
+            style["margin-top"] = `0px`
+          }
+          break;
+        default:
+          console.error("Error calculating widths for bubbles");
+          break;
+      }
+
+      return style
     }
   },
   methods: {
@@ -36,7 +109,8 @@ export default {
     navBubbleClass: { required: true },
     start: { required: true },
     isActive: { required: true },
-    onClick: { required: true }
+    onClick: { required: true },
+    diameter: { required: true }
   }
 }
 </script>
@@ -51,11 +125,6 @@ export default {
   font-size: 2.0rem;
   background-color: $blue1;
 
-  // Padding-bottom hack lets us make a circle
-  width: 20%;
-  height: 0;
-  padding-bottom: 20%;
-
   border-radius: 50%;
   text-align: center;
 
@@ -64,35 +133,31 @@ export default {
 
   transition: all 1s ease-out;
 
+  $padding-perc: 2.5;
+
+  // 2017 shouldn't require hardware acceleration like this but just in case...
+  -webkit-backface-visibility: hidden;
+	-webkit-perspective: 1000;
+
 
   &.top {
-    top: 0%;
+    top: 0% + $padding-perc;
     left: 50%;
-    transform: translateX(-50%) translateY(0);
   }
 
   &.right {
     top: 50%;
-    left: 100%;
-    transform: translateX(-100%) translateY(-50%);
+    right: 0% + $padding-perc;
   }
 
   &.bottom {
-    top: 100%;
+    bottom: 0% + $padding-perc;
     left: 50%;
-    transform: translateX(-50%) translateY(-100%);
   }
 
   &.left {
     top: 50%;
-    left: 0%;
-    transform: translateX(0) translateY(-50%);
-  }
-
-  &.start {
-    top: 50%;
-    left: 50%;
-    transform: translateX(-50%) translateY(-50%);
+    left: 0% + $padding-perc;
   }
 
   &:focus, &:hover {
@@ -101,11 +166,9 @@ export default {
 
   &.active {
     background-color: $blue1;
-    top: 50%;
-    left: 50%;
+
     width: 100%;
     height: 100%;
-    transform: translateX(-50%) translateY(-50%);
     border-radius: 0;
     padding-bottom: 0;
     z-index: 20;

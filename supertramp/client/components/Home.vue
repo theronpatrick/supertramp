@@ -1,10 +1,34 @@
 <template>
   <div class="main-container">
     <nav>
-      <NavBubble navBubbleClass="top" :start="start" :isActive="activeNav === 'top'" :onClick="navClick" />
-      <NavBubble navBubbleClass="right" :start="start" :isActive="activeNav === 'right'" :onClick="navClick" />
-      <NavBubble navBubbleClass="left" :start="start" :isActive="activeNav === 'left'" :onClick="navClick" />
-      <NavBubble navBubbleClass="bottom" :start="start" :isActive="activeNav === 'bottom'" :onClick="navClick" />
+      <NavBubble
+        navBubbleClass="top"
+        :start="start"
+        :isActive="activeNav === 'top'"
+        :onClick="navClick"
+        :diameter="diameter"
+      />
+      <NavBubble
+        navBubbleClass="right"
+        :start="start"
+        :isActive="activeNav === 'right'"
+        :onClick="navClick"
+        :diameter="diameter"
+      />
+      <NavBubble
+        navBubbleClass="left"
+        :start="start"
+        :isActive="activeNav === 'left'"
+        :onClick="navClick"
+        :diameter="diameter"
+      />
+      <NavBubble
+        navBubbleClass="bottom"
+        :start="start"
+        :isActive="activeNav === 'bottom'"
+        :onClick="navClick"
+        :diameter="diameter"
+      />
     </nav>
   </div>
 </template>
@@ -17,10 +41,20 @@ export default {
   components: {
     NavBubble
   },
+  created: function () {
+    // Calc bubble widths at beginning and on resize
+    window.addEventListener('resize', this.calcBubbleWidth)
+
+    this.calcBubbleWidth();
+  },
+  beforeDestroy: function () {
+    window.removeEventListener('resize', this.calcBubbleWidth)
+  },
   data: function() {
     return {
       start: true,
-      activeNav: null
+      activeNav: null,
+      diameter: 0
     }
   },
   mounted: function() {
@@ -35,7 +69,19 @@ export default {
       } else {
         this.activeNav = null
       }
+    },
+    calcBubbleWidth: function() {
+      let width = window.innerWidth
+      || document.documentElement.clientWidth
+      || document.body.clientWidth;
+
+      let diameter = width / 6
+
+      this.diameter = Math.floor(diameter)
+
     }
+  },
+  computed: {
   }
 }
 </script>

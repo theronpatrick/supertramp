@@ -17,7 +17,7 @@ html {
     box-sizing: border-box;
   }
 
-	overflow-x: hidden;
+	overflow: hidden;
 }
 
 // Make app size of screen
