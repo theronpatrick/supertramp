@@ -1,11 +1,13 @@
 <template>
   <div
     role="button"
+    tabindex="0"
     :class="navBubbleClasses"
+    @keydown="onKeydown"
     @click="() => {onClick(navBubbleClass)}"
     :style="bubbleStyle"
   >
-    <div class="nav-bubble-content">Inner</div>
+    <a class="nav-bubble-content">Inner</a>
   </div>
 </template>
 
@@ -104,6 +106,11 @@ export default {
     }
   },
   methods: {
+    onKeydown: function(e) {
+      if (e.keyCode === 13) {
+        this.onClick(this.navBubbleClass)
+      }
+    }
   },
   props: {
     navBubbleClass: { required: true },
@@ -126,12 +133,13 @@ export default {
   background-color: $blue1;
 
   border-radius: 50%;
-  text-align: center;
+  text-align: left;
 
   cursor: pointer;
   z-index: 10;
 
-  transition: all 1s ease-out;
+  // TODO: Make cooler transition
+  transition: all .5s ease-in-out, background-color .25s ease-in-out;
 
   $padding-perc: 2.5;
 
@@ -140,27 +148,8 @@ export default {
 	-webkit-perspective: 1000;
 
 
-  &.top {
-    top: 0% + $padding-perc;
-    left: 50%;
-  }
-
-  &.right {
-    top: 50%;
-    right: 0% + $padding-perc;
-  }
-
-  &.bottom {
-    bottom: 0% + $padding-perc;
-    left: 50%;
-  }
-
-  &.left {
-    top: 50%;
-    left: 0% + $padding-perc;
-  }
-
   &:focus, &:hover {
+    outline: 0;
     background-color: $orange;
   }
 
@@ -182,7 +171,13 @@ export default {
   width: 100%;
 
   top: 50%;
-  transform: translateY(-50%)
+  transform: translateY(-50%);
+
+  text-align: center;
+
+  &:focus, &:hover {
+    outline: 0;
+  }
 }
 
 </style>

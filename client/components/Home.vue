@@ -71,13 +71,17 @@ export default {
       }
     },
     calcBubbleWidth: function() {
+      // Babel probably lets us not have to define all these, but just in case...
       let width = window.innerWidth
       || document.documentElement.clientWidth
       || document.body.clientWidth;
 
+      // Set diameter based on screen size
       let diameter = width / 6
 
-      this.diameter = Math.floor(diameter)
+      // Set prop to calculated diameter (or min number so the bubbles don't get too small on mobile)
+      let minSize = 180
+      this.diameter = Math.max(minSize, Math.floor(diameter))
 
     }
   },
