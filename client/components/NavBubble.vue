@@ -7,7 +7,7 @@
     @click="() => {onClick(navBubbleClass)}"
     :style="bubbleStyle"
   >
-    <img :src="icon"></img>
+    <img :src="icon" class="bubble-image" :alt="iconAlt"></img>
   </div>
 </template>
 
@@ -35,7 +35,6 @@ export default {
       // animating translateX and translateY doesn't work smoothly on safari
 
       let style;
-
       let radius = this.diameter / 2
 
       // Sizes for all bubbles
@@ -51,55 +50,70 @@ export default {
         }
       }
 
+      // For things like setting top to `0`, this is the padding adjustment based on windowo size
+      let paddingBase = "2.5%"
+      let centeringAdjustment = `${0 - radius}px`
+      let centered = this.isActive || this.start;
+
       // Adjustments that basically replicatie translateX and translateY adjustments based on type
       switch (this.navBubbleClass) {
         case "top":
-          if (!this.isActive) {
-            style.top = `0%`
+          if (!centered) {
+            style.top = paddingBase
             style.left = `50%`
-            style["margin-left"] = `${0 - radius}px`
+            style["margin-left"] = centeringAdjustment
           } else {
-            style.top = `0%`;
+            style.top = "0%";
             style.left = `0%`;
             style["margin-left"] = `0px`
           }
           break;
         case "bottom":
-          if (!this.isActive) {
-            style.bottom = `0%`
+          if (!centered) {
+            style.bottom = paddingBase
             style.left = `50%`
-            style["margin-left"] = `${0 - radius}px`
+            style["margin-left"] = centeringAdjustment
           } else {
-            style.bottom = `0%`;
+            style.bottom = "0%"
             style.left = `0%`;
             style["margin-left"] = `0px`
           }
           break;
         case "left":
-          if (!this.isActive) {
+          if (!centered) {
             style.top = `50%`
-            style.left = `0%`
-            style["margin-top"] = `${0 - radius}px`
+            style.left = paddingBase
+            style["margin-top"] = centeringAdjustment
           } else {
             style.top = `0%`;
-            style.left = `0%`;
+            style.left = "0%"
             style["margin-top"] = `0px`
           }
           break;
         case "right":
-          if (!this.isActive) {
+          if (!centered) {
             style.top = `50%`
-            style.right = `0%`
-            style["margin-top"] = `${0 - radius}px`
+            style.right = paddingBase
+            style["margin-top"] = centeringAdjustment
           } else {
             style.top = `0%`;
-            style.right = `0%`;
+            style.right = "0%"
             style["margin-top"] = `0px`
           }
           break;
         default:
-          console.error("Error calculating widths for bubbles");
+          console.error("Undefined bubble class");
           break;
+      }
+
+      if (this.start) {
+        style.left = "50%"
+        style['margin-left'] = centeringAdjustment
+        if (this.navBubbleClass === "bottom") {
+          style.bottom = '100%'
+        } else {
+          style.top = '-100%'
+        }
       }
 
       return style
@@ -118,7 +132,8 @@ export default {
     isActive: { required: true },
     onClick: { required: true },
     diameter: { required: true },
-    icon: { required: true }
+    icon: { required: true },
+    iconAlt: { required: true }
   }
 }
 </script>
@@ -144,10 +159,6 @@ export default {
 
   $padding-perc: 2.5;
 
-  // 2017 shouldn't require hardware acceleration like this but just in case...
-  -webkit-backface-visibility: hidden;
-	-webkit-perspective: 1000;
-
 
   &:focus, &:hover {
     outline: 0;
@@ -164,16 +175,26 @@ export default {
     z-index: 20;
 
     cursor: default;
+
+    .bubble-image {
+      width: 0%;
+      opacity: 0;
+    }
   }
+
 }
 
-img {
+.bubble-image {
   position: absolute;
   width: 50%;
 
   top: 50%;
   left: 50%;
+
+  opacity: 100;
+
   transform: translateY(-50%) translateX(-50%);
+  transition: all .25s ease-in;
 
   &:focus, &:hover {
     outline: 0;

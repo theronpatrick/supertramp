@@ -2,36 +2,14 @@
   <div class="main-container">
     <nav>
       <NavBubble
-        navBubbleClass="top"
-        :start="start"
-        :isActive="activeNav === 'top'"
+        v-for="bubble in bubbles"
+        :navBubbleClass="bubble.class"
+        :start="bubble.start"
+        :isActive="activeNav === bubble.class"
         :onClick="navClick"
         :diameter="diameter"
-        :icon="manImg"
-      />
-      <NavBubble
-        navBubbleClass="right"
-        :start="start"
-        :isActive="activeNav === 'right'"
-        :onClick="navClick"
-        :diameter="diameter"
-        :icon="workImg"
-      />
-      <NavBubble
-        navBubbleClass="left"
-        :start="start"
-        :isActive="activeNav === 'left'"
-        :onClick="navClick"
-        :diameter="diameter"
-        :icon="phoneImg"
-      />
-      <NavBubble
-        navBubbleClass="bottom"
-        :start="start"
-        :isActive="activeNav === 'bottom'"
-        :onClick="navClick"
-        :diameter="diameter"
-        :icon="resumeImg"
+        :icon="bubble.icon"
+        iconAlt="bubble.iconAlt"
       />
     </nav>
   </div>
@@ -67,13 +45,53 @@ export default {
       phoneImg,
       start: true,
       activeNav: null,
-      diameter: 0
+      diameter: 0,
+      bubbles: [
+        {
+          class: "top",
+          icon: manImg,
+          iconAlt: "profile",
+          start: true
+        },
+        {
+          class: "right",
+          icon: workImg,
+          iconAlt: "projects",
+          start: true
+        },
+        {
+          class: "bottom",
+          icon: phoneImg,
+          iconAlt: "contact",
+          start: true
+        },
+        {
+          class: "left",
+          icon: resumeImg,
+          iconAlt: "resume",
+          start: true
+        }
+      ]
     }
   },
   mounted: function() {
+    let count = 0;
+
+    let dropBubble = () => {
+      this.bubbles[count].start = false;
+
+      count++
+
+      if (count < this.bubbles.length) {
+        setTimeout(() => {
+          dropBubble()
+        }, 250)
+      }
+    }
+
     setTimeout(() => {
-      this.start = false;
-    }, 250)
+      dropBubble()
+    }, 100)
   },
   methods: {
     navClick: function(nav) {
@@ -93,7 +111,7 @@ export default {
       let diameter = width / 6
 
       // Set prop to calculated diameter (or min number so the bubbles don't get too small on mobile)
-      let minSize = 180
+      let minSize = 120
       this.diameter = Math.max(minSize, Math.floor(diameter))
 
     }
@@ -115,6 +133,9 @@ export default {
 
   background: $black;
   color: $white;
+
+  // 2017 shouldn't require hardware acceleration like this but just in case...
+  transform: translateZ(0)
 }
 
 nav {
