@@ -108,11 +108,11 @@ export default {
       || document.body.clientWidth;
 
       // Set diameter based on screen size
-      let diameter = width / 6
+      let diameter = width / 3
 
       // Set prop to calculated diameter (or min number so the bubbles don't get too small on mobile)
-      let minSize = 120
-      this.diameter = Math.max(minSize, Math.floor(diameter))
+      let maxSize = 250
+      this.diameter = Math.min(maxSize, Math.floor(diameter))
 
     }
   },
