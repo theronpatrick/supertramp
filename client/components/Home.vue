@@ -33,6 +33,11 @@ export default {
     window.addEventListener('resize', this.calcBubbleWidth)
 
     this.calcBubbleWidth();
+
+    // There's some fishiness going on with mobile screen sizes, so redo calc after a set time
+    setTimeout(() => {
+      this.calcBubbleWidth()
+    }, 500)
   },
   beforeDestroy: function () {
     window.removeEventListener('resize', this.calcBubbleWidth)
@@ -102,13 +107,13 @@ export default {
       }
     },
     calcBubbleWidth: function() {
-      // Babel probably lets us not have to define all these, but just in case...
-      let width = window.innerWidth
-      || document.documentElement.clientWidth
-      || document.body.clientWidth;
+      let width = window.innerWidth;
+      let height = window.innerHeight;
+
+      let dimension = Math.min(width, height)
 
       // Set diameter based on screen size
-      let diameter = width / 3
+      let diameter = dimension / 3
 
       // Set prop to calculated diameter (or min number so the bubbles don't get too small on mobile)
       let maxSize = 250
