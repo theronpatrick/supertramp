@@ -7,6 +7,7 @@
         :isActive="activeNav === 'top'"
         :onClick="navClick"
         :diameter="diameter"
+        :icon="manImg"
       />
       <NavBubble
         navBubbleClass="right"
@@ -14,6 +15,7 @@
         :isActive="activeNav === 'right'"
         :onClick="navClick"
         :diameter="diameter"
+        :icon="workImg"
       />
       <NavBubble
         navBubbleClass="left"
@@ -21,6 +23,7 @@
         :isActive="activeNav === 'left'"
         :onClick="navClick"
         :diameter="diameter"
+        :icon="phoneImg"
       />
       <NavBubble
         navBubbleClass="bottom"
@@ -28,6 +31,7 @@
         :isActive="activeNav === 'bottom'"
         :onClick="navClick"
         :diameter="diameter"
+        :icon="resumeImg"
       />
     </nav>
   </div>
@@ -36,6 +40,11 @@
 <script>
 
 import NavBubble from "components/NavBubble"
+
+import resumeImg from "root/img/file.svg"
+import manImg from "root/img/man.svg"
+import phoneImg from "root/img/phone.svg"
+import workImg from "root/img/work.svg"
 
 export default {
   components: {
@@ -52,6 +61,10 @@ export default {
   },
   data: function() {
     return {
+      manImg,
+      resumeImg,
+      workImg,
+      phoneImg,
       start: true,
       activeNav: null,
       diameter: 0

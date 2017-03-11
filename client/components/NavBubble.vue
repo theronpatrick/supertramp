@@ -7,7 +7,7 @@
     @click="() => {onClick(navBubbleClass)}"
     :style="bubbleStyle"
   >
-    <a class="nav-bubble-content">Inner</a>
+    <img :src="icon"></img>
   </div>
 </template>
 
@@ -117,12 +117,13 @@ export default {
     start: { required: true },
     isActive: { required: true },
     onClick: { required: true },
-    diameter: { required: true }
+    diameter: { required: true },
+    icon: { required: true }
   }
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import "~styles/colors";
 
 .nav-bubble {
@@ -166,14 +167,13 @@ export default {
   }
 }
 
-.nav-bubble-content {
+img {
   position: absolute;
-  width: 100%;
+  width: 50%;
 
   top: 50%;
-  transform: translateY(-50%);
-
-  text-align: center;
+  left: 50%;
+  transform: translateY(-50%) translateX(-50%);
 
   &:focus, &:hover {
     outline: 0;

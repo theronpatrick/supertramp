@@ -6,6 +6,9 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const config = require('./config')
 const _ = require('./utils')
 
+const date = new Date()
+const banner = `Copyright © Theron Patrick ${date.getFullYear()}. Icons from http://iconmonstr.com/. Built at ${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
+
 module.exports = {
   entry: {
     client: './client/index.js'
@@ -57,7 +60,7 @@ module.exports = {
       },
       {
         test: /\.svg$/,
-        loader: 'raw-loader'
+        loader: 'svg-url-loader?noquotes=true'
       }
     ]
   },
@@ -74,7 +77,8 @@ module.exports = {
         // to the roor of dist path
         to: './'
       }
-    ])
+    ]),
+    new webpack.BannerPlugin(banner)
   ],
   target: _.target
 }
