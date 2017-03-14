@@ -27,4 +27,10 @@ html, body, #app {
   height: 100%;
   width: 100%;
 }
+
+p {
+  font-size: 2.0rem;
+  line-height: 1.5;
+  margin: 0 0 2.0rem 0;
+}
 </style>

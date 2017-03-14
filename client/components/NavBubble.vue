@@ -36,7 +36,10 @@ export default {
         "start": this.start
       }
 
-      classObject[this.navBubbleClass] = true;
+      // Convert class passed from home to cardinal direction
+      let parsedClass = this.getParsedClass();
+      classObject[parsedClass] = true;
+
       return classObject;
 
     },
@@ -66,7 +69,8 @@ export default {
       let centered = this.isActive || this.start;
 
       // Adjustments that basically replicatie translateX and translateY adjustments based on type
-      switch (this.navBubbleClass) {
+      let parsedClass = this.getParsedClass();
+      switch (parsedClass) {
         case "top":
           if (!centered) {
             style.top = paddingBase
@@ -119,7 +123,7 @@ export default {
       if (this.start) {
         style.left = "50%"
         style['margin-left'] = centeringAdjustment
-        if (this.navBubbleClass === "bottom") {
+        if (parsedClass === "bottom") {
           style.bottom = '100%'
         } else {
           style.top = '-100%'
@@ -130,6 +134,28 @@ export default {
     }
   },
   methods: {
+    getParsedClass: function() {
+      // Convert from class type to cardinal direction
+      let parsedClass;
+      switch (this.navBubbleClass) {
+        case "profile":
+          parsedClass = "top"
+          break;
+        case "projects":
+          parsedClass = "right"
+          break;
+        case "contact":
+          parsedClass = "bottom"
+          break;
+        case "resume":
+          parsedClass = "left"
+          break;
+        default:
+          console.error("Error parsing nav bubble class");
+          break;
+      }
+      return parsedClass;
+    },
     onKeydown: function(e) {
       if (e.keyCode === 13) {
         this.onClick(this.navBubbleClass)
