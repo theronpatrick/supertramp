@@ -39,5 +39,11 @@ a {
   font-weight: 700;
   color: $blue1;
   text-decoration: none;
+
+  transition: all .2s ease-in;
+
+  &:hover {
+    color: $orange;
+  }
 }
 </style>
