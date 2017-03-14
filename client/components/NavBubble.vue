@@ -4,19 +4,29 @@
     tabindex="0"
     :class="navBubbleClasses"
     @keydown="onKeydown"
-    @click="() => {onClick(navBubbleClass)}"
+    @click="(e) => {bubbleClick(e)}"
     :style="bubbleStyle"
   >
     <img :src="icon" class="bubble-image" :alt="iconAlt"></img>
+    <img :src="closeImg" role="button" class="close-button" alt="Close"></img>
+    <section v-html="content">
+    </section>
   </div>
 </template>
 
 <script>
 
+import closeImg from "root/img/close.svg"
+
 export default {
   components: {
   },
   created: function() {
+  },
+  data: function() {
+    return {
+      closeImg
+    }
   },
   computed: {
     navBubbleClasses: function() {
@@ -124,6 +134,19 @@ export default {
       if (e.keyCode === 13) {
         this.onClick(this.navBubbleClass)
       }
+    },
+    bubbleClick: function(e) {
+      let className = e.target.className;
+
+      // Open if clicking on anything, but if we're already active,
+      // only close if we click outside section panel or on 'x' button
+      if (this.isActive) {
+        if (className.indexOf("nav-bubble") > -1 || className.indexOf("close-button") > -1) {
+          this.onClick(this.navBubbleClass)
+        }
+      } else {
+        this.onClick(this.navBubbleClass)
+      }
     }
   },
   props: {
@@ -133,7 +156,8 @@ export default {
     onClick: { required: true },
     diameter: { required: true },
     icon: { required: true },
-    iconAlt: { required: true }
+    iconAlt: { required: true },
+    content: { required: true }
   }
 }
 </script>
@@ -176,11 +200,38 @@ export default {
 
     cursor: default;
 
+    // Show/hide contents when bubble is active
     .bubble-image {
       width: 0%;
       opacity: 0;
     }
+
+    section {
+      opacity: 1;
+      width: 75%;
+      height: 75%;
+      padding: 5%;
+    }
+
+    .close-button {
+      opacity: 1;
+    }
   }
+
+}
+
+.close-button {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+
+  top: 20px;
+  height: 20px;
+
+  opacity: 0;
+  transition: all .25s ease-in;
+
+  cursor: pointer;
 
 }
 
@@ -199,6 +250,26 @@ export default {
   &:focus, &:hover {
     outline: 0;
   }
+}
+
+section {
+  position: absolute;
+  z-index: 1;
+
+  width: 0%;
+  height: 0%;
+  padding: 0%;
+
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+
+  transition: all .25s ease-in;
+  opacity: 0;
+  overflow: auto;
+
+  border-radius: 8px;
+  background-color: $black;
 }
 
 </style>

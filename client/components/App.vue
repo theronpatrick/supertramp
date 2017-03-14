@@ -18,6 +18,8 @@ html {
   }
 
 	overflow: hidden;
+
+  font-family: 'Ubuntu', sans-serif;
 }
 
 // Make app size of screen
