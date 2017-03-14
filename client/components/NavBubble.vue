@@ -301,6 +301,8 @@ section {
 
   border-radius: 8px;
   background-color: $black;
+
+  -webkit-overflow-scrolling: touch;
 }
 
 </style>
