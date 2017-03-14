@@ -7,6 +7,7 @@
 <style lang="scss">
 
 @import "~lib/styles/lib";
+@import "~styles/colors";
 
 // App structure styles
 html {
@@ -32,5 +33,11 @@ p {
   font-size: 2.0rem;
   line-height: 1.5;
   margin: 0 0 2.0rem 0;
+}
+
+a {
+  font-weight: 700;
+  color: $blue1;
+  text-decoration: none;
 }
 </style>

@@ -256,8 +256,13 @@ export default {
 
   opacity: 0;
   transition: all .25s ease-in;
+  transform: scale(1);
 
   cursor: pointer;
+
+  &:hover {
+    transform: scale(1.5);
+  }
 
 }
 

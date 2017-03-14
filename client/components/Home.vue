@@ -67,21 +67,21 @@ export default {
           icon: workImg,
           iconAlt: "projects",
           start: !this.hasActiveRoute(),
-          content: ""
+          content: content.projects
         },
         {
           class: "contact",
           icon: phoneImg,
           iconAlt: "contact",
           start: !this.hasActiveRoute(),
-          content: ""
+          content: content.contact
         },
         {
           class: "resume",
           icon: resumeImg,
           iconAlt: "resume",
           start: !this.hasActiveRoute(),
-          content: ""
+          content: content.resume
         }
       ]
     }
@@ -167,7 +167,7 @@ export default {
   color: $white;
 
   // 2017 shouldn't require hardware acceleration like this but just in case...
-  transform: translateZ(0)
+  transform: translateZ(0);
 }
 
 nav {
