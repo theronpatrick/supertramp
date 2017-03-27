@@ -8,9 +8,9 @@ export default {
 
     <p>Check out some of <a href="/#/projects">my work</a> for a sense of what I can do, and take a look at <a href="https://github.com/theronpatrick" target="_blank">my GitHub</a> for a sense of how I do it.</p>
 
-    <p>I'm currently open to web front-end or mobile client development contracts, so if you've got a fun and challenging project you need help building please <a href="/#/contact">get in touch</a>.</p>`,
+    <p>I'm currently open to web front-end or mobile client development contracts. So if you've got a fun and challenging project you need help building please <a href="/#/contact">get in touch</a> (<i>no recruiters, please</i>).</p>`,
   contact:
-    `<p>To get in touch with me please visit my <a href="https://www.linkedin.com/in/theronpatrick/" target="_blank">LinkedIn</a> or  email at <a href="mailto:therondevelopment@gmail.com" target="_blank">therondevelopment@gmail.com</a></p>`,
+    `<p>If you'd like to hire me for a project or simply want to connect, please visit my <a href="https://www.linkedin.com/in/theronpatrick/" target="_blank">LinkedIn</a> or email at <a href="mailto:therondevelopment@gmail.com" target="_blank">therondevelopment@gmail.com</a> (<i>no recruiters, please</i>).</p>`,
   projects:
     `<p><a href="https://itunes.apple.com/us/app/taetro/id1195441560" target="_blank">Taetro</a> - The official mobile app of electronic music/producer <a href="https://www.youtube.com/channel/UCNRFvq0JOm5VqHIBDDQgkMA" target="_blank">Taetro</a>. Platform to share and play soundpacks created by Taetro, and to connect to the YouTube community. View on the <a href="https://play.google.com/store/apps/details?id=com.theronp.taetro&hl=en" target="_blank">Google Play Store</a> or <a href="https://itunes.apple.com/us/app/taetro/id1195441560" target="_blank">iOS App Store</a>.</p>
 
@@ -21,5 +21,5 @@ export default {
     <p>To view the code for some of these projects, including <a href="https://github.com/theronpatrick/supertramp" target="_blank">this website</a>, check out my <a href="https://github.com/theronpatrick" target="_blank">GitHub</a>.</p>
     `,
   resume:
-    `If you prefer old-school formats you can <a href="${tpr}" target="_blank">Download or View PDF Resumé</a>`
+    `<p>To review my educational background, professional project descriptions, or if you really hate trees and want to print something out, you can <a href="${tpr}" target="_blank">Download or View my PDF Resumé</a>.</p>`
 }

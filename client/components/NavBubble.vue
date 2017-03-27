@@ -63,7 +63,7 @@ export default {
         }
       }
 
-      // For things like setting top to `0`, this is the padding adjustment based on windowo size
+      // For things like setting top to `0`, this is the padding adjustment based on window size
       let paddingBase = "2.5%"
       let centeringAdjustment = `${0 - radius}px`
       let centered = this.isActive || this.start;
