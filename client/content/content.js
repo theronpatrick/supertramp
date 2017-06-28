@@ -2,13 +2,13 @@ import tpr from "root/content/theron_patrick_resume.pdf"
 
 export default {
   profile:
-    `<p>Welcome to Theron's corner of the Internet. I'm a professional web developer, amateur game developer, and recreational fat cat lover.</p>
+    `<p>Who is Theron? A professional web developer, amateur game developer, adventurous cross-country traveler, and enthusastic fat cat lover.</p>
 
-    <p>Front-end design and development has always been my forté, but I've dipped my toes into some back-end development (Node.js is my jam). Love all things mobile development (even Xcode), and have experience building hybrid apps and native Android and iOS apps, with experience deploying to both respective app stores. </p>
+    <p>Client-side design and development has always been my forté, but I have dipped my toes into some back-end development (Node.js is my jam). I love all things mobile development (even Xcode), and have experience building hybrid apps and native Android and iOS apps, with experience deploying to both respective app stores. </p>
 
     <p>Check out some of <a href="/#/projects">my work</a> for a sense of what I can do, and take a look at <a href="https://github.com/theronpatrick" target="_blank">my GitHub</a> for a sense of how I do it.</p>
 
-    <p>I'm currently open to web front-end or mobile client development contracts. So if you've got a fun and challenging project you need help building please <a href="/#/contact">get in touch</a> (<i>no recruiters, please</i>).</p>`,
+    <p>I'm <i>NOT</i> currently open to new projects, because I'm on a cross-country road trip across America! You can follow my travels on <a href="https://www.instagram.com/therontosomething/" target="_blank">Instagram</a>`,
   contact:
     `<p>If you'd like to hire me for a project or simply want to connect, please visit my <a href="https://www.linkedin.com/in/theronpatrick/" target="_blank">LinkedIn</a> or email at <a href="mailto:therondevelopment@gmail.com" target="_blank">therondevelopment@gmail.com</a> (<i>no recruiters, please</i>).</p>`,
   projects:
