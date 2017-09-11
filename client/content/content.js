@@ -4,13 +4,13 @@ export default {
   profile:
     `<p>Who is Theron? A professional web developer, amateur game developer, adventurous cross-country traveler, and enthusastic fat cat lover.</p>
 
-    <p>Client-side design and development has always been my forté, but I have dipped my toes into some back-end development (Node.js is my jam). I love all things mobile development (even Xcode), and have experience building hybrid apps and native Android and iOS apps, with experience deploying to both respective app stores. </p>
+    <p>Client-side web design and development has always been my forté, but I have dipped my toes into some back-end development (mainly in Node.js). And I also love mobile development, and have experience building hybrid apps and native Android and iOS apps, with experience deploying to both respective app stores. </p>
 
     <p>Check out some of <a href="/#/projects">my work</a> for a sense of what I can do, and take a look at <a href="https://github.com/theronpatrick" target="_blank">my GitHub</a> for a sense of how I do it.</p>
 
-    <p>I'm <i>NOT</i> currently open to new projects, because I'm on a cross-country road trip across America! You can follow my travels on <a href="https://www.instagram.com/therontosomething/" target="_blank">Instagram</a>`,
+    <p>I spent the summer of 2017 on a <a href="http://theronp.com/roadtrip" target="_blank">three month solo cross-country adventure</a>.`,
   contact:
-    `<p>If you'd like to hire me for a project or simply want to connect, please visit my <a href="https://www.linkedin.com/in/theronpatrick/" target="_blank">LinkedIn</a> or email at <a href="mailto:therondevelopment@gmail.com" target="_blank">therondevelopment@gmail.com</a> (<i>no recruiters, please</i>).</p>`,
+    `<p>I'm currently open to new clients (remote, contract only). To contact, please visit my <a href="https://www.linkedin.com/in/theronpatrick/" target="_blank">LinkedIn</a> or email at <a href="mailto:therondevelopment@gmail.com" target="_blank">therondevelopment@gmail.com</a> (<i>no recruiters, please</i>).</p>`,
   projects:
     `<p><a href="https://itunes.apple.com/us/app/taetro/id1195441560" target="_blank">Taetro</a> - The official mobile app of electronic music/producer <a href="https://www.youtube.com/channel/UCNRFvq0JOm5VqHIBDDQgkMA" target="_blank">Taetro</a>. Platform to share and play soundpacks created by Taetro, and to connect to the YouTube community. View on the <a href="https://play.google.com/store/apps/details?id=com.theronp.taetro&hl=en" target="_blank">Google Play Store</a> or <a href="https://itunes.apple.com/us/app/taetro/id1195441560" target="_blank">iOS App Store</a>.</p>
 

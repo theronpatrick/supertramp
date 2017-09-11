@@ -1,7 +1,7 @@
 <template>
   <div class="main">
     <div class="background-container"></div>
-    <h1>COMING SOON...</h1>
+    <h1>COMING SOON... <span class="globe">🌎</span></h1>
   </div>
 </template>
 
@@ -38,6 +38,28 @@ export default {
 
   filter: brightness(60%) contrast(130%);
 }
+
+.globe {
+  position: absolute;
+
+  top: 100%;
+  left: 50%;
+
+  transform-origin: 0;
+  animation: rotation 4s linear infinite;
+}
+
+@keyframes rotation {
+    0% {
+      transform: scaleX(1) translate(-50%)
+    }
+    50% {
+      transform: scaleX(-1) translate(-50%)
+    }
+    100% {
+      transform: scaleX(1) translate(-50%)
+    }
+  }
 
 h1 {
   position: absolute;
