@@ -10,7 +10,6 @@
 import landscape from "../assets/landscape.jpg"
 
 export default {
-  name: 'hello',
   data () {
     return {
       landscape
