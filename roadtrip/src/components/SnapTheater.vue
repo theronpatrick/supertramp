@@ -1,17 +1,23 @@
 <template>
   <div class="snap-theater">
-    <h1>Testeroo</h1>
-    <button @click="seekHandler">Seek</button>
+    <h1>{{message}}</h1>
+    <button @click="seekBackwardHandler"><-</button>
+    <button @click="seekForwardHandler">-></button>
     <div id="player"></div>
   </div>
 </template>
 
 <script>
 
+import tracks from "../data/snapchat-tracks.js"
+
 export default {
   data () {
     return {
-      player: {}
+      player: {},
+      currentTrackIndex: 0,
+      message: "",
+      tracks
     }
   },
   mounted() {
@@ -29,8 +35,8 @@ export default {
       var player;
       window.onYouTubeIframeAPIReady = () => {
          this.player = new YT.Player('player', {
-           height: '900',
-           width: '1600',
+           height: 900 / 5,
+           width: 1500 / 5,
            videoId: 'k1TjerKBJt4',
            events: {
              'onReady': this.onPlayerReady,
@@ -42,6 +48,42 @@ export default {
     // 4. The API will call this function when the video player is ready.
     onPlayerReady(event) {
       event.target.playVideo();
+
+      console.log("tracks " , this.tracks);
+
+      setInterval(() => {
+        this.checkTime()
+
+      }, 250)
+    },
+
+    checkTime() {
+
+      let time = this.player.getCurrentTime()
+
+      let displayCurrentTrackTitle = () => {
+
+        let currentTrack = this.tracks[this.currentTrackIndex]
+
+        if (currentTrack.start <= time && currentTrack.end >= time) {
+          this.message = currentTrack.title
+        } else if (currentTrack.start > time) {
+          // Go back
+          this.currentTrackIndex = this.currentTrackIndex - 1
+          displayCurrentTrackTitle()
+        } else if (currentTrack.end < time) {
+          // Go Forward
+          this.currentTrackIndex = this.currentTrackIndex + 1
+
+          displayCurrentTrackTitle()
+
+        }
+      }
+
+
+      displayCurrentTrackTitle()
+
+
     },
 
     // 5. The API calls this function when the player's state changes.
@@ -53,9 +95,19 @@ export default {
     stopVideo() {
       this.player.stopVideo();
     },
-    seekHandler() {
-      let time = this.player.getCurrentTime()
-      this.player.seekTo(time + 5, true)
+    seekForwardHandler() {
+      if (this.currentTrackIndex !== this.tracks.length - 1) {
+        this.currentTrackIndex = this.currentTrackIndex + 1
+        this.player.seekTo(this.tracks[this.currentTrackIndex].start)
+        this.checkTime()
+      }
+    },
+    seekBackwardHandler() {
+      if (this.currentTrackIndex > 0) {
+        this.currentTrackIndex = this.currentTrackIndex - 1
+        this.player.seekTo(this.tracks[this.currentTrackIndex].start)
+        this.checkTime()
+      }
     }
   }
 }
@@ -71,8 +123,8 @@ export default {
 }
 
 #player {
-  width: 1600px;
-  height: 900px;
+  width: 1600px / 5;
+  height: 900px / 5;
 }
 
 
