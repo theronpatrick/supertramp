@@ -5,7 +5,7 @@ import SnapTheater from '@/components/SnapTheater'
 
 Vue.use(Router)
 
-export default new Router({
+let router = new Router({
   routes: [
     {
       path: '/',
@@ -15,7 +15,22 @@ export default new Router({
     {
       path: '/snaptheater',
       name: 'SnapTheater',
-      component: SnapTheater
+      component: SnapTheater,
+      meta: {
+        title: "Summer of Snap"
+      }
     }
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  if (to.meta.title) {
+    document.title = to.meta.title
+  } else {
+    document.title = "Theron's 2017 Cross Country Adventure"
+  }
+
+  next()
+})
+
+export default router

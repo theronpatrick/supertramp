@@ -1,52 +1,135 @@
 <template>
   <div class="snap-theater">
-    <h1>{{message}}</h1>
-    <button @click="seekBackwardHandler"><-</button>
-    <button @click="seekForwardHandler">-></button>
-    <div id="player"></div>
+
+    <div class="player-container">
+      <div id="player"></div>
+    </div>
+
+    <div class="controls-container">
+      <h1>{{message}}</h1>
+      <button @click="seekBackwardHandler" class="seek-button"><-</button>
+      <button @click="seekForwardHandler" class="seek-button">-></button>
+
+      <button class="tag-button" v-for="(tag, index) in tags" v-bind:class="{active: activeTags.indexOf(index) > -1}" @click="tagClickHandler(index)">{{index}}</button>
+    </div>
+
+
   </div>
 </template>
 
 <script>
 
 import tracks from "../data/snapchat-tracks.js"
+import helpers from "../helpers/helpers.js"
 
 export default {
   data () {
     return {
       player: {},
+      playerReady: false,
       currentTrackIndex: 0,
       message: "",
-      tracks
+      tracks,
+      tags: {},
+      activeTags: [],
+      windowHeight: 0,
+      windowWidth: 0
     }
   },
   mounted() {
-    console.log("hey");
+    console.log("mounted");
+    this.initTracks()
     this.initPlayer()
   },
+  // TODO: Implement resize functions if we don't like normal youtube resizing
+  beforeMount() {
+    // window.addEventListener('resize', this.handleResize)
+  },
+  beforeDestroy () {
+    // window.removeEventListener('resize', this.handleResize)
+  },
+  computed: {
+
+  },
   methods: {
-    initPlayer() {
-      var tag = document.createElement('script');
+    handleResize() {
+      console.log("size " , window);
+      this.windowHeight = window.innerHeight
+      this.windowWidth = window.innerWidth
 
-      tag.src = "https://www.youtube.com/iframe_api";
-      var firstScriptTag = document.getElementsByTagName('script')[0];
-      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      if (this.playerReady) {
+        this.resizePlayer()
+      }
 
-      var player;
-      window.onYouTubeIframeAPIReady = () => {
-         this.player = new YT.Player('player', {
-           height: 900 / 5,
-           width: 1500 / 5,
-           videoId: 'k1TjerKBJt4',
-           events: {
-             'onReady': this.onPlayerReady,
-             'onStateChange': this.onPlayerStateChange
-           }
-         });
-       }
     },
+    // Process tracks and tags
+    initTracks() {
+
+      let trackIndex = 0;
+      for (let track of this.tracks) {
+        console.log("lel " , track);
+        if (track.tags) {
+          for (let tag of track.tags) {
+
+            // Add track index to our tag dictionary, or create the array if there isn't one yet
+            if (!this.tags[tag]) {
+              this.tags[tag] = [trackIndex]
+            } else {
+              this.tags[tag].push(trackIndex)
+            }
+
+          }
+        }
+
+        trackIndex++
+      }
+
+      console.log("tags " , this.tags);
+
+    },
+    initPlayer() {
+
+      // Using YouTube iFrame tomfoolery to add stuff to global space.
+      // When we init, we add this global function, so check its existence to see if we need to set everything up the fist time
+      if (!window.onYouTubeIframeAPIReady) {
+        var tag = document.createElement('script');
+
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        var player;
+        window.onYouTubeIframeAPIReady = () => {
+           this.createPlayer()
+         }
+      } else {
+        console.log("already loaded");
+        this.createPlayer()
+      }
+
+    },
+    createPlayer() {
+      this.player = new YT.Player('player', {
+        height: "100%",
+        width: "100%",
+        videoId: 'k1TjerKBJt4',
+        events: {
+          'onReady': this.onPlayerReady,
+          'onStateChange': this.onPlayerStateChange
+        }
+      });
+
+    },
+
+    resizePlayer() {
+      // TODO: Implement if we don't want to keep normal youtube sizing
+    },
+
     // 4. The API will call this function when the video player is ready.
     onPlayerReady(event) {
+
+      this.playerReady = true;
+
       event.target.playVideo();
 
       console.log("tracks " , this.tracks);
@@ -59,29 +142,46 @@ export default {
 
     checkTime() {
 
-      let time = this.player.getCurrentTime()
+      // Every tick, check if our track name/number has changed. Also check tags.
 
-      let displayCurrentTrackTitle = () => {
+      let getDataForCurrentTrack = () => {
 
+        let time = this.player.getCurrentTime()
         let currentTrack = this.tracks[this.currentTrackIndex]
 
         if (currentTrack.start <= time && currentTrack.end >= time) {
-          this.message = currentTrack.title
+
+          // If the we're at the time for the correct track, display its title. If we're at the right time but tags don't match, iterate forward
+          if (helpers.arrayInArray(currentTrack.tags, this.activeTags) || this.activeTags.length === 0) {
+            this.message = currentTrack.title
+          } else {
+            this.currentTrackIndex = this.currentTrackIndex + 1
+            // TODO: Make sure api doesn't blow up if we need to seek a ton
+            console.log("seeking for tags " , this.currentTrackIndex);
+            this.player.seekTo(this.tracks[this.currentTrackIndex].start, true)
+
+            // Need to wait for seekTo to finish, wish there was a promise we could attach to...
+            setTimeout(() => {
+              getDataForCurrentTrack()
+            })
+          }
         } else if (currentTrack.start > time) {
           // Go back
           this.currentTrackIndex = this.currentTrackIndex - 1
-          displayCurrentTrackTitle()
-        } else if (currentTrack.end < time) {
+          getDataForCurrentTrack()
+        } else if (currentTrack.end < time && this.currentTrackIndex !== this.tracks.length - 1) {
           // Go Forward
           this.currentTrackIndex = this.currentTrackIndex + 1
+          getDataForCurrentTrack()
 
-          displayCurrentTrackTitle()
-
+        } else {
+          // No conditions met, end movie or show alert
+          console.log("no conditions met when seeking, movie should be at end");
         }
       }
 
 
-      displayCurrentTrackTitle()
+      getDataForCurrentTrack()
 
 
     },
@@ -90,24 +190,66 @@ export default {
     //    The function indicates that when playing a video (state=1),
     //    the player should play for six seconds and then stop.
     onPlayerStateChange(event) {
-      console.log("Player state change");
     },
     stopVideo() {
       this.player.stopVideo();
     },
-    seekForwardHandler() {
-      if (this.currentTrackIndex !== this.tracks.length - 1) {
-        this.currentTrackIndex = this.currentTrackIndex + 1
-        this.player.seekTo(this.tracks[this.currentTrackIndex].start)
-        this.checkTime()
+    tagClickHandler(tag) {
+      console.log("tag " , tag);
+      let index = this.activeTags.indexOf(tag)
+
+      if (index === -1) {
+        this.activeTags.push(tag)
+      } else {
+        console.log("remove");
+        this.activeTags.splice(index, 1);
       }
+
+      console.log("active " , this.activeTags);
+    },
+    seekForwardHandler() {
+
+      // Go to the next track
+      let seekForward = () => {
+        if (this.currentTrackIndex !== this.tracks.length - 1) {
+          this.currentTrackIndex = this.currentTrackIndex + 1
+
+          // Check if next track is in our tag list. If not, keep going
+          if (!helpers.arrayInArray(this.tracks[this.currentTrackIndex].tags, this.activeTags) && this.activeTags.length > 0) {
+            seekForward()
+          } else {
+            this.player.seekTo(this.tracks[this.currentTrackIndex].start, true)
+
+            setTimeout(() => {
+              this.checkTime()
+            })
+          }
+        }
+      }
+
+      seekForward()
+
     },
     seekBackwardHandler() {
-      if (this.currentTrackIndex > 0) {
-        this.currentTrackIndex = this.currentTrackIndex - 1
-        this.player.seekTo(this.tracks[this.currentTrackIndex].start)
-        this.checkTime()
+
+      let seekBackward = () => {
+        if (this.currentTrackIndex > 0) {
+
+            this.currentTrackIndex = this.currentTrackIndex - 1
+
+            if (!helpers.arrayInArray(this.tracks[this.currentTrackIndex].tags, this.activeTags) && this.activeTags.length > 0) {
+              seekBackward()
+            } else {
+            this.player.seekTo(this.tracks[this.currentTrackIndex].start, true)
+
+            setTimeout(() => {
+              this.checkTime()
+            })
+          }
+        }
       }
+
+      seekBackward()
     }
   }
 }
@@ -116,15 +258,59 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 
-.main {
+.snap-theater {
   width: 100%;
   height: 100%;
   position: relative;
+
+  background-color: #000;
 }
 
-#player {
-  width: 1600px / 5;
-  height: 900px / 5;
+.player-container {
+  width: 100%;
+  height: calc(100% - 100px);
+}
+
+.controls-container {
+  height: 100px;
+  width: 100%;
+  text-align: center;
+}
+
+h1 {
+  color: #fff;
+}
+
+.seek-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 100%;
+  border: 0;
+
+  background-color: #a9a9a9;
+  color: #fff;
+
+  margin: 0 10px;
+
+  cursor: pointer;
+}
+
+.tag-button {
+  height: 40px;
+  border-radius: 50%;
+  border: 0;
+
+  background-color: #fff;
+  color: purple;
+
+  margin: 0 5px;
+  padding: 0 14px;
+
+  cursor: pointer;
+
+  &.active {
+    border: 4px solid yellow
+  }
 }
 
 

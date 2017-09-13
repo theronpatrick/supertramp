@@ -1,7 +1,13 @@
 <template>
   <div class="main">
     <div class="background-container"></div>
-    <h1>COMING SOON... <span class="globe">🌎</span></h1>
+
+    <div class="button-container">
+      <h1>COMING SOON... <span class="globe">🌎</span></h1>
+      <router-link :to="'SnapTheater'">
+        <button class="snap-button"></button>
+      </router-link>
+    </div>
   </div>
 </template>
 
@@ -49,16 +55,27 @@ export default {
 }
 
 @keyframes rotation {
-    0% {
-      transform: scaleX(1) translate(-50%)
-    }
-    50% {
-      transform: scaleX(-1) translate(-50%)
-    }
-    100% {
-      transform: scaleX(1) translate(-50%)
-    }
+  0% {
+    transform: scaleX(1) translate(-50%)
   }
+  50% {
+    transform: scaleX(-1) translate(-50%)
+  }
+  100% {
+    transform: scaleX(1) translate(-50%)
+  }
+}
+
+.button-container {
+  width: 50%;
+  height: 50%;
+  left: 50%;
+  top: 50%;
+  position: absolute;
+
+  transform: translateX(-50%) translateY(-50%);
+  text-align: center;
+}
 
 h1 {
   position: absolute;
@@ -69,6 +86,26 @@ h1 {
 
   font-size: 34px;
   letter-spacing: 2px;
+}
+
+.snap-button {
+  width: 100px;
+  height: 100px;
+  border: 0;
+
+  background: url("../assets/snap-ghost.png");
+  background-size: cover;
+  background-color: transparent;
+
+  transition: all .25s linear;
+  transform-origin: 50% 50%;
+
+  &:hover {
+    width: 150px;
+    height: 150px;
+    cursor: pointer;
+  }
+
 }
 
 
