@@ -6,11 +6,18 @@
     </div>
 
     <div class="controls-container">
-      <h1>{{message}}</h1>
-      <button @click="seekBackwardHandler" class="seek-button"><-</button>
-      <button @click="seekForwardHandler" class="seek-button">-></button>
+      <h1>{{message}} - Tags: <span v-for="tag in tracks[currentTrackIndex].tags">{{tag}}</span></h1>
 
-      <button class="tag-button" v-for="(tag, index) in tags" v-bind:class="{active: activeTags.indexOf(index) > -1}" @click="tagClickHandler(index)">{{index}}</button>
+      <div class="controls-buttons-container">
+        <button @click="seekBackwardHandler" class="seek-button"><-</button>
+        <button @click="seekForwardHandler" class="seek-button">-></button>
+
+        <button class="tag-button" v-for="(tag, index) in tags" v-bind:class="{active: activeTags.indexOf(index) > -1}" @click="tagClickHandler(index)">{{index}}</button>
+
+        <button @click="debugClick">DEBUG</button>
+
+        <h2>{{debugData}}</h2>
+      </div>
     </div>
 
 
@@ -33,7 +40,8 @@ export default {
       tags: {},
       activeTags: [],
       windowHeight: 0,
-      windowWidth: 0
+      windowWidth: 0,
+      debugData: []
     }
   },
   mounted() {
@@ -52,6 +60,23 @@ export default {
 
   },
   methods: {
+    debugClick() {
+      let time = this.player.getCurrentTime()
+      time = Math.round(time)
+
+      if (this.debugData.length > 0) {
+        this.debugData[this.debugData.length - 1].end = time
+      }
+
+      this.debugData.push({
+        start: time,
+        end: 0,
+        tags: [],
+        title: ""
+      })
+
+      console.log("debug " , this.debugData)
+    },
     handleResize() {
       console.log("size " , window);
       this.windowHeight = window.innerHeight
@@ -112,7 +137,7 @@ export default {
       this.player = new YT.Player('player', {
         height: "100%",
         width: "100%",
-        videoId: 'k1TjerKBJt4',
+        videoId: 'VOam-Y9a-p0',
         events: {
           'onReady': this.onPlayerReady,
           'onStateChange': this.onPlayerStateChange
@@ -176,7 +201,7 @@ export default {
 
         } else {
           // No conditions met, end movie or show alert
-          console.log("no conditions met when seeking, movie should be at end");
+          // console.log("no conditions met when seeking, movie should be at end");
         }
       }
 
@@ -277,8 +302,14 @@ export default {
   text-align: center;
 }
 
+.controls-buttons-container {
+  text-align: center;
+  height: 50px;
+}
+
 h1 {
   color: #fff;
+  height: 50px;
 }
 
 .seek-button {
@@ -291,8 +322,17 @@ h1 {
   color: #fff;
 
   margin: 0 10px;
-
   cursor: pointer;
+
+  transition: all .25s linear;
+
+  &:hover {
+    transform: scale(1.2)
+  }
+
+  &:focus {
+    outline: 0
+  }
 }
 
 .tag-button {
@@ -307,9 +347,18 @@ h1 {
   padding: 0 14px;
 
   cursor: pointer;
+  transition: transform .25s linear;
 
   &.active {
-    border: 4px solid yellow
+    box-shadow: inset 0 0 10px #00f;
+  }
+
+  &:hover {
+    transform: scale(1.2)
+  }
+
+  &:focus {
+    outline: 0
   }
 }
 

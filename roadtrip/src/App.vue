@@ -16,6 +16,8 @@ export default {
 body {
   margin: 0;
   font-family: 'Mukta', sans-serif;
+
+  box-sizing: border-box;
 }
 
 body, html, #app {

@@ -1,5 +1,5 @@
 <template>
-  <div class="main">
+  <div class="main" v-on:keyup.space="debugClick">
     <div class="background-container"></div>
 
     <div class="button-container">
@@ -98,11 +98,9 @@ h1 {
   background-color: transparent;
 
   transition: all .25s linear;
-  transform-origin: 50% 50%;
 
   &:hover {
-    width: 150px;
-    height: 150px;
+    transform: scale(1.2);
     cursor: pointer;
   }
 
