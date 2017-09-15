@@ -1,8 +1,15 @@
 <template>
   <div class="snap-theater">
 
-    <div class="player-container">
+    <div class="snap-theater-background"></div>
+
+    <div class="player-container" :style="playerStyle">
       <div id="player"></div>
+    </div>
+
+    <div class="debug-data-container">
+      <input @input="debugDataInput"></input>
+      <p>{{tracks}}</p>
     </div>
 
     <div class="controls-container">
@@ -12,11 +19,9 @@
         <button @click="seekBackwardHandler" class="seek-button"><-</button>
         <button @click="seekForwardHandler" class="seek-button">-></button>
 
+        <button @click="playPauseHandler" class="seek-button">Play</button>
+
         <button class="tag-button" v-for="(tag, index) in tags" v-bind:class="{active: activeTags.indexOf(index) > -1}" @click="tagClickHandler(index)">{{index}}</button>
-
-        <button @click="debugClick">DEBUG</button>
-
-        <h2>{{debugData}}</h2>
       </div>
     </div>
 
@@ -34,48 +39,41 @@ export default {
     return {
       player: {},
       playerReady: false,
+      playerStyle: {},
       currentTrackIndex: 0,
       message: "",
       tracks,
       tags: {},
       activeTags: [],
       windowHeight: 0,
-      windowWidth: 0,
-      debugData: []
+      windowWidth: 0
     }
   },
   mounted() {
-    console.log("mounted");
+
+    // This will set initial window bounds
+    this.handleResize();
+
     this.initTracks()
     this.initPlayer()
+
   },
   // TODO: Implement resize functions if we don't like normal youtube resizing
   beforeMount() {
-    // window.addEventListener('resize', this.handleResize)
+    window.addEventListener('resize', this.handleResize)
   },
   beforeDestroy () {
-    // window.removeEventListener('resize', this.handleResize)
+    window.removeEventListener('resize', this.handleResize)
   },
   computed: {
 
   },
   methods: {
-    debugClick() {
-      let time = this.player.getCurrentTime()
-      time = Math.round(time)
+    debugDataInput(d) {
+      console.log("data " , d);
+      console.log("val " , d.target.value);
 
-      if (this.debugData.length > 0) {
-        this.debugData[this.debugData.length - 1].end = time
-      }
-
-      this.debugData.push({
-        start: time,
-        end: 0,
-        tags: [],
-        title: ""
-      })
-
-      console.log("debug " , this.debugData)
+      this.tracks[this.currentTrackIndex].tags = d.target.value.split(" ")
     },
     handleResize() {
       console.log("size " , window);
@@ -141,13 +139,41 @@ export default {
         events: {
           'onReady': this.onPlayerReady,
           'onStateChange': this.onPlayerStateChange
+        },
+        playerVars: {
+          controls: 1,
+          fs: 0,
+          iv_load_policy: 0,
+          modestbranding: 1,
+          playsinline: 1,
+          rel: 0,
+          showinfo: 0,
+
         }
+
       });
+
+      // After creating, set size
+      this.resizePlayer();
 
     },
 
     resizePlayer() {
       // TODO: Implement if we don't want to keep normal youtube sizing
+      let height = this.windowHeight - 100
+      let width = 16 / 9 * height;
+
+      // The above will set the width for the player which is horizontal,
+      // but we need to clip out the video that was shot vertically
+      // TODO: Use SVG cuz fuck IE
+      let third = width / 3;
+      let clip = `inset(0 ${third}px)`
+
+      this.playerStyle = {
+        height: `${height}px`,
+        width: `${width}px`,
+        'clip-path': clip
+      }
     },
 
     // 4. The API will call this function when the video player is ready.
@@ -169,10 +195,16 @@ export default {
 
       // Every tick, check if our track name/number has changed. Also check tags.
 
-      let getDataForCurrentTrack = () => {
+      let getDataForCurrentTrack = (trackTime) => {
 
-        let time = this.player.getCurrentTime()
+        // We can recursively call this, so take argument for time over
+        // player API time since we might be seeking through
+        let time = trackTime || this.player.getCurrentTime()
         let currentTrack = this.tracks[this.currentTrackIndex]
+
+        // TODO: Figure out bug when activating tags if there aren't
+        // any going forward
+
 
         if (currentTrack.start <= time && currentTrack.end >= time) {
 
@@ -183,19 +215,24 @@ export default {
             this.currentTrackIndex = this.currentTrackIndex + 1
             // TODO: Make sure api doesn't blow up if we need to seek a ton
             console.log("seeking for tags " , this.currentTrackIndex);
-            this.player.seekTo(this.tracks[this.currentTrackIndex].start, true)
 
-            // Need to wait for seekTo to finish, wish there was a promise we could attach to...
-            setTimeout(() => {
-              getDataForCurrentTrack()
-            })
+            // If we still have tracks to seek through, recursively call this function with time of next track
+            if (this.currentTrackIndex !== this.tracks.length - 1) {
+              this.player.seekTo(this.tracks[this.currentTrackIndex].start, true)
+
+              // Need to wait for seekTo to finish, wish there was a promise we could attach to...
+              getDataForCurrentTrack(this.tracks[this.currentTrackIndex].start)
+            }
+
           }
         } else if (currentTrack.start > time) {
           // Go back
+          console.log("go back");
           this.currentTrackIndex = this.currentTrackIndex - 1
           getDataForCurrentTrack()
         } else if (currentTrack.end < time && this.currentTrackIndex !== this.tracks.length - 1) {
           // Go Forward
+          console.log("go forward");
           this.currentTrackIndex = this.currentTrackIndex + 1
           getDataForCurrentTrack()
 
@@ -231,6 +268,15 @@ export default {
       }
 
       console.log("active " , this.activeTags);
+    },
+    playPauseHandler() {
+      let state = this.player.getPlayerState()
+
+      if (state === 1) {
+        this.player.pauseVideo()
+      } else {
+        this.player.playVideo()
+      }
     },
     seekForwardHandler() {
 
@@ -283,23 +329,50 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 
+// TODO: Remove when data complete
+.debug-data-container {
+  position: absolute;
+  right: 0;
+  top: 0;
+
+  width: 200px;
+  height: 75%;
+  overflow: auto;
+  background: #fff;
+}
+
 .snap-theater {
   width: 100%;
   height: 100%;
   position: relative;
 
-  background-color: #000;
+  overflow-x: hidden;
+}
+
+.snap-theater-background {
+  background: url("../assets/landscape.jpg") no-repeat center center fixed;
+  background-size: cover;
+  filter: brightness(40%) contrast(130%);
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
 }
 
 .player-container {
-  width: 100%;
-  height: calc(100% - 100px);
+
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .controls-container {
   height: 100px;
   width: 100%;
   text-align: center;
+  position: absolute;
+  bottom: 0;
 }
 
 .controls-buttons-container {
@@ -310,6 +383,9 @@ export default {
 h1 {
   color: #fff;
   height: 50px;
+}
+h2 {
+  color: #fff;
 }
 
 .seek-button {

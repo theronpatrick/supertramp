@@ -2,13 +2,17 @@ export default [
   {
     "start": 0,
     "end": 7,
-    "tags": [],
+    "tags": [
+      "camping"
+    ],
     "title": ""
   },
   {
     "start": 7,
     "end": 14,
-    "tags": [],
+    "tags": [
+      "camping"
+    ],
     "title": ""
   },
   {
