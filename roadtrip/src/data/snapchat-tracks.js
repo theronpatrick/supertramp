@@ -36,7 +36,7 @@ export default [
   {
     "start": 35,
     "end": 42,
-    "tags": [],
+    "tags": ["camping"],
     "title": ""
   },
   {
