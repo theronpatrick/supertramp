@@ -9,14 +9,16 @@
 
     <div class="debug-data-container">
       <p>Current Track : {{currentTrackIndex}}</p>
-      <input @input="debugDataInput"></input>
+      Tags <input ref="debugInput" @input="debugDataInput"></input>
+      Location: {{tracks[currentTrackIndex].location.name}} <input ref="debugLocationInput" @keyup.enter="debugInputEnter"></input>
       <p>{{tracks}}</p>
     </div>
 
     <div class="controls-container">
-      <h1>{{message}} - Tags: <span v-for="tag in tracks[currentTrackIndex].tags">{{tag}}</span></h1>
+      <h1>{{tracks[currentTrackIndex].location.name}} - Tags: <span v-for="tag in tracks[currentTrackIndex].tags">{{tag}} </span></h1>
 
       <div class="controls-buttons-container">
+        <button @click="startFromBeginningHandler" class="seek-button"><--</button>
         <button @click="seekBackwardHandler" class="seek-button"><-</button>
         <button @click="seekForwardHandler" class="seek-button">-></button>
 
@@ -47,7 +49,9 @@ export default {
       tags: {},
       activeTags: [],
       windowHeight: 0,
-      windowWidth: 0
+      windowWidth: 0,
+      debugGeocoder: {},
+      debugSearchBox: {}
     }
   },
   mounted() {
@@ -58,23 +62,90 @@ export default {
     this.initTracks()
     this.initPlayer()
 
+    // TODO: Debug, remove when done
+    setTimeout(() => {
+      this.debugGeocoder = new google.maps.Geocoder;
+
+      var searchBox = new google.maps.places.SearchBox(this.$refs.debugLocationInput);
+
+      this.debugSearchBox = searchBox;
+
+      searchBox.addListener('places_changed', () => {
+        let places = searchBox.getPlaces()
+
+        console.log("places " , places);
+
+        places.forEach((place) => {
+          console.log("name? " , place.name);
+
+          console.log("plac" , place);
+
+          let location = {
+            name: place.name,
+            lat: place.geometry.location.lat(),
+            lng: place.geometry.location.lat(),
+            placeId: place.place_id
+          }
+
+          this.tracks[this.currentTrackIndex].location = location;
+        })
+      })
+
+    }, 1000)
+
+
   },
-  // TODO: Implement resize functions if we don't like normal youtube resizing
   beforeMount() {
     window.addEventListener('resize', this.handleResize)
+    window.addEventListener('keydown', (e) => {
+      this.globalKeydown(e)
+    });
   },
   beforeDestroy () {
     window.removeEventListener('resize', this.handleResize)
+    window.removeEventListener('keydown', (e) => {
+      this.globalKeydown(e)
+    });
   },
   computed: {
 
   },
   methods: {
+    globalKeydown(e) {
+      console.log("key " , e);
+      if (e.code === "ArrowRight") {
+        this.seekForward()
+      } else if (e.code === "ArrowLeft") {
+        this.seekBackward()
+      }
+    },
     debugDataInput(d) {
       console.log("data " , d);
       console.log("val " , d.target.value);
 
       this.tracks[this.currentTrackIndex].tags = d.target.value.split(" ")
+    },
+    debugInputEnter(d) {
+
+      let places = this.debugSearchBox.getPlaces()
+
+      console.log("places " , places);
+
+      places.forEach((place) => {
+        console.log("name? " , place.name);
+
+        console.log("plac" , place);
+
+        let location = {
+          name: place.name,
+          lat: place.geometry.location.lat(),
+          lng: place.geometry.location.lat(),
+          placeId: place.place_id
+        }
+
+        this.tracks[this.currentTrackIndex].location = location;
+      })
+
     },
     handleResize() {
       this.windowHeight = window.innerHeight
@@ -159,7 +230,6 @@ export default {
     },
 
     resizePlayer() {
-      // TODO: Implement if we don't want to keep normal youtube sizing
       let height = this.windowHeight - 100
       let width = 16 / 9 * height;
 
@@ -240,6 +310,9 @@ export default {
     stopVideo() {
       this.player.stopVideo();
     },
+    theaterKeyupHandler(e) {
+      console.log("key " , e);
+    },
     tagClickHandler(tag) {
       let index = this.activeTags.indexOf(tag)
 
@@ -279,12 +352,15 @@ export default {
           }
         }
 
-        this.player.seekTo(this.tracks[currentIndex].start, true)
+        this.player.seekTo(this.tracks[currentIndex].start + 1, true)
 
         // Update our global variable
         this.currentTrackIndex = currentIndex
       }
 
+    },
+    startFromBeginningHandler() {
+      this.player.seekTo(0, true)
     },
     seekBackwardHandler() {
 
@@ -304,11 +380,19 @@ export default {
           }
         }
 
-        this.player.seekTo(this.tracks[currentIndex].start, true)
+        this.player.seekTo(this.tracks[currentIndex].start + 1, true)
 
         // Update our global variable
         this.currentTrackIndex = currentIndex
       }
+    }
+  },
+  watch: {
+    // TODO: DEBUG, remove when done adding data
+    currentTrackIndex: function() {
+      console.log("change");
+      this.$refs.debugInput.value = this.tracks[this.currentTrackIndex].tags.join(" ")
+
     }
   }
 }
