@@ -5,12 +5,7 @@ export default [
     "tags": [
       "camping"
     ],
-    "location": {
-      "name": "Vermont",
-      "lat": 44.5588028,
-      "lng": 44.5588028,
-      "placeId": "ChIJ_87aSGzctEwRtGtUNnSJTSY"
-    }
+    "location": "ChIJ_87aSGzctEwRtGtUNnSJTSY"
   },
   {
     "start": 7,
@@ -19,12 +14,7 @@ export default [
       "camping",
       "fail"
     ],
-    "location": {
-      "name": "Vermont",
-      "lat": 44.5588028,
-      "lng": 44.5588028,
-      "placeId": "ChIJ_87aSGzctEwRtGtUNnSJTSY"
-    }
+    "location": "ChIJ_87aSGzctEwRtGtUNnSJTSY"
   },
   {
     "start": 14,
@@ -32,47 +22,27 @@ export default [
     "tags": [
       "fail"
     ],
-    "location": {
-      "name": "Vermont",
-      "lat": 44.5588028,
-      "lng": 44.5588028,
-      "placeId": "ChIJ_87aSGzctEwRtGtUNnSJTSY"
-    }
+    "location": "ChIJ_87aSGzctEwRtGtUNnSJTSY"
   },
   {
     "start": 21,
     "end": 28,
     "tags": [],
-    "location": {
-      "name": "Vermont",
-      "lat": 44.5588028,
-      "lng": 44.5588028,
-      "placeId": "ChIJ_87aSGzctEwRtGtUNnSJTSY"
-    }
+    "location": "ChIJ_87aSGzctEwRtGtUNnSJTSY"
   },
   {
     "start": 28,
     "end": 35,
     "tags": [],
-    "location": {
-      "name": "Vermont",
-      "lat": 44.5588028,
-      "lng": 44.5588028,
-      "placeId": "ChIJ_87aSGzctEwRtGtUNnSJTSY"
-    }
+    "location": "ChIJ_87aSGzctEwRtGtUNnSJTSY"
   },
   {
     "start": 35,
     "end": 42,
     "tags": [
-      "camping"
+      ""
     ],
-    "location": {
-      "name": "Vermont",
-      "lat": 44.5588028,
-      "lng": 44.5588028,
-      "placeId": "ChIJ_87aSGzctEwRtGtUNnSJTSY"
-    }
+    "location": "ChIJ_87aSGzctEwRtGtUNnSJTSY"
   },
   {
     "start": 42,
@@ -80,12 +50,7 @@ export default [
     "tags": [
       "animals"
     ],
-    "location": {
-      "name": "Vermont",
-      "lat": 44.5588028,
-      "lng": 44.5588028,
-      "placeId": "ChIJ_87aSGzctEwRtGtUNnSJTSY"
-    }
+    "location": "ChIJ_87aSGzctEwRtGtUNnSJTSY"
   },
   {
     "start": 51,
@@ -93,12 +58,7 @@ export default [
     "tags": [
       "bestof"
     ],
-    "location": {
-      "name": "Vermont",
-      "lat": 44.5588028,
-      "lng": 44.5588028,
-      "placeId": "ChIJ_87aSGzctEwRtGtUNnSJTSY"
-    }
+    "location": "ChIJ_87aSGzctEwRtGtUNnSJTSY"
   },
   {
     "start": 58,
@@ -106,12 +66,7 @@ export default [
     "tags": [
       ""
     ],
-    "location": {
-      "name": "Vermont",
-      "lat": 44.5588028,
-      "lng": 44.5588028,
-      "placeId": "ChIJ_87aSGzctEwRtGtUNnSJTSY"
-    }
+    "location": "ChIJ_87aSGzctEwRtGtUNnSJTSY"
   },
   {
     "start": 65,
@@ -119,18 +74,13 @@ export default [
     "tags": [
       "nerd"
     ],
-    "location": {
-      "name": "Vermont",
-      "lat": 44.5588028,
-      "lng": 44.5588028,
-      "placeId": "ChIJ_87aSGzctEwRtGtUNnSJTSY"
-    }
+    "location": "ChIJ_87aSGzctEwRtGtUNnSJTSY"
   },
   {
     "start": 72,
     "end": 79,
     "tags": [],
-    "location": {}
+    "location": "ChIJ_87aSGzctEwRtGtUNnSJTSY"
   },
   {
     "start": 79,

@@ -10,8 +10,10 @@
     <div class="debug-data-container">
       <p>Current Track : {{currentTrackIndex}}</p>
       Tags <input ref="debugInput" @input="debugDataInput"></input>
-      Location: {{tracks[currentTrackIndex].location.name}} <input ref="debugLocationInput" @keyup.enter="debugInputEnter"></input>
+      Location: {{locations[tracks[currentTrackIndex].location] ? locations[tracks[currentTrackIndex].location].name : ""}} <input ref="debugLocationInput" @keyup.enter="debugInputEnter"></input>
       <p>{{tracks}}</p>
+      <hr />
+      <p>{{locations}}</p>
     </div>
 
     <div class="controls-container">
@@ -35,6 +37,7 @@
 <script>
 
 import tracks from "../data/snapchat-tracks.js"
+import locations from "../data/snapchat-locations.js"
 import helpers from "../helpers/helpers.js"
 
 export default {
@@ -46,6 +49,7 @@ export default {
       currentTrackIndex: 0,
       message: "",
       tracks,
+      locations,
       tags: {},
       activeTags: [],
       windowHeight: 0,
@@ -76,9 +80,6 @@ export default {
         console.log("places " , places);
 
         places.forEach((place) => {
-          console.log("name? " , place.name);
-
-          console.log("plac" , place);
 
           let location = {
             name: place.name,
@@ -87,7 +88,16 @@ export default {
             placeId: place.place_id
           }
 
-          this.tracks[this.currentTrackIndex].location = location;
+          this.tracks[this.currentTrackIndex].location = place.place_id;
+
+          // Add to our hash
+          if (!this.locations[place.place_id]) {
+            this.locations[place.place_id] = {
+              name: place.name,
+              lat: place.geometry.location.lat(),
+              lng: place.geometry.location.lat()
+            }
+          }
         })
       })
 
@@ -112,7 +122,6 @@ export default {
   },
   methods: {
     globalKeydown(e) {
-      console.log("key " , e);
       if (e.code === "ArrowRight") {
         this.seekForward()
       } else if (e.code === "ArrowLeft") {
@@ -143,7 +152,7 @@ export default {
           placeId: place.place_id
         }
 
-        this.tracks[this.currentTrackIndex].location = location;
+        this.tracks[this.currentTrackIndex].location = place.place_id;
       })
 
     },
