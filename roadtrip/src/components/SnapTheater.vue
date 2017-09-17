@@ -9,7 +9,7 @@
 
     <div class="debug-data-container">
       <p>Current Track : {{currentTrackIndex}}</p>
-      Tags <input ref="debugInput" @input="debugDataInput"></input>
+      Tags <input ref="debugInput" @input="debugDataInput" @keyup.enter="debugInputEnter"></input>
       Location: {{locations[tracks[currentTrackIndex].location] ? locations[tracks[currentTrackIndex].location].name : ""}} <input ref="debugLocationInput" @keyup.enter="debugInputEnter"></input>
       <p>{{tracks}}</p>
       <hr />
@@ -265,6 +265,9 @@ export default {
       // TODO: Use SVG cuz fuck IE
       let third = width / 3;
       let clip = `inset(0 ${third}px)`
+
+      // TODO: DEBUG remove when done adding debug data
+      clip = "none"
 
       this.playerStyle = {
         height: `${height}px`,
