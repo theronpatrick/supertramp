@@ -20,13 +20,19 @@
       <h1>{{tracks[currentTrackIndex].location.name}} - Tags: <span v-for="tag in tracks[currentTrackIndex].tags">{{tag}} </span></h1>
 
       <div class="controls-buttons-container">
-        <button @click="startFromBeginningHandler" class="seek-button"><--</button>
-        <button @click="seekBackwardHandler" class="seek-button"><-</button>
-        <button @click="seekForwardHandler" class="seek-button">-></button>
+        <button @click="startFromBeginningHandler" class="seek-button"><img :src="images.rewind"></img></button>
+        <button @click="seekBackwardHandler" class="seek-button seek-back"><img :src="images.arrow"></img></button>
+        <button @click="seekForwardHandler" class="seek-button"><img :src="images.arrow"></img></button>
 
-        <button @click="playPauseHandler" class="seek-button">Play</button>
+        <button @click="playPauseHandler" class="seek-button play" v-if="playerState !== 1">
+          <img :src="images.play" ></img>
+        </button>
 
-        <button class="tag-button" v-for="(tag, index) in tags" v-bind:class="{active: activeTags.indexOf(index) > -1}" @click="tagClickHandler(index)">{{index}}</button>
+        <button @click="playPauseHandler" class="seek-button" v-if="playerState === 1">
+          <img :src="images.pause"></img>
+        </button>
+
+        <button class="tag-button" v-for="(tag, index) in tags" v-bind:class="{active: activeTags.indexOf(index) > -1}" @click="tagClickHandler(index)"><span>{{index}}</span></button>
       </div>
     </div>
 
@@ -40,12 +46,24 @@ import tracks from "../data/snapchat-tracks.js"
 import locations from "../data/snapchat-locations.js"
 import helpers from "../helpers/helpers.js"
 
+import play from "../assets/play.svg"
+import pause from "../assets/pause.svg"
+import arrow from "../assets/arrow.svg"
+import rewind from "../assets/rewind.svg"
+
 export default {
   data () {
     return {
+      images: {
+        play,
+        arrow,
+        rewind,
+        pause
+      },
       player: {},
       playerReady: false,
       playerStyle: {},
+      playerState: 2,
       currentTrackIndex: 0,
       message: "",
       tracks,
@@ -315,6 +333,7 @@ export default {
     //    The function indicates that when playing a video (state=1),
     //    the player should play for six seconds and then stop.
     onPlayerStateChange(event) {
+      this.playerState = event.data;
     },
     stopVideo() {
       this.player.stopVideo();
@@ -333,9 +352,8 @@ export default {
 
     },
     playPauseHandler() {
-      let state = this.player.getPlayerState()
 
-      if (state === 1) {
+      if (this.playerState === 1) {
         this.player.pauseVideo()
       } else {
         this.player.playVideo()
@@ -410,6 +428,9 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 
+// TODO: Change loader to not need asset prefix
+@import "~../styles/colors";
+
 // TODO: Remove when data complete
 .debug-data-container {
   position: absolute;
@@ -473,18 +494,41 @@ h2 {
   width: 40px;
   height: 40px;
   border-radius: 100%;
-  border: 0;
+  border: 2px solid #000;
 
-  background-color: #a9a9a9;
+  background-color: $gray1;
   color: #fff;
 
+  position: relative;
+  vertical-align: top;
+
   margin: 0 10px;
+  padding: 0;
+
   cursor: pointer;
 
-  transition: all .25s linear;
+  transition: transform .1s linear;
+
+  img {
+    width: 24px;
+    height: 24px;
+    display: block;
+    margin: 0 auto;
+  }
+
+  // Button-specific styles
+  &.seek-back {
+    img {
+      transform: scaleX(-1)
+    }
+  }
+  &.play {
+    padding-left: 4px;
+  }
 
   &:hover {
-    transform: scale(1.2)
+    transform: scale(1.2);
+
   }
 
   &:focus {
@@ -495,16 +539,16 @@ h2 {
 .tag-button {
   height: 40px;
   border-radius: 50%;
-  border: 0;
+  border: 2px solid #000;
 
-  background-color: #fff;
-  color: purple;
+  background-color: $gray1;
+  color: #000;
 
   margin: 0 5px;
   padding: 0 14px;
 
   cursor: pointer;
-  transition: transform .25s linear;
+  transition: transform .1s linear;
 
   &.active {
     box-shadow: inset 0 0 10px #00f;

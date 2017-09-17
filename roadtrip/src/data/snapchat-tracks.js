@@ -40,7 +40,6 @@ export default [
     "start": 35,
     "end": 42,
     "tags": [
-      ""
     ],
     "location": "ChIJ_87aSGzctEwRtGtUNnSJTSY"
   },
@@ -64,7 +63,6 @@ export default [
     "start": 58,
     "end": 65,
     "tags": [
-      ""
     ],
     "location": "ChIJ_87aSGzctEwRtGtUNnSJTSY"
   },
