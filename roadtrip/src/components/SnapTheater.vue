@@ -440,10 +440,15 @@ export default {
   right: 0;
   top: 0;
 
-  width: 200px;
+  width: 400px;
   height: 75%;
   overflow: auto;
   background: #fff;
+
+  input {
+    display: block;
+    width: 100%;
+  }
 }
 
 .snap-theater {
