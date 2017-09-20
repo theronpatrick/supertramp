@@ -7,7 +7,7 @@
       <div id="player"></div>
     </div>
 
-    <div class="debug-data-container">
+    <div class="debug-data-container" v-if="debug">
       <p>Current Track : {{currentTrackIndex}}</p>
       Tags <input ref="debugInput" @input="debugDataInput" @keyup.enter="debugInputEnter"></input>
       Location: {{locations[tracks[currentTrackIndex].location] ? locations[tracks[currentTrackIndex].location].name : ""}} <input ref="debugLocationInput" @keyup.enter="debugInputEnter"></input>
@@ -17,7 +17,7 @@
     </div>
 
     <div class="controls-container">
-      <h1>{{tracks[currentTrackIndex].location.name}} - Tags: <span v-for="tag in tracks[currentTrackIndex].tags">{{tag}} </span></h1>
+      <h1>{{tracks[currentTrackIndex].location.name}} - Tags: <span v-for="tag in tracks[currentTrackIndex].tags">{{tag}}</span></h1>
 
       <div class="controls-buttons-container">
         <button @click="startFromBeginningHandler" class="seek-button"><img :src="images.rewind"></img></button>
@@ -25,14 +25,20 @@
         <button @click="seekForwardHandler" class="seek-button"><img :src="images.arrow"></img></button>
 
         <button @click="playPauseHandler" class="seek-button play" v-if="playerState !== 1">
-          <img :src="images.play" ></img>
+          <img :src="images.play"></img>
         </button>
 
         <button @click="playPauseHandler" class="seek-button" v-if="playerState === 1">
           <img :src="images.pause"></img>
         </button>
 
-        <button class="tag-button" v-for="(tag, index) in tags" v-bind:class="{active: activeTags.indexOf(index) > -1}" @click="tagClickHandler(index)"><span>{{index}}</span></button>
+        <div class="tag-toggle-container">
+          <button @click="toggleTags" class="seek-button toggle-safe"><img :src="images.tag" class="toggle-safe"></img></button>
+          <div v-if="tagsVisible" class="tags-container toggle-safe">
+            <button class="tag-button toggle-safe" v-for="(tag, index) in orderedTags"
+          :key="tag" v-bind:class="{active: activeTags.indexOf(tag) > -1}" @click="tagClickHandler(tag)"><span class="toggle-safe">{{tag}} ({{tags[tag].length}})</span></button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -50,15 +56,18 @@ import play from "../assets/play.svg"
 import pause from "../assets/pause.svg"
 import arrow from "../assets/arrow.svg"
 import rewind from "../assets/rewind.svg"
+import tag from "../assets/tag.svg"
 
 export default {
-  data () {
+  data() {
     return {
+      debug: false,
       images: {
         play,
         arrow,
         rewind,
-        pause
+        pause,
+        tag
       },
       player: {},
       playerReady: false,
@@ -69,6 +78,7 @@ export default {
       tracks,
       locations,
       tags: {},
+      tagsVisible: false,
       activeTags: [],
       windowHeight: 0,
       windowWidth: 0,
@@ -76,7 +86,15 @@ export default {
       debugSearchBox: {}
     }
   },
+  computed: {
+    orderedTags() {
+      return Object.keys(this.tags).sort()
+    }
+  },
   mounted() {
+
+    // Set debug mode on or off. Should be OFF for production
+    this.debug = true;
 
     // This will set initial window bounds
     this.handleResize();
@@ -84,42 +102,44 @@ export default {
     this.initTracks()
     this.initPlayer()
 
-    // TODO: Debug, remove when done
-    setTimeout(() => {
-      this.debugGeocoder = new google.maps.Geocoder;
+    if (this.debug) {
 
-      var searchBox = new google.maps.places.SearchBox(this.$refs.debugLocationInput);
+      setTimeout(() => {
+        this.debugGeocoder = new google.maps.Geocoder;
 
-      this.debugSearchBox = searchBox;
+        var searchBox = new google.maps.places.SearchBox(this.$refs.debugLocationInput);
 
-      searchBox.addListener('places_changed', () => {
-        let places = searchBox.getPlaces()
+        this.debugSearchBox = searchBox;
 
-        console.log("places " , places);
+        searchBox.addListener('places_changed', () => {
+          let places = searchBox.getPlaces()
 
-        places.forEach((place) => {
+          console.log("places " , places);
 
-          let location = {
-            name: place.name,
-            lat: place.geometry.location.lat(),
-            lng: place.geometry.location.lat(),
-            placeId: place.place_id
-          }
+          places.forEach((place) => {
 
-          this.tracks[this.currentTrackIndex].location = place.place_id;
-
-          // Add to our hash
-          if (!this.locations[place.place_id]) {
-            this.locations[place.place_id] = {
+            let location = {
               name: place.name,
               lat: place.geometry.location.lat(),
-              lng: place.geometry.location.lat()
+              lng: place.geometry.location.lat(),
+              placeId: place.place_id
             }
-          }
-        })
-      })
 
-    }, 1000)
+            this.tracks[this.currentTrackIndex].location = place.place_id;
+
+            // Add to our hash
+            if (!this.locations[place.place_id]) {
+              this.locations[place.place_id] = {
+                name: place.name,
+                lat: place.geometry.location.lat(),
+                lng: place.geometry.location.lat()
+              }
+            }
+          })
+        })
+
+      }, 1000)
+    }
 
 
   },
@@ -128,15 +148,18 @@ export default {
     window.addEventListener('keydown', (e) => {
       this.globalKeydown(e)
     });
+    window.addEventListener('click', (e) => {
+      this.globalClick(e)
+    });
   },
   beforeDestroy () {
     window.removeEventListener('resize', this.handleResize)
     window.removeEventListener('keydown', (e) => {
       this.globalKeydown(e)
     });
-  },
-  computed: {
-
+    window.removeEventListener('click', (e) => {
+      this.globalClick(e)
+    });
   },
   methods: {
     globalKeydown(e) {
@@ -145,6 +168,16 @@ export default {
         this.seekForward()
       } else if (e.code === "ArrowLeft") {
         this.seekBackward()
+      }
+    },
+    globalClick(e) {
+      // Hide tag toggle menu if we click outside and it's open
+      let toggleSafe = e.target.className.indexOf("toggle-safe") > -1 ? true : false;
+
+      if (!toggleSafe) {
+        if (this.tagsVisible) {
+          this.tagsVisible = false;
+        }
       }
     },
     debugDataInput(d) {
@@ -189,7 +222,6 @@ export default {
 
       let trackIndex = 0;
       for (let track of this.tracks) {
-        console.log("initial tracks: " , track);
         if (track.tags) {
           for (let tag of track.tags) {
 
@@ -207,6 +239,8 @@ export default {
       }
 
       console.log("all tags: " , this.tags);
+
+      // TODO: See if you can replicate issue where object was not setting correctly in computed()
 
     },
     initPlayer() {
@@ -240,14 +274,14 @@ export default {
           'onStateChange': this.onPlayerStateChange
         },
         playerVars: {
-          controls: 1,
+          controls: this.debug ? 1 : 0,
           fs: 0,
           iv_load_policy: 0,
           modestbranding: 1,
           playsinline: 1,
           rel: 0,
           showinfo: 0,
-
+          disablekb: 1
         }
 
       });
@@ -265,10 +299,7 @@ export default {
       // but we need to clip out the video that was shot vertically
       // TODO: Use SVG cuz fuck IE
       let third = width / 3;
-      let clip = `inset(0 ${third}px)`
-
-      // TODO: DEBUG remove when done adding debug data
-      clip = "none"
+      let clip = this.debug ? "none" : `inset(0 ${third}px)`
 
       this.playerStyle = {
         height: `${height}px`,
@@ -290,6 +321,10 @@ export default {
       }, 250)
     },
 
+    // TODO: Refactor this so we have a local currentIndex variable,
+    // and if it changes based on our time in an interval we handle things like seeking/tag checking
+    // Also TODO: Handle 'skip' tag
+    // Also TODO: when getting to end of movie, go back, show check mark or some indication there's none left
     checkTime() {
 
       let time = this.player.getCurrentTime()
@@ -344,6 +379,9 @@ export default {
     },
     theaterKeyupHandler(e) {
       console.log("key " , e);
+    },
+    toggleTags() {
+      this.tagsVisible = !this.tagsVisible
     },
     tagClickHandler(tag) {
       let index = this.activeTags.indexOf(tag)
@@ -435,7 +473,7 @@ export default {
 // TODO: Change loader to not need asset prefix
 @import "~../styles/colors";
 
-// TODO: Remove when data complete
+// Just for debugging
 .debug-data-container {
   position: absolute;
   right: 0;
@@ -545,15 +583,41 @@ h2 {
   }
 }
 
-.tag-button {
-  height: 40px;
-  border-radius: 50%;
+.tag-toggle-container {
+  display: inline-block;
+  vertical-align: top;
+  position: relative;
+}
+
+.tags-container {
+  // TODO: Clean up styles/positioning
+  position: absolute;
+  bottom: 36px;
+  width: 200px;
+  height: 200px;
   border: 2px solid #000;
+
+  border-radius: 5px;
+
+  background: rgba(125,125,125,.8);
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  text-align: center;
+}
+
+.tag-button {
+  display: block;
+  height: 40px;
+  border: 2px solid #000;
+
+  border-radius: 10%;
 
   background-color: $gray1;
   color: #000;
 
-  margin: 0 5px;
+  margin: 2px auto;
   padding: 0 14px;
 
   cursor: pointer;
