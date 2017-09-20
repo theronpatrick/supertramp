@@ -140,6 +140,7 @@ export default {
   },
   methods: {
     globalKeydown(e) {
+      // TODO: Block youtube default controls
       if (e.code === "ArrowRight") {
         this.seekForward()
       } else if (e.code === "ArrowLeft") {
