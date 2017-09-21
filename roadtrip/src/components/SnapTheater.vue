@@ -17,7 +17,7 @@
     </div>
 
     <div class="controls-container">
-      <h1>{{tracks[currentTrackIndex].location.name}} - Tags: <span v-for="tag in tracks[currentTrackIndex].tags">{{tag}}</span></h1>
+      <h1 v-if="debug">{{tracks[currentTrackIndex].location.name}} - Tags: <span v-for="tag in tracks[currentTrackIndex].tags">{{tag}}</span></h1>
 
       <div class="controls-buttons-container">
         <button @click="startFromBeginningHandler" class="seek-button"><img :src="images.rewind"></img></button>
@@ -34,10 +34,14 @@
 
         <div class="tag-toggle-container">
           <button @click="toggleTags" class="seek-button toggle-safe"><img :src="images.tag" class="toggle-safe"></img></button>
-          <div v-if="tagsVisible" class="tags-container toggle-safe">
-            <button class="tag-button toggle-safe" v-for="(tag, index) in orderedTags"
-          :key="tag" v-bind:class="{active: activeTags.indexOf(tag) > -1}" @click="tagClickHandler(tag)"><span class="toggle-safe">{{tag}} ({{tags[tag].length}})</span></button>
-          </div>
+
+          <transition-group name="tag-animation">
+            <img v-if="tagsVisible" :src="images.close" class="tags-close-button" role="button" key="close-button"></img>
+            <div v-if="tagsVisible" class="tags-container toggle-safe" key="button-container">
+              <button class="tag-button toggle-safe" v-for="(tag, index) in orderedTags"
+            :key="tag" v-bind:class="{active: activeTags.indexOf(tag) > -1}" @click="tagClickHandler(tag)"><span class="toggle-safe">{{tag}} ({{tags[tag].length}})</span></button>
+            </div>
+          </transition-group>
         </div>
       </div>
     </div>
@@ -57,6 +61,7 @@ import pause from "../assets/pause.svg"
 import arrow from "../assets/arrow.svg"
 import rewind from "../assets/rewind.svg"
 import tag from "../assets/tag.svg"
+import close from "../assets/close.svg"
 
 export default {
   data() {
@@ -67,7 +72,8 @@ export default {
         arrow,
         rewind,
         pause,
-        tag
+        tag,
+        close
       },
       player: {},
       playerReady: false,
@@ -94,7 +100,7 @@ export default {
   mounted() {
 
     // Set debug mode on or off. Should be OFF for production
-    this.debug = true;
+    this.debug = false;
 
     // This will set initial window bounds
     this.handleResize();
@@ -460,7 +466,9 @@ export default {
     // TODO: DEBUG, remove when done adding data
     currentTrackIndex: function() {
       console.log("change");
-      this.$refs.debugInput.value = this.tracks[this.currentTrackIndex].tags.join(" ")
+      if (this.debug) {
+        this.$refs.debugInput.value = this.tracks[this.currentTrackIndex].tags.join(" ")
+      }
 
     }
   }
@@ -472,6 +480,7 @@ export default {
 
 // TODO: Change loader to not need asset prefix
 @import "~../styles/colors";
+@import "~../styles/variables";
 
 // Just for debugging
 .debug-data-container {
@@ -527,6 +536,8 @@ export default {
 .controls-buttons-container {
   text-align: center;
   height: 50px;
+
+  margin-top: 12px;
 }
 
 h1 {
@@ -538,8 +549,8 @@ h2 {
 }
 
 .seek-button {
-  width: 40px;
-  height: 40px;
+  width: 60px;
+  height: 60px;
   border-radius: 100%;
   border: 2px solid #000;
 
@@ -553,8 +564,13 @@ h2 {
   padding: 0;
 
   cursor: pointer;
-
   transition: transform .1s linear;
+
+  @include mobile {
+    width: 40px;
+    height: 40px;
+    margin: 0 4px;
+  }
 
   img {
     width: 24px;
@@ -575,12 +591,21 @@ h2 {
 
   &:hover {
     transform: scale(1.2);
-
   }
 
   &:focus {
     outline: 0
   }
+}
+
+// Tag animation
+.tag-animation-enter-active, .tag-animation-leave-active {
+  transition: all .1s;
+  transform: scale(1);
+}
+.tag-animation-enter, .tag-animation-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+  transform: scale(.1);
 }
 
 .tag-toggle-container {
@@ -592,32 +617,58 @@ h2 {
 .tags-container {
   // TODO: Clean up styles/positioning
   position: absolute;
-  bottom: 36px;
+
   width: 200px;
   height: 200px;
   border: 2px solid #000;
-
   border-radius: 5px;
 
-  background: rgba(125,125,125,.8);
+  bottom: 60px;
+  margin-left: -140px;
+
+  background: rgba(190,190,190,.8);
 
   overflow-y: auto;
   overflow-x: hidden;
 
+  -webkit-overflow-scrolling: touch;
+
   text-align: center;
+
+  @include mobile {
+    bottom: 40px;
+  }
+}
+
+.tags-close-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  transition: transform .1s linear;
+
+  top: -195px;
+  left: -133px;
+  z-index: 1;
+
+  cursor: pointer;
+
+  &:hover {
+    transform: scale(1.2);
+  }
 }
 
 .tag-button {
   display: block;
-  height: 40px;
+  height: 30px;
   border: 2px solid #000;
 
-  border-radius: 10%;
+  border-radius: 4px;
 
   background-color: $gray1;
   color: #000;
 
-  margin: 2px auto;
+  margin: 8px auto;
   padding: 0 14px;
 
   cursor: pointer;
