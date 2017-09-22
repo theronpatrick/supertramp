@@ -43,6 +43,10 @@
             </div>
           </transition-group>
         </div>
+
+        <button @click="" class="seek-button">
+          <span>i</span>
+        </button>
       </div>
     </div>
 
@@ -594,7 +598,11 @@ h2 {
   border: 2px solid #000;
 
   background-color: $gray1;
-  color: #fff;
+  color: #000;
+
+  // TODO: Get a font that has a good lookin info 'I'?
+  font-size: 30px;
+  font-family: "serif";
 
   position: relative;
   vertical-align: top;
@@ -700,7 +708,7 @@ h2 {
 .tag-button {
   display: block;
   height: 30px;
-  border: 2px solid #000;
+  border: 1px solid #000;
 
   border-radius: 4px;
 
@@ -711,10 +719,13 @@ h2 {
   padding: 0 14px;
 
   cursor: pointer;
-  transition: transform .1s linear;
+  transition: all .1s linear;
 
   &.active {
-    box-shadow: inset 0 0 10px #00f;
+    // box-shadow: inset 0 0 10px $orange;
+    transform: scale(1.2);
+    border: 3px solid #000;
+    font-weight: bold;
   }
 
   &:hover {
