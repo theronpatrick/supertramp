@@ -44,9 +44,19 @@
           </transition-group>
         </div>
 
-        <button @click="" class="seek-button">
-          <span>i</span>
-        </button>
+        <div class="tag-toggle-container">
+          <button @click="toggleInfo" class="seek-button toggle-safe">
+            <span class="toggle-safe">i</span>
+          </button>
+
+          <transition-group name="tag-animation">
+            <img v-show="infoVisible" :src="images.close" class="tags-close-button" role="button" key="close-button"></img>
+            <div v-show="infoVisible" class="tags-container toggle-safe" key="info-container">
+              <div ref="googleMap" class="google-map toggle-safe"></div>
+            </div>
+          </transition-group>
+        </div>
+
       </div>
     </div>
 
@@ -66,6 +76,7 @@ import arrow from "../assets/arrow.svg"
 import rewind from "../assets/rewind.svg"
 import tag from "../assets/tag.svg"
 import close from "../assets/close.svg"
+
 
 export default {
   data() {
@@ -90,10 +101,12 @@ export default {
       locations,
       tags: {},
       tagsVisible: false,
+      infoVisible: false,
       activeTags: [],
       seekDirection: "forward",
       windowHeight: 0,
       windowWidth: 0,
+      infoMap: {},
       debugGeocoder: {},
       debugSearchBox: {}
     }
@@ -113,6 +126,16 @@ export default {
 
     this.initTracks()
     this.initPlayer()
+
+    // TODO: Tie to actual onload event from google
+    // TODO: Keep building out map feature
+    setTimeout(() => {
+      this.infoMap = new google.maps.Map(this.$refs.googleMap, {
+        center: new google.maps.LatLng(this.locations['ChIJ_87aSGzctEwRtGtUNnSJTSY'].lat, this.locations['ChIJ_87aSGzctEwRtGtUNnSJTSY'].lng),
+        zoom: 4
+      });
+    }, 1000)
+
 
     if (this.debug) {
 
@@ -153,7 +176,6 @@ export default {
       }, 1000)
     }
 
-
   },
   beforeMount() {
     window.addEventListener('resize', this.handleResize)
@@ -183,12 +205,18 @@ export default {
       }
     },
     globalClick(e) {
+      console.log("target " , e);
       // Hide tag toggle menu if we click outside and it's open
       let toggleSafe = e.target.className.indexOf("toggle-safe") > -1 ? true : false;
 
       if (!toggleSafe) {
         if (this.tagsVisible) {
           this.tagsVisible = false;
+        }
+
+        // TODO: Figure out how to handle google map
+        if (false && this.infoVisible) {
+          this.infoVisible = false;
         }
       }
     },
@@ -212,7 +240,7 @@ export default {
         let location = {
           name: place.name,
           lat: place.geometry.location.lat(),
-          lng: place.geometry.location.lat(),
+          lng: place.geometry.location.lng(),
           placeId: place.place_id
         }
 
@@ -369,6 +397,17 @@ export default {
     },
     toggleTags() {
       this.tagsVisible = !this.tagsVisible
+      this.infoVisible = false;
+    },
+    toggleInfo() {
+      this.infoVisible = !this.infoVisible
+      this.tagsVisible = false;
+
+      // Map loads in at 0 by 0 px cause it's hidden, so resize here
+      setTimeout(() => {
+        console.log("welp");
+        google.maps.event.trigger(this.infoMap, 'resize')
+      })
     },
     tagClickHandler(tag) {
       let index = this.activeTags.indexOf(tag)
@@ -446,6 +485,15 @@ export default {
           this.player.seekTo(currentTrack.start)
         }
 
+      }
+
+      // Center on google map
+      if (currentTrack.location) {
+        let location = this.locations[currentTrack.location]
+        this.infoMap.setCenter({
+          lat: location.lat,
+          lng: location.lng
+        })
       }
 
     },
@@ -734,6 +782,15 @@ h2 {
 
   &:focus {
     outline: 0
+  }
+}
+
+.google-map {
+  width: 200px;
+  height: 200px;
+
+  * {
+    overflow: visible;
   }
 }
 
