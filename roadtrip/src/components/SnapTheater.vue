@@ -17,7 +17,7 @@
     </div>
 
     <div class="controls-container">
-      <h1 v-if="debug">{{tracks[currentTrackIndex].location.name}} - Tags: <span v-for="tag in tracks[currentTrackIndex].tags">{{tag}}</span></h1>
+      <h1 v-if="debug">{{tracks[currentTrackIndex].location.name}} - Tags: <span v-for="(tag, index) in tracks[currentTrackIndex].tags">{{tag}}{{index === tracks[currentTrackIndex].length - 1 ? '' : ' '}}</span></h1>
 
       <div class="controls-buttons-container">
         <button @click="startFromBeginningHandler" class="seek-button"><img :src="images.rewind"></img></button>
@@ -80,12 +80,14 @@ export default {
       playerStyle: {},
       playerState: 2,
       currentTrackIndex: 0,
+      trackIndexForTime: 0,
       message: "",
       tracks,
       locations,
       tags: {},
       tagsVisible: false,
       activeTags: [],
+      seekDirection: "forward",
       windowHeight: 0,
       windowWidth: 0,
       debugGeocoder: {},
@@ -246,8 +248,6 @@ export default {
 
       console.log("all tags: " , this.tags);
 
-      // TODO: See if you can replicate issue where object was not setting correctly in computed()
-
     },
     initPlayer() {
 
@@ -324,7 +324,7 @@ export default {
       setInterval(() => {
         this.checkTime()
 
-      }, 250)
+      }, 150)
     },
 
     // TODO: Refactor this so we have a local currentIndex variable,
@@ -334,43 +334,20 @@ export default {
     checkTime() {
 
       let time = this.player.getCurrentTime()
-      let currentTrack = this.tracks[this.currentTrackIndex]
 
-      // Need something better than linear search here?
-      if (currentTrack.start <= time && currentTrack.end > time && tagCheck) {
-        // Good to go, don't need to change anything
-      } else {
-        // Do a linear search to see which track we should be on
-        let index = 0;
-        let tagMatch = true;
-
-        while (time > this.tracks[index].end && index < this.tracks.length - 1) {
-          index++
+      // Find clip in our tracks array that matches our time
+      // TODO: Optimize linear search if it goes too slow
+      let i = 0;
+      for (let track of this.tracks) {
+        if (track.end > time) {
+          this.trackIndexForTime = i;
+          break;
+        } else {
+          i++
         }
-
-        // Set global current index to the one we found
-        this.currentTrackIndex = index
       }
 
-      // If tags don't match, seek til they do
-      let tagCheck = helpers.arrayInArray(currentTrack.tags, this.activeTags) || this.activeTags.length === 0
 
-      if (!tagCheck) {
-        let index = this.currentTrackIndex;
-        let innerTagCheck = false
-        while (!innerTagCheck && index < this.tracks.length - 1) {
-          index++
-          if (helpers.arrayInArray(this.tracks[index].tags, this.activeTags) || this.activeTags.length === 0) {
-            innerTagCheck = true;
-          }
-        }
-
-        // Seek to new spot
-        this.player.seekTo(this.tracks[index].start, true)
-
-        this.currentTrackIndex = index;
-
-      }
 
     },
 
@@ -412,62 +389,124 @@ export default {
       this.seekForward()
 
     },
-    seekForward(timeToCheck) {
+    seekForward(trackToSeekTo) {
 
-      if (this.currentTrackIndex < this.tracks.length - 1) {
-        let tagMatch = false;
-        // Make local variable so it doesnt mess with data bindings
-        let currentIndex = this.currentTrackIndex
-        while (!tagMatch && currentIndex !== this.tracks.length - 1) {
-
-          currentIndex++
-          // In loop
-          if (helpers.arrayInArray(this.tracks[currentIndex].tags, this.activeTags) || this.activeTags.length === 0) {
-            tagMatch = true;
-          }
-        }
-
-        this.player.seekTo(this.tracks[currentIndex].start + 1, true)
-
-        // Update our global variable
-        this.currentTrackIndex = currentIndex
+      // Do nothing on last track
+      // TODO: Disable button
+      if (this.trackIndexForTime === this.tracks.length - 1) {
+        return
       }
+
+      let nextTrack = trackToSeekTo || this.tracks[this.trackIndexForTime + 1]
+      this.player.seekTo(nextTrack.start, true)
 
     },
     startFromBeginningHandler() {
       this.player.seekTo(0, true)
+      this.currentTrackIndex = 0;
     },
     seekBackwardHandler() {
-
       this.seekBackward()
     },
     seekBackward() {
-      if (this.currentTrackIndex > 0) {
-        let tagMatch = false;
-        // Make local variable so it doesnt mess with data bindings
-        let currentIndex = this.currentTrackIndex
-        while (!tagMatch && currentIndex > 0) {
-          currentIndex--
-
-          // In loop
-          if (helpers.arrayInArray(this.tracks[currentIndex].tags, this.activeTags) || this.activeTags.length === 0) {
-            tagMatch = true;
-          }
-        }
-
-        this.player.seekTo(this.tracks[currentIndex].start + 1, true)
-
-        // Update our global variable
-        this.currentTrackIndex = currentIndex
+      // Do nothing on last track
+      // TODO: Disable button
+      if (this.trackIndexForTime === 0) {
+        return
       }
+
+      // Set seek direction for watcher
+      this.seekDirection = "backward"
+      let nextTrack = this.tracks[this.trackIndexForTime - 1]
+      this.player.seekTo(nextTrack.start, true)
     }
   },
   watch: {
-    // TODO: DEBUG, remove when done adding data
     currentTrackIndex: function() {
       console.log("change");
+      // TODO: DEBUG, remove when done adding data
       if (this.debug) {
         this.$refs.debugInput.value = this.tracks[this.currentTrackIndex].tags.join(" ")
+      }
+
+      // If current track index changes and we're not in the right time for video, seek there
+      let currentTrack = this.tracks[this.currentTrackIndex]
+
+      let inRange = currentTrack.start >= this.player.getCurrentTime() && currentTrack.end < this.player.getCurrentTime()
+      if (!inRange) {
+        // Since track splitting was less than precise, add in buffer zone in case our current movie time
+        // is close but not exactly the same as clip we should go to
+        let dif = currentTrack.start - this.player.getCurrentTime();
+        if (Math.abs(dif) >= 1) {
+          console.log("seeking");
+          this.player.seekTo(currentTrack.start)
+        }
+
+      }
+
+    },
+    trackIndexForTime: function(oldVal, newVal) {
+      console.log("track index change " , newVal);
+
+      // When timing track index changes, make sure it matches our tag. If it does, set our new index.
+      // If not, seek forward til we find one that does.
+      let trackToCheck = this.tracks[this.trackIndexForTime]
+
+      let tagMatch = helpers.arrayInArray(trackToCheck.tags, this.activeTags) || this.activeTags.length === 0
+
+      let loopIndex = this.trackIndexForTime;
+      let foundMatch = false;
+
+      if (!tagMatch && this.seekDirection === "forward") {
+        while (loopIndex < this.tracks.length - 1) {
+          let trackInLoop = this.tracks[loopIndex]
+          if (helpers.arrayInArray(trackInLoop.tags, this.activeTags) || this.activeTags.length === 0) {
+            foundMatch = true;
+            break;
+          } else {
+            loopIndex++;
+          }
+        }
+        console.log("tag mismatch, changing current track index to " , loopIndex);
+        this.currentTrackIndex = loopIndex;
+
+      } if (!tagMatch) {
+
+        if (this.seekDirection === "forward") {
+          console.log("seeking forward for tag mismatch");
+          while (loopIndex < this.tracks.length - 1) {
+            let trackInLoop = this.tracks[loopIndex]
+            if (helpers.arrayInArray(trackInLoop.tags, this.activeTags) || this.activeTags.length === 0) {
+              foundMatch = true;
+              break;
+            } else {
+              loopIndex++;
+            }
+          }
+        } else if (this.seekDirection === "backward") {
+          console.log("seeking backward for tag mismatch");
+          while (loopIndex > -1) {
+            let trackInLoop = this.tracks[loopIndex]
+            if (helpers.arrayInArray(trackInLoop.tags, this.activeTags) || this.activeTags.length === 0) {
+              foundMatch = true;
+              break;
+            } else {
+              loopIndex--;
+            }
+          }
+          // Reset direction after seeking
+          this.seekDirection = "forward"
+        } else {
+          // Aint supposed to be here!
+          console.error("Invalid seek direction");
+        }
+
+        console.log("setting current track " , loopIndex);
+        this.currentTrackIndex = loopIndex;
+
+      } else {
+        console.log("tagmatch " , this.trackIndexForTime);
+        this.currentTrackIndex = this.trackIndexForTime
       }
 
     }
