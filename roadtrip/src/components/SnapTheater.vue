@@ -33,11 +33,11 @@
         </button>
 
         <div class="tag-toggle-container">
-          <button @click="toggleTags" class="seek-button" title="Tag Menu"><img :src="images.tag"></img></button>
+          <button @click="toggleTags" class="seek-button" v-bind:class="{active: tagsVisible}" title="Tag Menu"><img :src="images.tag"></img></button>
         </div>
 
         <div class="tag-toggle-container">
-          <button @click="toggleInfo" class="seek-button" title="Info Menu">
+          <button @click="toggleInfo" class="seek-button" v-bind:class="{active: infoVisible}" title="Info Menu">
             <span class="">i</span>
           </button>
         </div>
@@ -63,7 +63,7 @@
       <div v-show="infoVisible" class="info-container" key="info-container">
         <img v-show="infoVisible" :src="images.close" class="info-close-button" role="button" key="close-button" @click="infoCloseClickHandler" title="Close"></img>
         <h1>Info</h1>
-        <p class="map-info-1">{{locations[tracks[currentTrackIndex].location] ? locations[tracks[currentTrackIndex].location].name : ""}}</span></p>
+        <p class="map-info-1">{{locations[tracks[currentTrackIndex].location] ? `${locations[tracks[currentTrackIndex].location].name}, ${locations[tracks[currentTrackIndex].location].state}` : ""}}</span></p>
         <p class="map-info-2"><span v-for="tag in tracks[currentTrackIndex].tags">{{tag}} </span></p>
         <p class="map-info-3">Snap {{currentTrackIndex + 1}} of {{tracks.length}}</p>
         <div ref="googleMap" class="google-map "></div>
@@ -91,7 +91,7 @@ import close from "../assets/close.svg"
 export default {
   data() {
     return {
-      debug: false,
+      debug: false, // Set debug mode. Should be OFF for production
       images: {
         play,
         arrow,
@@ -111,7 +111,7 @@ export default {
       locations,
       tags: {},
       tagsVisible: false,
-      infoVisible: true,
+      infoVisible: false,
       activeTags: [],
       seekDirection: "forward",
       windowHeight: 0,
@@ -128,9 +128,6 @@ export default {
     }
   },
   mounted() {
-
-    // Set debug mode on or off. Should be OFF for production
-    this.debug = false;
 
     // This will set initial window bounds
     this.handleResize();
@@ -193,7 +190,48 @@ export default {
           })
         })
 
+        // TODO: Remove when all done. Should just be a 1 off thing, but could be reused
+        // to add more info to locations
+        if (false) {
+          let i = 0;
+          for (let location of Object.keys(this.locations)) {
+
+            console.log("in loc " , location);
+
+            setTimeout(() => {
+              this.debugGeocoder.geocode({'placeId': location}, (results, status) => {
+                if (status === 'OK') {
+                  if (results[0]) {
+                    console.log("location: " , results[0]);
+
+                    let returned = results[0]
+                    for (let part of returned["address_components"]) {
+                      if (part.types) {
+                        for (let type of part.types) {
+                          if (type === "administrative_area_level_1") {
+                            console.log("state " , part.short_name);
+                            this.locations[location].state = part.short_name
+                          }
+                        }
+                      }
+                    }
+
+                  } else {
+                    console.error('No results found');
+                  }
+                } else {
+                  console.error('Geocoder failed due to: ' + status);
+                }
+              });
+            }, i * 1000)
+
+            i++
+
+          }
+        }
+
       }, 1000)
+
     }
 
   },
@@ -354,7 +392,7 @@ export default {
       setInterval(() => {
         this.checkTime()
 
-      }, 150)
+      }, 100)
     },
 
     // TODO: Refactor this so we have a local currentIndex variable,
@@ -366,10 +404,12 @@ export default {
       let time = this.player.getCurrentTime()
 
       // Find clip in our tracks array that matches our time
+      // Note that there is a buffer of -1 on end time to prevent flashing when
+      // seeking to new tags
       // TODO: Optimize linear search if it goes too slow
       let i = 0;
       for (let track of this.tracks) {
-        if (track.end > time) {
+        if (track.end - 1 > time) {
           this.trackIndexForTime = i;
           break;
         } else {
@@ -381,142 +421,8 @@ export default {
 
     },
 
-    // 5. The API calls this function when the player's state changes.
-    //    The function indicates that when playing a video (state=1),
-    //    the player should play for six seconds and then stop.
-    onPlayerStateChange(event) {
-      this.playerState = event.data;
-    },
-    stopVideo() {
-      this.player.stopVideo();
-    },
-    theaterKeyupHandler(e) {
-      console.log("key " , e);
-    },
-    infoCloseClickHandler() {
-      this.tagsVisible = false;
-      this.infoVisible = false;
-    },
-    toggleTags() {
-      this.tagsVisible = !this.tagsVisible
-      this.infoVisible = false;
-    },
-    toggleInfo() {
-      this.infoVisible = !this.infoVisible
-      this.tagsVisible = false;
-
-      // Map loads in at 0 by 0 px cause it's hidden, so resize here
-      setTimeout(() => {
-        console.log("welp");
-        google.maps.event.trigger(this.infoMap, 'resize')
-      })
-    },
-    tagClickHandler(tag) {
-      let index = this.activeTags.indexOf(tag)
-
-      if (index === -1) {
-        this.activeTags.push(tag)
-      } else {
-        this.activeTags.splice(index, 1);
-      }
-
-    },
-    playPauseHandler() {
-
-      if (this.playerState === 1) {
-        this.player.pauseVideo()
-      } else {
-        this.player.playVideo()
-      }
-    },
-    seekForwardHandler() {
-
-      this.seekForward()
-
-    },
-    seekForward(trackToSeekTo) {
-
-      // Do nothing on last track
-      // TODO: Disable button
-      if (this.trackIndexForTime === this.tracks.length - 1) {
-        return
-      }
-
-      let nextTrack = trackToSeekTo || this.tracks[this.trackIndexForTime + 1]
-      this.player.seekTo(nextTrack.start, true)
-
-    },
-    startFromBeginningHandler() {
-      this.player.seekTo(0, true)
-      this.currentTrackIndex = 0;
-    },
-    seekBackwardHandler() {
-      this.seekBackward()
-    },
-    seekBackward() {
-      // Do nothing on last track
-      // TODO: Disable button
-      if (this.trackIndexForTime === 0) {
-        return
-      }
-
-      // Set seek direction for watcher
-      this.seekDirection = "backward"
-      let nextTrack = this.tracks[this.trackIndexForTime - 1]
-      this.player.seekTo(nextTrack.start, true)
-    }
-  },
-  watch: {
-    currentTrackIndex: function() {
-      console.log("change");
-      // TODO: DEBUG, remove when done adding data
-      if (this.debug) {
-        this.$refs.debugInput.value = this.tracks[this.currentTrackIndex].tags.join(" ")
-      }
-
-      // If current track index changes and we're not in the right time for video, seek there
-      let currentTrack = this.tracks[this.currentTrackIndex]
-
-      let inRange = currentTrack.start >= this.player.getCurrentTime() && currentTrack.end < this.player.getCurrentTime()
-      if (!inRange) {
-        // Since track splitting was less than precise, add in buffer zone in case our current movie time
-        // is close but not exactly the same as clip we should go to
-        let dif = currentTrack.start - this.player.getCurrentTime();
-        if (Math.abs(dif) >= 1) {
-          console.log("seeking");
-          this.player.seekTo(currentTrack.start)
-        }
-
-      }
-
-      // Center on google map
-      if (currentTrack.location) {
-        let location = this.locations[currentTrack.location]
-
-        if (location) {
-          this.infoMap.setCenter({
-            lat: location.lat,
-            lng: location.lng
-          })
-          // Remove previous marker
-          this.infoMapMarker.setMap(null)
-
-          // Make new marker
-          this.infoMapMarker = new google.maps.Marker({
-            position: {
-              lat: location.lat,
-              lng:location.lng
-            },
-            map: this.infoMap,
-            title: location.name
-          });
-        }
-      }
-
-    },
-    trackIndexForTime: function(oldVal, newVal) {
-      console.log("track index change " , newVal);
-
+    // Called in watcher for trackIndexforTime, also can be manually triggered by clicking tags
+    checkTrackIndexForTime() {
       // When timing track index changes, make sure it matches our tag. If it does, set our new index.
       // If not, seek forward til we find one that does.
       let trackToCheck = this.tracks[this.trackIndexForTime]
@@ -577,6 +483,154 @@ export default {
         console.log("tagmatch " , this.trackIndexForTime);
         this.currentTrackIndex = this.trackIndexForTime
       }
+    },
+
+    // 5. The API calls this function when the player's state changes.
+    //    The function indicates that when playing a video (state=1),
+    //    the player should play for six seconds and then stop.
+    onPlayerStateChange(event) {
+      this.playerState = event.data;
+    },
+    stopVideo() {
+      this.player.stopVideo();
+    },
+    theaterKeyupHandler(e) {
+      console.log("key " , e);
+    },
+    infoCloseClickHandler() {
+      this.tagsVisible = false;
+      this.infoVisible = false;
+    },
+    toggleTags() {
+      this.tagsVisible = !this.tagsVisible
+      this.infoVisible = false;
+    },
+    toggleInfo() {
+      this.infoVisible = !this.infoVisible
+      this.tagsVisible = false;
+
+      // Map loads in at 0 by 0 px cause it's hidden, so resize here
+      setTimeout(() => {
+        console.log("welp");
+        google.maps.event.trigger(this.infoMap, 'resize')
+      })
+    },
+    tagClickHandler(tag) {
+      let index = this.activeTags.indexOf(tag)
+
+      if (index === -1) {
+        this.activeTags.push(tag)
+      } else {
+        this.activeTags.splice(index, 1);
+      }
+
+      // If tags change, might need to seek ahead so trigger time check
+      this.checkTrackIndexForTime()
+
+    },
+    playPauseHandler() {
+
+      if (this.playerState === 1) {
+        this.player.pauseVideo()
+      } else {
+        this.player.playVideo()
+      }
+    },
+    seekForwardHandler() {
+
+      this.seekForward()
+
+    },
+    seekForward(trackToSeekTo) {
+
+      // Do nothing on last track
+      // TODO: Disable button
+      if (this.trackIndexForTime === this.tracks.length - 1) {
+        return
+      }
+
+      let nextTrack = trackToSeekTo || this.tracks[this.trackIndexForTime + 1]
+      this.player.seekTo(nextTrack.start, true)
+
+      // Trigger time check in case we're paused when seeking
+      this.checkTrackIndexForTime()
+
+    },
+    startFromBeginningHandler() {
+      this.player.seekTo(0, true)
+      this.currentTrackIndex = 0;
+    },
+    seekBackwardHandler() {
+      this.seekBackward()
+    },
+    seekBackward() {
+      // Do nothing on last track
+      // TODO: Disable button
+      if (this.trackIndexForTime === 0) {
+        return
+      }
+
+      // Set seek direction for watcher
+      this.seekDirection = "backward"
+      let nextTrack = this.tracks[this.trackIndexForTime - 1]
+      this.player.seekTo(nextTrack.start, true)
+
+      // Trigger time check in case we're paused while seeking
+      this.checkTrackIndexForTime()
+    }
+  },
+  watch: {
+    currentTrackIndex: function(newVal, oldVal) {
+      console.log("current track index changed" , oldVal);
+      // TODO: DEBUG, remove when done adding data
+      if (this.debug) {
+        this.$refs.debugInput.value = this.tracks[this.currentTrackIndex].tags.join(" ")
+      }
+
+      // If current track index changes and we're not in the right time for video, seek there
+      let currentTrack = this.tracks[newVal]
+
+      let inRange = currentTrack.start >= this.player.getCurrentTime() && currentTrack.end < this.player.getCurrentTime()
+      if (!inRange) {
+        // Since track splitting was less than precise, add in buffer zone in case our current movie time
+        // is close but not exactly the same as clip we should go to
+        let dif = currentTrack.start - this.player.getCurrentTime();
+        if (Math.abs(dif) >= 1) {
+          console.log("seeking");
+          this.player.seekTo(currentTrack.start)
+        }
+
+      }
+
+      // Center on google map
+      if (currentTrack.location) {
+        let location = this.locations[currentTrack.location]
+
+        if (location) {
+          this.infoMap.setCenter({
+            lat: location.lat,
+            lng: location.lng
+          })
+          // Remove previous marker
+          this.infoMapMarker.setMap(null)
+
+          // Make new marker
+          this.infoMapMarker = new google.maps.Marker({
+            position: {
+              lat: location.lat,
+              lng:location.lng
+            },
+            map: this.infoMap,
+            title: location.name
+          });
+        }
+      }
+
+    },
+    trackIndexForTime: function(newVal, oldVal) {
+      console.log("time track index change " , newVal);
+
+      this.checkTrackIndexForTime()
 
     }
   }
@@ -701,7 +755,7 @@ h2 {
     padding-left: 4px;
   }
 
-  &:hover {
+  &:hover, &.active {
     transform: scale(1.2);
   }
 
@@ -713,10 +767,8 @@ h2 {
 // Tag animation
 .tag-animation-enter-active, .tag-animation-leave-active {
   right: 0px !important;
-  opacity: 1;
 }
 .tag-animation-enter, .tag-animation-leave-to /* .fade-leave-active below version 2.1.8 */ {
-  opacity: 0;
   right: -336px !important;
 }
 
@@ -745,7 +797,7 @@ h2 {
 
   text-align: center;
 
-  transition: all .2s;
+  transition: all .2s linear;
 
   @include mobile {
     bottom: 40px;
