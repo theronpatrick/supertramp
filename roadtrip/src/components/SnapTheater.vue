@@ -117,6 +117,7 @@ export default {
       windowHeight: 0,
       windowWidth: 0,
       infoMap: {},
+      infoMapMarker: {},
       debugGeocoder: {},
       debugSearchBox: {}
     }
@@ -140,10 +141,19 @@ export default {
     // TODO: Tie to actual onload event from google
     // TODO: Keep building out map feature
     setTimeout(() => {
+      let position = new google.maps.LatLng(this.locations['ChIJ_87aSGzctEwRtGtUNnSJTSY'].lat, this.locations['ChIJ_87aSGzctEwRtGtUNnSJTSY'].lng);
+
       this.infoMap = new google.maps.Map(this.$refs.googleMap, {
-        center: new google.maps.LatLng(this.locations['ChIJ_87aSGzctEwRtGtUNnSJTSY'].lat, this.locations['ChIJ_87aSGzctEwRtGtUNnSJTSY'].lng),
-        zoom: 4
+        center: position,
+        zoom: 6
       });
+
+      this.infoMapMarker = new google.maps.Marker({
+        position: position,
+        map: this.infoMap,
+        title: this.locations['ChIJ_87aSGzctEwRtGtUNnSJTSY'].name
+      });
+
     }, 1000)
 
 
@@ -482,10 +492,25 @@ export default {
       // Center on google map
       if (currentTrack.location) {
         let location = this.locations[currentTrack.location]
-        this.infoMap.setCenter({
-          lat: location.lat,
-          lng: location.lng
-        })
+
+        if (location) {
+          this.infoMap.setCenter({
+            lat: location.lat,
+            lng: location.lng
+          })
+          // Remove previous marker
+          this.infoMapMarker.setMap(null)
+
+          // Make new marker
+          this.infoMapMarker = new google.maps.Marker({
+            position: {
+              lat: location.lat,
+              lng:location.lng
+            },
+            map: this.infoMap,
+            title: location.name
+          });
+        }
       }
 
     },
