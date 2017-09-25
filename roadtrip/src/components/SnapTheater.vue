@@ -20,45 +20,55 @@
       <h1 v-if="debug">{{tracks[currentTrackIndex].location.name}} - Tags: <span v-for="(tag, index) in tracks[currentTrackIndex].tags">{{tag}}{{index === tracks[currentTrackIndex].length - 1 ? '' : ' '}}</span></h1>
 
       <div class="controls-buttons-container">
-        <button @click="startFromBeginningHandler" class="seek-button"><img :src="images.rewind"></img></button>
-        <button @click="seekBackwardHandler" class="seek-button seek-back"><img :src="images.arrow"></img></button>
-        <button @click="seekForwardHandler" class="seek-button"><img :src="images.arrow"></img></button>
+        <button @click="startFromBeginningHandler" class="seek-button" title="Rewind To Beginning"><img :src="images.rewind"></img></button>
+        <button @click="seekBackwardHandler" class="seek-button seek-back" title="Previous Snap"><img :src="images.arrow"></img></button>
+        <button @click="seekForwardHandler" class="seek-button" title="Next Snap"><img :src="images.arrow"></img></button>
 
-        <button @click="playPauseHandler" class="seek-button play" v-if="playerState !== 1">
+        <button @click="playPauseHandler" class="seek-button play" v-if="playerState !== 1" title="Play">
           <img :src="images.play"></img>
         </button>
 
-        <button @click="playPauseHandler" class="seek-button" v-if="playerState === 1">
+        <button @click="playPauseHandler" class="seek-button" v-if="playerState === 1" title="Pause">
           <img :src="images.pause"></img>
         </button>
 
         <div class="tag-toggle-container">
-          <button @click="toggleTags" class="seek-button toggle-safe"><img :src="images.tag" class="toggle-safe"></img></button>
-
-          <transition-group name="tag-animation">
-            <img v-if="tagsVisible" :src="images.close" class="tags-close-button" role="button" key="close-button"></img>
-            <div v-if="tagsVisible" class="tags-container toggle-safe" key="button-container">
-              <button class="tag-button toggle-safe" v-for="(tag, index) in orderedTags"
-            :key="tag" v-bind:class="{active: activeTags.indexOf(tag) > -1}" @click="tagClickHandler(tag)"><span class="toggle-safe">{{tag}} ({{tags[tag].length}})</span></button>
-            </div>
-          </transition-group>
+          <button @click="toggleTags" class="seek-button" title="Tag Menu"><img :src="images.tag"></img></button>
         </div>
 
         <div class="tag-toggle-container">
-          <button @click="toggleInfo" class="seek-button toggle-safe">
-            <span class="toggle-safe">i</span>
+          <button @click="toggleInfo" class="seek-button" title="Info Menu">
+            <span class="">i</span>
           </button>
-
-          <transition-group name="tag-animation">
-            <img v-show="infoVisible" :src="images.close" class="tags-close-button" role="button" key="close-button"></img>
-            <div v-show="infoVisible" class="tags-container toggle-safe" key="info-container">
-              <div ref="googleMap" class="google-map toggle-safe"></div>
-            </div>
-          </transition-group>
         </div>
 
       </div>
     </div>
+
+    <!-- Toggle containers for tags/info -->
+    <transition name="tag-animation">
+      <div v-if="tagsVisible" class="info-container" key="tag-container">
+        <img v-if="tagsVisible" :src="images.close" class="info-close-button" role="button" key="close-button" @click="infoCloseClickHandler" title="Close"></img>
+        <h1>Tags</h1>
+        <p class="tag-info"><span v-for="tag in activeTags">{{tag}} </span></p>
+        <div class="tag-button-container">
+          <button class="tag-button " v-for="(tag, index) in orderedTags" :key="tag" v-bind:class="{active: activeTags.indexOf(tag) > -1}" @click="tagClickHandler(tag)">
+            <span class="">{{tag}} ({{tags[tag].length}})</span>
+          </button>
+        </div>
+      </div>
+    </transition>
+
+    <transition name="tag-animation">
+      <div v-show="infoVisible" class="info-container" key="info-container">
+        <img v-show="infoVisible" :src="images.close" class="info-close-button" role="button" key="close-button" @click="infoCloseClickHandler" title="Close"></img>
+        <h1>Info</h1>
+        <p class="map-info-1">{{locations[tracks[currentTrackIndex].location] ? locations[tracks[currentTrackIndex].location].name : ""}}</span></p>
+        <p class="map-info-2"><span v-for="tag in tracks[currentTrackIndex].tags">{{tag}} </span></p>
+        <p class="map-info-3">Snap {{currentTrackIndex + 1}} of {{tracks.length}}</p>
+        <div ref="googleMap" class="google-map "></div>
+      </div>
+    </transition>
 
 
   </div>
@@ -101,7 +111,7 @@ export default {
       locations,
       tags: {},
       tagsVisible: false,
-      infoVisible: false,
+      infoVisible: true,
       activeTags: [],
       seekDirection: "forward",
       windowHeight: 0,
@@ -182,17 +192,11 @@ export default {
     window.addEventListener('keydown', (e) => {
       this.globalKeydown(e)
     });
-    window.addEventListener('click', (e) => {
-      this.globalClick(e)
-    });
   },
   beforeDestroy () {
     window.removeEventListener('resize', this.handleResize)
     window.removeEventListener('keydown', (e) => {
       this.globalKeydown(e)
-    });
-    window.removeEventListener('click', (e) => {
-      this.globalClick(e)
     });
   },
   methods: {
@@ -202,22 +206,6 @@ export default {
         this.seekForward()
       } else if (e.code === "ArrowLeft") {
         this.seekBackward()
-      }
-    },
-    globalClick(e) {
-      console.log("target " , e);
-      // Hide tag toggle menu if we click outside and it's open
-      let toggleSafe = e.target.className.indexOf("toggle-safe") > -1 ? true : false;
-
-      if (!toggleSafe) {
-        if (this.tagsVisible) {
-          this.tagsVisible = false;
-        }
-
-        // TODO: Figure out how to handle google map
-        if (false && this.infoVisible) {
-          this.infoVisible = false;
-        }
       }
     },
     debugDataInput(d) {
@@ -394,6 +382,10 @@ export default {
     },
     theaterKeyupHandler(e) {
       console.log("key " , e);
+    },
+    infoCloseClickHandler() {
+      this.tagsVisible = false;
+      this.infoVisible = false;
     },
     toggleTags() {
       this.tagsVisible = !this.tagsVisible
@@ -642,7 +634,7 @@ h2 {
 .seek-button {
   width: 60px;
   height: 60px;
-  border-radius: 100%;
+  border-radius: 50%;
   border: 2px solid #000;
 
   background-color: $gray1;
@@ -695,33 +687,26 @@ h2 {
 
 // Tag animation
 .tag-animation-enter-active, .tag-animation-leave-active {
-  transition: all .1s;
-  transform: scale(1);
+  right: 0px !important;
+  opacity: 1;
 }
 .tag-animation-enter, .tag-animation-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;
-  transform: scale(.1);
+  right: -336px !important;
 }
 
 .tag-toggle-container {
   display: inline-block;
   vertical-align: top;
-  position: relative;
 }
 
-.tags-container {
   // TODO: Clean up styles/positioning
   position: absolute;
 
-  width: 200px;
-  height: 200px;
   border: 2px solid #000;
   border-radius: 5px;
 
-  bottom: 60px;
-  margin-left: -140px;
 
-  background: rgba(190,190,190,.8);
 
   overflow-y: auto;
   overflow-x: hidden;
@@ -735,15 +720,9 @@ h2 {
   }
 }
 
-.tags-close-button {
   position: absolute;
-  top: 0;
-  right: 0;
 
-  transition: transform .1s linear;
 
-  top: -195px;
-  left: -133px;
   z-index: 1;
 
   cursor: pointer;
@@ -786,8 +765,6 @@ h2 {
 }
 
 .google-map {
-  width: 200px;
-  height: 200px;
 
   * {
     overflow: visible;

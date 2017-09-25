@@ -3,9 +3,9 @@
     <div class="background-container"></div>
 
     <div class="button-container">
-      <h1>COMING SOON... <span class="globe">🌎</span></h1>
       <router-link :to="'SnapTheater'">
-        <button class="snap-button"></button>
+        <button class="snap-button" id="snap-button"></button>
+        <label for="snap-button">Summer of Snap</label>
       </router-link>
     </div>
   </div>
@@ -75,6 +75,26 @@ export default {
 
   transform: translateX(-50%) translateY(-50%);
   text-align: center;
+
+  a {
+    display: inline-block;
+    text-decoration: none;
+
+    transition: all .25s linear;
+
+    &:hover {
+      transform: scale(1.2);
+      cursor: pointer;
+    }
+  }
+}
+
+label {
+  display: block;
+  font-size: 22px;
+  color: #fff;
+
+  cursor: pointer;
 }
 
 h1 {
@@ -99,10 +119,7 @@ h1 {
 
   transition: all .25s linear;
 
-  &:hover {
-    transform: scale(1.2);
-    cursor: pointer;
-  }
+  cursor: pointer;
 
 }
 

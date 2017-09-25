@@ -13,6 +13,13 @@ export default {
 <style lang="scss">
 
 // App wide styles
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
 body {
   margin: 0;
   font-family: 'Mukta', sans-serif;
