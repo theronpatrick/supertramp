@@ -700,13 +700,18 @@ h2 {
   vertical-align: top;
 }
 
-  // TODO: Clean up styles/positioning
+.info-container {
   position: absolute;
 
+  width: 336px;
+  height: calc(100% - 100px);
   border: 2px solid #000;
   border-radius: 5px;
 
+  top: 0px;
+  right: 0px;
 
+  background: rgba(233,233,233,.85);
 
   overflow-y: auto;
   overflow-x: hidden;
@@ -715,13 +720,62 @@ h2 {
 
   text-align: center;
 
+  transition: all .2s;
+
   @include mobile {
     bottom: 40px;
   }
+
+  h1 {
+    margin-top: 12px;
+    width: 100%;
+
+    color: #000;
+    position: absolute;
+    font-size: 16px;
+
+    text-align: center;
+  }
+
+  p {
+    display: block;
+
+    // Total height should equal 100px. Tag container has 1, info has 3.
+    &.tag-info {
+      height: 40px;
+      margin-top: 52px;
+      margin-bottom: 8px;
+    }
+
+    &.map-info-1 {
+      margin-top: 35px;
+      height: 20px;
+    }
+    &.map-info-2 {
+      height: 20px;
+    }
+    &.map-info-3 {
+      height: 20px;
+      margin-bottom: 5px;
+    }
+
+    margin-left: 12px;
+    margin-right: 12px;
+
+    font-size: 14px;
+    overflow-y: hidden;
+    overflow-x: auto;
+
+    white-space: nowrap;
+  }
 }
 
+.info-close-button {
   position: absolute;
+  top: 12px;
+  left: 12px;
 
+  transition: all .2s;
 
   z-index: 1;
 
@@ -764,7 +818,17 @@ h2 {
   }
 }
 
+$menuMargin: 100px;
+$menuHeight: calc(100% - #{$menuMargin});
+.tag-button-container {
+  width: 100%;
+  height: $menuHeight;
+  overflow: auto;
+}
+
 .google-map {
+  width: 336px;
+  height: $menuHeight;
 
   * {
     overflow: visible;
