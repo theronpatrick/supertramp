@@ -76,14 +76,27 @@ export default {
   transform: translateX(-50%) translateY(-50%);
   text-align: center;
 
+  button {
+    outline: none;
+  }
+
   a {
     display: inline-block;
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
     text-decoration: none;
+    outline: none;
+
+    transform-origin: 0;
+    transform: scale(1) translateY(-50%) translateX(-50%);
 
     transition: all .25s linear;
 
     &:hover {
-      transform: scale(1.2);
+      transform: scale(1.2) translateY(-50%) translateX(-50%);
       cursor: pointer;
     }
   }

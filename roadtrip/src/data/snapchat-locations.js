@@ -235,7 +235,8 @@ export default {
   "ChIJVVVVVVXlUVMRu-GPNDD5qKw": {
     "name": "Yellowstone National Park",
     "lat": 44.427963,
-    "lng": -110.58845500000001
+    "lng": -110.58845500000001,
+    "state": "WY"
   },
   "ChIJteyvFKtpZlMRPkY3iGt6ysw": {
     "name": "Whitefish",

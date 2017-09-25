@@ -136,7 +136,6 @@ export default {
     this.initPlayer()
 
     // TODO: Tie to actual onload event from google
-    // TODO: Keep building out map feature
     setTimeout(() => {
       let position = new google.maps.LatLng(this.locations['ChIJ_87aSGzctEwRtGtUNnSJTSY'].lat, this.locations['ChIJ_87aSGzctEwRtGtUNnSJTSY'].lng);
 
@@ -150,6 +149,9 @@ export default {
         map: this.infoMap,
         title: this.locations['ChIJ_87aSGzctEwRtGtUNnSJTSY'].name
       });
+
+      // Trigger time check to update map/center so the above values don't really matter
+      this.checkTrackIndexForTime()
 
     }, 1000)
 
@@ -389,6 +391,15 @@ export default {
 
       event.target.playVideo();
 
+      // Animate in info panel after video loads (after a delay)
+      setTimeout(() => {
+        if (!this.infoVisible && !this.tagsVisible) {
+            this.toggleInfo()
+        }
+
+      }, 2000)
+
+      // Set up interval to check time and update info panel
       setInterval(() => {
         this.checkTime()
 
@@ -419,6 +430,54 @@ export default {
 
 
 
+    },
+
+    // Called in watcher for current track index, also called manually when we need to update map
+    checkCurrentTrackIndex() {
+      console.log("current track index changed" , this.currentTrackIndex);
+      // TODO: DEBUG, remove when done adding data
+      if (this.debug) {
+        this.$refs.debugInput.value = this.tracks[this.currentTrackIndex].tags.join(" ")
+      }
+
+      // If current track index changes and we're not in the right time for video, seek there
+      let currentTrack = this.tracks[this.currentTrackIndex]
+
+      let inRange = currentTrack.start >= this.player.getCurrentTime() && currentTrack.end < this.player.getCurrentTime()
+      if (!inRange) {
+        // Since track splitting was less than precise, add in buffer zone in case our current movie time
+        // is close but not exactly the same as clip we should go to
+        let dif = currentTrack.start - this.player.getCurrentTime();
+        if (Math.abs(dif) >= 1) {
+          console.log("seeking");
+          this.player.seekTo(currentTrack.start)
+        }
+
+      }
+
+      // Center on google map
+      if (currentTrack.location) {
+        let location = this.locations[currentTrack.location]
+
+        if (location) {
+          this.infoMap.setCenter({
+            lat: location.lat,
+            lng: location.lng
+          })
+          // Remove previous marker
+          this.infoMapMarker.setMap(null)
+
+          // Make new marker
+          this.infoMapMarker = new google.maps.Marker({
+            position: {
+              lat: location.lat,
+              lng:location.lng
+            },
+            map: this.infoMap,
+            title: location.name
+          });
+        }
+      }
     },
 
     // Called in watcher for trackIndexforTime, also can be manually triggered by clicking tags
@@ -511,7 +570,6 @@ export default {
 
       // Map loads in at 0 by 0 px cause it's hidden, so resize here
       setTimeout(() => {
-        console.log("welp");
         google.maps.event.trigger(this.infoMap, 'resize')
       })
     },
@@ -525,7 +583,7 @@ export default {
       }
 
       // If tags change, might need to seek ahead so trigger time check
-      this.checkTrackIndexForTime()
+      this.checkCurrentTrackIndex()
 
     },
     playPauseHandler() {
@@ -581,50 +639,7 @@ export default {
   },
   watch: {
     currentTrackIndex: function(newVal, oldVal) {
-      console.log("current track index changed" , oldVal);
-      // TODO: DEBUG, remove when done adding data
-      if (this.debug) {
-        this.$refs.debugInput.value = this.tracks[this.currentTrackIndex].tags.join(" ")
-      }
-
-      // If current track index changes and we're not in the right time for video, seek there
-      let currentTrack = this.tracks[newVal]
-
-      let inRange = currentTrack.start >= this.player.getCurrentTime() && currentTrack.end < this.player.getCurrentTime()
-      if (!inRange) {
-        // Since track splitting was less than precise, add in buffer zone in case our current movie time
-        // is close but not exactly the same as clip we should go to
-        let dif = currentTrack.start - this.player.getCurrentTime();
-        if (Math.abs(dif) >= 1) {
-          console.log("seeking");
-          this.player.seekTo(currentTrack.start)
-        }
-
-      }
-
-      // Center on google map
-      if (currentTrack.location) {
-        let location = this.locations[currentTrack.location]
-
-        if (location) {
-          this.infoMap.setCenter({
-            lat: location.lat,
-            lng: location.lng
-          })
-          // Remove previous marker
-          this.infoMapMarker.setMap(null)
-
-          // Make new marker
-          this.infoMapMarker = new google.maps.Marker({
-            position: {
-              lat: location.lat,
-              lng:location.lng
-            },
-            map: this.infoMap,
-            title: location.name
-          });
-        }
-      }
+      this.checkCurrentTrackIndex()
 
     },
     trackIndexForTime: function(newVal, oldVal) {
