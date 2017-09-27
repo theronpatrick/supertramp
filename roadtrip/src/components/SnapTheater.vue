@@ -19,6 +19,15 @@
     <div class="controls-container">
       <h1 v-if="debug">{{tracks[currentTrackIndex].location.name}} - Tags: <span v-for="(tag, index) in tracks[currentTrackIndex].tags">{{tag}}{{index === tracks[currentTrackIndex].length - 1 ? '' : ' '}}</span></h1>
 
+      <div class="slider-container">
+        <slider
+          :min="0"
+          :max="tracks.length"
+          :onChange="sliderChangeHandler"
+          :value="currentTrackIndex"
+        ></slider>
+      </div>
+
       <div class="controls-buttons-container">
         <button @click="startFromBeginningHandler" class="seek-button" title="Rewind To Beginning"><img :src="images.rewind"></img></button>
         <button @click="seekBackwardHandler" class="seek-button seek-back" title="Previous Snap"><img :src="images.arrow"></img></button>
@@ -87,8 +96,13 @@ import rewind from "../assets/rewind.svg"
 import tag from "../assets/tag.svg"
 import close from "../assets/close.svg"
 
+import slider from "./Slider.vue"
+
 
 export default {
+  components: {
+    slider
+  },
   data() {
     return {
       debug: false, // Set debug mode. Should be OFF for production
@@ -114,6 +128,7 @@ export default {
       infoVisible: false,
       activeTags: [],
       seekDirection: "forward",
+      sliderTimeout: {},
       windowHeight: 0,
       windowWidth: 0,
       infoMap: {},
@@ -553,8 +568,22 @@ export default {
     stopVideo() {
       this.player.stopVideo();
     },
-    theaterKeyupHandler(e) {
-      console.log("key " , e);
+
+
+    // Click event handlers
+    sliderChangeHandler(sliderValue) {
+      console.log("change " , sliderValue);
+      // Debounce dat sucker
+      if (this.sliderTimeout) {
+        clearTimeout(this.sliderTimeout)
+      }
+
+      this.sliderTimeout = setTimeout(() => {
+        this.currentTrackIndex = sliderValue
+
+        console.log("changing index to " , sliderValue);
+      }, 500)
+
     },
     infoCloseClickHandler() {
       this.tagsVisible = false;
@@ -700,6 +729,12 @@ export default {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+}
+
+.slider-container {
+  height: 20px;
+  width: 336px;
+  margin: 0 auto;
 }
 
 .controls-container {
