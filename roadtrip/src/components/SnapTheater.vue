@@ -22,7 +22,7 @@
       <div class="slider-container">
         <slider
           :min="0"
-          :max="tracks.length"
+          :max="tracks.length - 1"
           :onChange="sliderChangeHandler"
           :value="currentTrackIndex"
         ></slider>
@@ -572,7 +572,6 @@ export default {
 
     // Click event handlers
     sliderChangeHandler(sliderValue) {
-      console.log("change " , sliderValue);
       // Debounce dat sucker
       if (this.sliderTimeout) {
         clearTimeout(this.sliderTimeout)
@@ -581,7 +580,6 @@ export default {
       this.sliderTimeout = setTimeout(() => {
         this.currentTrackIndex = sliderValue
 
-        console.log("changing index to " , sliderValue);
       }, 500)
 
     },
@@ -734,7 +732,7 @@ export default {
 .slider-container {
   height: 20px;
   width: 336px;
-  margin: 0 auto;
+  margin: 5px auto 0px auto;
 }
 
 .controls-container {
@@ -749,7 +747,7 @@ export default {
   text-align: center;
   height: 50px;
 
-  margin-top: 12px;
+  margin-top: 18px;
 }
 
 h1 {
@@ -761,8 +759,8 @@ h2 {
 }
 
 .seek-button {
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   border: 2px solid #000;
 
@@ -838,7 +836,7 @@ h2 {
   top: 0px;
   right: 0px;
 
-  background: rgba(233,233,233,.85);
+  background: $transparentGray;
 
   overflow-y: auto;
   overflow-x: hidden;

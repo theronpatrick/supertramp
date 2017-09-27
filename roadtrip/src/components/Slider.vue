@@ -1,20 +1,92 @@
 <template>
-  <input type="range" :min="min" step="1" :value="value" :max="max" @input="sliderChangeHandler"></input>
+  <span>
+    <div class="slider-info" v-html="trackInfo" v-show="infoVisible"></div>
+    <input
+      type="range"
+      :min="min"
+      step="1"
+      :value="infoTrackNumber"
+      :max="max"
+      @input="sliderChangeHandler"
+      @mousedown="mousedownHandler"
+      @mouseup="mouseupHandler">
+    </input>
+  </span>
 </template>
 
 <script>
+  import tracks from "../data/snapchat-tracks.js"
+  import locations from "../data/snapchat-locations.js"
+
   export default {
     props: ["min", "max", "onChange", "value"],
+    data() {
+      return {
+        infoVisible: false,
+        infoTrackNumber: 0
+      }
+    },
+    computed: {
+      trackInfo() {
+        let track = tracks[this.infoTrackNumber]
+        console.log("track is "  ,track);
+        let location = locations[track.location]
+
+        let returnString = `<span>Track ${this.infoTrackNumber + 1} of ${tracks.length}</span>`
+
+        if (location) {
+          returnString = returnString + `<br /><span>${location.name}, ${location.state}</span>`
+        }
+
+        return returnString
+      },
+    },
+    watch: {
+      value() {
+        this.infoTrackNumber = this.$props.value
+      }
+    },
     methods: {
       sliderChangeHandler(e) {
         let val = parseInt(e.target.value, 10)
+
+        // Update info track number independetly from event in snap theater,
+        // because we want to update info panel immediately but snap theater
+        // will debounce actually seeking in video
+        this.infoTrackNumber = val
+
         this.onChange(val)
+      },
+      mousedownHandler() {
+        console.log("down");
+        this.infoVisible = true;
+      },
+      mouseupHandler() {
+        console.log("up");
+        this.infoVisible = false;
       }
     }
   }
 </script>
 
 <style lang="scss" scoped>
+
+@import "~../styles/colors";
+
+  .slider-info {
+    position: absolute;
+    width: 180px;
+    height: 100px;
+
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    border-radius: 5px;
+    border: 2px solid #000;
+    background: $transparentGray;
+  }
+
   // src: http://www.cssportal.com/style-input-range/
   input[type=range] {
     height: 32px;
