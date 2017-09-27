@@ -4489,7 +4489,7 @@ export default [
     "tags": [
       "nationalparks"
     ],
-    "location": {}
+    "location": "ChIJVVVVVVXlUVMRu-GPNDD5qKw"
   },
   {
     "start": 4601,
