@@ -89,12 +89,12 @@ import tracks from "../data/snapchat-tracks.js"
       },
       showTour() {
         this.visible = true;
-        this.messageIndex = 0;
+        this.messageIndex = 1;
       }
     },
     watch: {
       visible() {
-        console.log("visible change");
+
         let startTime = 1500;
         let blinkTime = 200;
         if (this.visible === true) {

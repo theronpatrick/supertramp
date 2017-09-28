@@ -13,7 +13,7 @@ let router = new Router({
       component: Main
     },
     {
-      path: '/snaptheater',
+      path: '/summerofsnap',
       name: 'SnapTheater',
       component: SnapTheater,
       meta: {

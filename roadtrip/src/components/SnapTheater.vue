@@ -1,6 +1,8 @@
 <template>
   <div class="snap-theater">
 
+    <div class="notification-container" :class="{visible: notification}">{{notification}}</div>
+
     <tour :tourHighlightElement="tourHighlightElementCallback" ref="tour"></tour>
 
     <div class="snap-theater-background"></div>
@@ -181,6 +183,7 @@ export default {
         question
       },
       tourHighlightedElement: "",
+      notification: "",
       player: {},
       playerReady: false,
       playerStyle: {},
@@ -502,7 +505,14 @@ export default {
       }, 100)
     },
 
-    // Also TODO: when getting to end of movie, go back, show check mark or some indication there's none left
+    showNotification(notification) {
+      this.notification = notification
+
+      setTimeout(() => {
+        this.notification = ""
+      }, 3000)
+    },
+
     checkTime() {
 
       let time = this.player.getCurrentTime()
@@ -602,6 +612,8 @@ export default {
               if (loopIndex === this.tracks.length - 1) {
                 setTimeout(() => {
                   this.startFromBeginningHandler()
+
+                  this.showNotification("No more snaps left with currently selected tags. Restarting from beginning.")
                 })
 
               }
@@ -836,6 +848,30 @@ h2 {
 .tour-highlighted {
   transform: scale(1.2);
   box-shadow: 0 0 15px $orange;
+}
+
+// Notifications at top
+.notification-container {
+  width: 200px;
+  height: auto;
+
+  z-index: 1;
+
+  position: absolute;
+  top: -50px;
+  left: 50%;
+
+  padding: 12px;
+
+  transform: translateX(-50%);
+  transition: all .3s linear;
+
+  border: 2px solid #000;
+  background: $transparentGray;
+
+  &.visible {
+    top: 20px;
+  }
 }
 
 .seek-button {

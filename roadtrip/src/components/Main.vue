@@ -3,7 +3,7 @@
     <div class="background-container"></div>
 
     <div class="button-container">
-      <router-link :to="'SnapTheater'">
+      <router-link :to="'summerofsnap'">
         <button class="snap-button" id="snap-button"></button>
         <label for="snap-button">Summer of Snap</label>
       </router-link>
