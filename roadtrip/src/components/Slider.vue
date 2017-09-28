@@ -7,6 +7,7 @@
       step="1"
       :value="infoTrackNumber"
       :max="max"
+      :class="{'tour-highlighted': tourHighlighted}"
       @input="sliderChangeHandler"
       @mousedown="mousedownHandler"
       @mouseup="mouseupHandler">
@@ -19,7 +20,7 @@
   import locations from "../data/snapchat-locations.js"
 
   export default {
-    props: ["min", "max", "onChange", "value"],
+    props: ["min", "max", "onChange", "value", "tourHighlighted"],
     data() {
       return {
         infoVisible: false,
@@ -82,6 +83,15 @@
     border-radius: 5px;
     border: 2px solid #000;
     background: $transparentGray;
+  }
+
+  input {
+    transition: all .1s linear;
+  }
+
+  .tour-highlighted {
+    transform: scale(1.2);
+    box-shadow: 0 0 15px $orange;
   }
 
   // src: http://www.cssportal.com/style-input-range/

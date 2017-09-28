@@ -1,6 +1,8 @@
 <template>
   <div class="snap-theater">
 
+    <tour :tourHighlightElement="tourHighlightElementCallback" ref="tour"></tour>
+
     <div class="snap-theater-background"></div>
 
     <div class="player-container" :style="playerStyle">
@@ -21,6 +23,8 @@
 
       <div class="slider-container">
         <slider
+          class="tour-highlightable"
+          :tourHighlighted="tourHighlightedElement === 'slider'"
           :min="0"
           :max="tracks.length - 1"
           :onChange="sliderChangeHandler"
@@ -29,24 +33,62 @@
       </div>
 
       <div class="controls-buttons-container">
-        <button @click="startFromBeginningHandler" class="seek-button" title="Rewind To Beginning"><img :src="images.rewind"></img></button>
-        <button @click="seekBackwardHandler" class="seek-button seek-back" title="Previous Snap"><img :src="images.arrow"></img></button>
-        <button @click="seekForwardHandler" class="seek-button" title="Next Snap"><img :src="images.arrow"></img></button>
-
-        <button @click="playPauseHandler" class="seek-button play" v-if="playerState !== 1" title="Play">
-          <img :src="images.play"></img>
+        <button
+          @click="startFromBeginningHandler"
+          class="seek-button tour-highlightable"
+          :class="{'tour-highlighted' : tourHighlightedElement === 'startFromBeginning'}"
+          title="Rewind To Beginning"
+          ref="startFromBeginningButton">
+            <img :src="images.rewind"></img>
+        </button>
+        <button
+          @click="seekBackwardHandler"
+          class="seek-button seek-back tour-highlightable"
+          :class="{'tour-highlighted' : tourHighlightedElement === 'seekBackward'}"
+          title="Previous Snap">
+            <img :src="images.arrow"></img>
+        </button>
+        <button
+          @click="seekForwardHandler"
+          class="seek-button tour-highlightable"
+          :class="{'tour-highlighted' : tourHighlightedElement === 'seekForward'}"
+          title="Next Snap">
+          <img :src="images.arrow"></img>
         </button>
 
-        <button @click="playPauseHandler" class="seek-button" v-if="playerState === 1" title="Pause">
-          <img :src="images.pause"></img>
+        <button
+          @click="playPauseHandler"
+          class="seek-button play tour-highlightable"
+          :class="{'tour-highlighted' : tourHighlightedElement === 'playPause'}"
+          v-if="playerState !== 1"
+          title="Play">
+            <img :src="images.play"></img>
+        </button>
+
+        <button @click="playPauseHandler"
+          class="seek-button tour-highlightable"
+          :class="{'tour-highlighted' : tourHighlightedElement === 'playPause'}"
+          v-if="playerState === 1"
+          title="Pause">
+            <img :src="images.pause"></img>
         </button>
 
         <div class="tag-toggle-container">
-          <button @click="toggleTags" class="seek-button" v-bind:class="{active: tagsVisible}" title="Tag Menu"><img :src="images.tag"></img></button>
+          <button
+            @click="toggleTags"
+            class="seek-button tour-highlightable"
+            :class="{'tour-highlighted' : tourHighlightedElement === 'tagButton', 'active': tagsVisible}"
+            title="Tag Menu">
+            <img :src="images.tag"></img>
+          </button>
         </div>
 
         <div class="tag-toggle-container">
-          <button @click="toggleInfo" class="seek-button" v-bind:class="{active: infoVisible}" title="Info Menu">
+          <button
+            @click="toggleInfo"
+            class="seek-button tour-highlightable"
+            :class="{'tour-highlighted' : tourHighlightedElement === 'infoButton', 'active': infoVisible}"
+             title="Info Menu">
             <span class="">i</span>
           </button>
         </div>
@@ -70,7 +112,25 @@
 
     <transition name="tag-animation">
       <div v-show="infoVisible" class="info-container" key="info-container">
-        <img v-show="infoVisible" :src="images.close" class="info-close-button" role="button" key="close-button" @click="infoCloseClickHandler" title="Close"></img>
+        <img
+          v-show="infoVisible"
+          :src="images.close"
+          class="info-close-button"
+          role="button"
+          key="close-button"
+          @click="infoCloseClickHandler"
+          title="Close">
+        </img>
+        <img
+          v-show="infoVisible"
+          :src="images.question"
+          class="info-tour-button"
+          role="button"
+          key="tour-button"
+          @click="infoTourClickHandler"
+          title="Show Tour">
+        </img>
+
         <h1>Info</h1>
         <p class="map-info-1">{{locations[tracks[currentTrackIndex].location] ? `${locations[tracks[currentTrackIndex].location].name}, ${locations[tracks[currentTrackIndex].location].state}` : ""}}</span></p>
         <p class="map-info-2"><span v-for="tag in tracks[currentTrackIndex].tags">{{tag}} </span></p>
@@ -95,15 +155,18 @@ import arrow from "../assets/arrow.svg"
 import rewind from "../assets/rewind.svg"
 import tag from "../assets/tag.svg"
 import close from "../assets/close.svg"
+import question from "../assets/question.svg"
 
 import slider from "./Slider.vue"
+import tour from "./Tour.vue"
 
 import GoogleMapsLoader  from "google-maps"
 
 
 export default {
   components: {
-    slider
+    slider,
+    tour
   },
   data() {
     return {
@@ -114,8 +177,10 @@ export default {
         rewind,
         pause,
         tag,
-        close
+        close,
+        question
       },
+      tourHighlightedElement: "",
       player: {},
       playerReady: false,
       playerStyle: {},
@@ -282,6 +347,9 @@ export default {
         this.resizePlayer()
       }
 
+    },
+    tourHighlightElementCallback(element) {
+      this.tourHighlightedElement = element
     },
     // Process tracks and tags
     initTracks() {
@@ -591,6 +659,9 @@ export default {
       this.tagsVisible = false;
       this.infoVisible = false;
     },
+    infoTourClickHandler() {
+      this.$refs.tour.showTour()
+    },
     toggleTags() {
       this.tagsVisible = !this.tagsVisible
       this.infoVisible = false;
@@ -758,6 +829,15 @@ h2 {
   color: #fff;
 }
 
+// Highlighted by first-time tour
+.tour-highlightable {
+  transition: all .1s linear;
+}
+.tour-highlighted {
+  transform: scale(1.2);
+  box-shadow: 0 0 15px $orange;
+}
+
 .seek-button {
   width: 50px;
   height: 50px;
@@ -777,7 +857,6 @@ h2 {
   padding: 0;
 
   cursor: pointer;
-  transition: transform .1s linear;
 
   @include mobile {
     width: 40px;
@@ -898,6 +977,22 @@ h2 {
   position: absolute;
   top: 12px;
   left: 12px;
+
+  transition: all .2s;
+
+  z-index: 1;
+
+  cursor: pointer;
+
+  &:hover {
+    transform: scale(1.2);
+  }
+}
+
+.info-tour-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
 
   transition: all .2s;
 
