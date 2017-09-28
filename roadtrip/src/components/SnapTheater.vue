@@ -519,19 +519,7 @@ export default {
       let loopIndex = this.trackIndexForTime;
       let foundMatch = false;
 
-      if (!tagMatch && this.seekDirection === "forward") {
-        while (loopIndex < this.tracks.length - 1) {
-          let trackInLoop = this.tracks[loopIndex]
-          if ((helpers.arrayInArray(trackInLoop.tags, this.activeTags) || this.activeTags.length === 0) && trackInLoop.tags[0] !== "skip") {
-            foundMatch = true;
-            break;
-          } else {
-            loopIndex++;
-          }
-        }
-        this.currentTrackIndex = loopIndex;
-
-      } if (!tagMatch) {
+      if (!tagMatch) {
 
         if (this.seekDirection === "forward") {
           while (loopIndex < this.tracks.length - 1) {
@@ -541,6 +529,14 @@ export default {
               break;
             } else {
               loopIndex++;
+
+              // If we get to the movie without tags matching, start from beginning
+              if (loopIndex === this.tracks.length - 1) {
+                setTimeout(() => {
+                  this.startFromBeginningHandler()
+                })
+
+              }
             }
           }
         } else if (this.seekDirection === "backward") {
