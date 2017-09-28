@@ -98,6 +98,8 @@ import close from "../assets/close.svg"
 
 import slider from "./Slider.vue"
 
+import GoogleMapsLoader  from "google-maps"
+
 
 export default {
   components: {
@@ -133,6 +135,7 @@ export default {
       windowWidth: 0,
       infoMap: {},
       infoMapMarker: {},
+      googleMapAPILoaded: false,
       debugGeocoder: {},
       debugSearchBox: {}
     }
@@ -150,26 +153,6 @@ export default {
     this.initTracks()
     this.initPlayer()
 
-    // TODO: Tie to actual onload event from google
-    setTimeout(() => {
-      let position = new google.maps.LatLng(this.locations['ChIJ_87aSGzctEwRtGtUNnSJTSY'].lat, this.locations['ChIJ_87aSGzctEwRtGtUNnSJTSY'].lng);
-
-      this.infoMap = new google.maps.Map(this.$refs.googleMap, {
-        center: position,
-        zoom: 6
-      });
-
-      this.infoMapMarker = new google.maps.Marker({
-        position: position,
-        map: this.infoMap,
-        title: this.locations['ChIJ_87aSGzctEwRtGtUNnSJTSY'].name
-      });
-
-      // Trigger time check to update map/center so the above values don't really matter
-      this.checkTrackIndexForTime()
-
-    }, 1000)
-
 
     if (this.debug) {
 
@@ -182,8 +165,6 @@ export default {
 
         searchBox.addListener('places_changed', () => {
           let places = searchBox.getPlaces()
-
-          console.log("places " , places);
 
           places.forEach((place) => {
 
@@ -207,9 +188,8 @@ export default {
           })
         })
 
-        // TODO: Remove when all done. Should just be a 1 off thing, but could be reused
-        // to add more info to locations
-        if (false) {
+        // For reference if we need to loop through places
+        /***
           let i = 0;
           for (let location of Object.keys(this.locations)) {
 
@@ -245,7 +225,9 @@ export default {
             i++
 
           }
-        }
+
+          ***/
+
 
       }, 1000)
 
@@ -266,7 +248,6 @@ export default {
   },
   methods: {
     globalKeydown(e) {
-      // TODO: Block youtube default controls
       if (e.code === "ArrowRight") {
         this.seekForward()
       } else if (e.code === "ArrowLeft") {
@@ -274,21 +255,13 @@ export default {
       }
     },
     debugDataInput(d) {
-      console.log("data " , d);
-      console.log("val " , d.target.value);
-
       this.tracks[this.currentTrackIndex].tags = d.target.value.split(" ")
     },
     debugInputEnter(d) {
 
       let places = this.debugSearchBox.getPlaces()
 
-      console.log("places " , places);
-
       places.forEach((place) => {
-        console.log("name? " , place.name);
-
-        console.log("plac" , place);
 
         let location = {
           name: place.name,
@@ -331,7 +304,39 @@ export default {
         trackIndex++
       }
 
-      console.log("all tags: " , this.tags);
+      // Delete our "skip" tag
+      delete this.tags['skip']
+
+      console.log("tracks " , this.tags);
+
+    },
+    initGoogleMap() {
+
+      GoogleMapsLoader.KEY = "AIzaSyDY-HfeAAaeqRYsu4qQPYxhnYM4XUKb6m4"
+
+      GoogleMapsLoader.load((google) => {
+
+          this.googleMapAPILoaded = true;
+
+          let position = new google.maps.LatLng(this.locations['ChIJ_87aSGzctEwRtGtUNnSJTSY'].lat, this.locations['ChIJ_87aSGzctEwRtGtUNnSJTSY'].lng);
+
+          this.infoMap = new google.maps.Map(this.$refs.googleMap, {
+            center: position,
+            zoom: 6,
+            libraries: ["places"]
+          });
+
+          // This marker will be overwritten immediately, so actual info doesn't matter
+          this.infoMapMarker = new google.maps.Marker({
+            position: position,
+            map: this.infoMap,
+            title: this.locations['ChIJ_87aSGzctEwRtGtUNnSJTSY'].name
+          });
+
+          this.createGoogleMarkerForLocation()
+
+      });
+
 
     },
     initPlayer() {
@@ -350,7 +355,7 @@ export default {
            this.createPlayer()
          }
       } else {
-        console.log("already loaded");
+        console.log("youtube player already loaded");
         this.createPlayer()
       }
 
@@ -366,8 +371,10 @@ export default {
         },
         playerVars: {
           controls: this.debug ? 1 : 0,
+          autoplay: 1,
+          enablejsapi: 1,
           fs: 0,
-          iv_load_policy: 0,
+          iv_load_policy: 3,
           modestbranding: 1,
           playsinline: 1,
           rel: 0,
@@ -377,8 +384,9 @@ export default {
 
       });
 
-      // After creating, set size
-      this.resizePlayer();
+      // After creating, set size and load google map
+      this.resizePlayer()
+      this.initGoogleMap()
 
     },
 
@@ -407,9 +415,14 @@ export default {
       event.target.playVideo();
 
       // Animate in info panel after video loads (after a delay)
+      // Also re-calculate center after a delay because for whatever reason the google API doesn't want to fucking work
       setTimeout(() => {
         if (!this.infoVisible && !this.tagsVisible) {
             this.toggleInfo()
+
+            setTimeout(() => {
+              this.createGoogleMarkerForLocation()
+            }, 250)
         }
 
       }, 2000)
@@ -421,9 +434,6 @@ export default {
       }, 100)
     },
 
-    // TODO: Refactor this so we have a local currentIndex variable,
-    // and if it changes based on our time in an interval we handle things like seeking/tag checking
-    // Also TODO: Handle 'skip' tag
     // Also TODO: when getting to end of movie, go back, show check mark or some indication there's none left
     checkTime() {
 
@@ -449,11 +459,6 @@ export default {
 
     // Called in watcher for current track index, also called manually when we need to update map
     checkCurrentTrackIndex() {
-      console.log("current track index changed" , this.currentTrackIndex);
-      // TODO: DEBUG, remove when done adding data
-      if (this.debug) {
-        this.$refs.debugInput.value = this.tracks[this.currentTrackIndex].tags.join(" ")
-      }
 
       // If current track index changes and we're not in the right time for video, seek there
       let currentTrack = this.tracks[this.currentTrackIndex]
@@ -464,34 +469,39 @@ export default {
         // is close but not exactly the same as clip we should go to
         let dif = currentTrack.start - this.player.getCurrentTime();
         if (Math.abs(dif) >= 1) {
-          console.log("seeking");
           this.player.seekTo(currentTrack.start)
         }
 
       }
 
       // Center on google map
-      if (currentTrack.location) {
-        let location = this.locations[currentTrack.location]
+      if (currentTrack.location && this.googleMapAPILoaded) {
+        this.createGoogleMarkerForLocation()
+      }
+    },
 
-        if (location) {
-          this.infoMap.setCenter({
+    createGoogleMarkerForLocation() {
+      let currentTrack = this.tracks[this.currentTrackIndex]
+      let location = this.locations[currentTrack.location]
+
+      if (location) {
+        // Remove previous marker
+        this.infoMapMarker.setMap(null)
+
+        // Make new marker
+        this.infoMapMarker = new google.maps.Marker({
+          position: {
             lat: location.lat,
-            lng: location.lng
-          })
-          // Remove previous marker
-          this.infoMapMarker.setMap(null)
+            lng:location.lng
+          },
+          map: this.infoMap,
+          title: location.name
+        });
 
-          // Make new marker
-          this.infoMapMarker = new google.maps.Marker({
-            position: {
-              lat: location.lat,
-              lng:location.lng
-            },
-            map: this.infoMap,
-            title: location.name
-          });
-        }
+        this.infoMap.setCenter({
+          lat: location.lat,
+          lng: location.lng
+        })
       }
     },
 
@@ -501,7 +511,10 @@ export default {
       // If not, seek forward til we find one that does.
       let trackToCheck = this.tracks[this.trackIndexForTime]
 
-      let tagMatch = helpers.arrayInArray(trackToCheck.tags, this.activeTags) || this.activeTags.length === 0
+      // If we have a 'skip' tag, don't show
+      let skipTrack = trackToCheck.tags[0] === "skip"
+
+      let tagMatch = (helpers.arrayInArray(trackToCheck.tags, this.activeTags) || this.activeTags.length === 0) && !skipTrack
 
       let loopIndex = this.trackIndexForTime;
       let foundMatch = false;
@@ -509,23 +522,21 @@ export default {
       if (!tagMatch && this.seekDirection === "forward") {
         while (loopIndex < this.tracks.length - 1) {
           let trackInLoop = this.tracks[loopIndex]
-          if (helpers.arrayInArray(trackInLoop.tags, this.activeTags) || this.activeTags.length === 0) {
+          if ((helpers.arrayInArray(trackInLoop.tags, this.activeTags) || this.activeTags.length === 0) && trackInLoop.tags[0] !== "skip") {
             foundMatch = true;
             break;
           } else {
             loopIndex++;
           }
         }
-        console.log("tag mismatch, changing current track index to " , loopIndex);
         this.currentTrackIndex = loopIndex;
 
       } if (!tagMatch) {
 
         if (this.seekDirection === "forward") {
-          console.log("seeking forward for tag mismatch");
           while (loopIndex < this.tracks.length - 1) {
             let trackInLoop = this.tracks[loopIndex]
-            if (helpers.arrayInArray(trackInLoop.tags, this.activeTags) || this.activeTags.length === 0) {
+            if ((helpers.arrayInArray(trackInLoop.tags, this.activeTags) || this.activeTags.length === 0) && trackInLoop.tags[0] !== "skip") {
               foundMatch = true;
               break;
             } else {
@@ -533,10 +544,9 @@ export default {
             }
           }
         } else if (this.seekDirection === "backward") {
-          console.log("seeking backward for tag mismatch");
           while (loopIndex > -1) {
             let trackInLoop = this.tracks[loopIndex]
-            if (helpers.arrayInArray(trackInLoop.tags, this.activeTags) || this.activeTags.length === 0) {
+            if ((helpers.arrayInArray(trackInLoop.tags, this.activeTags) || this.activeTags.length === 0) && trackInLoop.tags[0] !== "skip") {
               foundMatch = true;
               break;
             } else {
@@ -550,11 +560,9 @@ export default {
           console.error("Invalid seek direction");
         }
 
-        console.log("setting current track " , loopIndex);
         this.currentTrackIndex = loopIndex;
 
       } else {
-        console.log("tagmatch " , this.trackIndexForTime);
         this.currentTrackIndex = this.trackIndexForTime
       }
     },
@@ -667,13 +675,9 @@ export default {
   watch: {
     currentTrackIndex: function(newVal, oldVal) {
       this.checkCurrentTrackIndex()
-
     },
     trackIndexForTime: function(newVal, oldVal) {
-      console.log("time track index change " , newVal);
-
       this.checkTrackIndexForTime()
-
     }
   }
 }
@@ -712,7 +716,7 @@ export default {
 }
 
 .snap-theater-background {
-  background: url("../assets/landscape.jpg") no-repeat center center fixed;
+  background: url("../assets/theater-background.jpg") no-repeat center center fixed;
   background-size: cover;
   filter: brightness(40%) contrast(130%);
   width: 100%;
@@ -767,7 +771,6 @@ h2 {
   background-color: $gray1;
   color: #000;
 
-  // TODO: Get a font that has a good lookin info 'I'?
   font-size: 30px;
   font-family: "serif";
 

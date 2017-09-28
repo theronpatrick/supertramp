@@ -29,7 +29,6 @@
     computed: {
       trackInfo() {
         let track = tracks[this.infoTrackNumber]
-        console.log("track is "  ,track);
         let location = locations[track.location]
 
         let returnString = `<span>Track ${this.infoTrackNumber + 1} of ${tracks.length}</span>`
@@ -58,11 +57,9 @@
         this.onChange(val)
       },
       mousedownHandler() {
-        console.log("down");
         this.infoVisible = true;
       },
       mouseupHandler() {
-        console.log("up");
         this.infoVisible = false;
       }
     }
