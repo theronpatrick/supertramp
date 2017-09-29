@@ -10,7 +10,10 @@
       :class="{'tour-highlighted': tourHighlighted}"
       @input="sliderChangeHandler"
       @mousedown="mousedownHandler"
-      @mouseup="mouseupHandler">
+      @mouseup="mouseupHandler"
+      @touchstart="mousedownHandler"
+      @touchend="mouseupHandler"
+      >
     </input>
   </span>
 </template>

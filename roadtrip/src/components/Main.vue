@@ -20,6 +20,16 @@ export default {
     return {
       landscape
     }
+  },
+  mounted() {
+    // Current web server is kinda funky so it doesn't like the way routes are set up without hashes
+    // So we're setting a redirect from those pages to the main page with a query param, and then send the user to the correct location
+
+    if (this.$route.query) {
+      if (this.$route.query.page === "summerofsnap") {
+        this.$router.replace({ path: 'summerofsnap' })
+      }
+    }
   }
 }
 </script>
