@@ -1,17 +1,36 @@
 <template>
+  <!-- Default is no link, containing section info. If link is present, wrap in anchor -->
+
   <div
+    v-if="!link"
     role="button"
     tabindex="0"
     :class="navBubbleClasses"
     @keydown="onKeydown"
     @click="(e) => {bubbleClick(e)}"
     :style="bubbleStyle"
+    :title="title"
   >
     <img :src="icon" class="bubble-image" :alt="iconAlt"></img>
     <img :src="closeImg" role="button" class="close-button" alt="Close"></img>
     <section v-html="content">
     </section>
   </div>
+
+  <a v-else-if="link" :href="link">
+    <div
+      role="button"
+      tabindex="0"
+      :class="navBubbleClasses"
+      @keydown="onKeydown"
+      @click="(e) => {bubbleClick(e)}"
+      :style="bubbleStyle"
+      :title="title"
+    >
+      <img :src="icon" class="bubble-image" :alt="iconAlt"></img>
+    </div>
+  </a>
+
 </template>
 
 <script>
@@ -68,7 +87,7 @@ export default {
       let centeringAdjustment = `${0 - radius}px`
       let centered = this.isActive || this.start;
 
-      // Adjustments that basically replicatie translateX and translateY adjustments based on type
+      // Adjustments that basically replicate translateX and translateY adjustments based on type
       let parsedClass = this.getParsedClass();
       switch (parsedClass) {
         case "top":
@@ -115,6 +134,18 @@ export default {
             style["margin-top"] = `0px`
           }
           break;
+          case "center":
+            if (!centered) {
+              style.top = `50%`
+              style.right = `50%`
+              style["margin-top"] = centeringAdjustment
+              style["margin-right"] = centeringAdjustment
+            } else {
+              style.top = `0%`;
+              style.right = "0%"
+              style["margin-top"] = `0px`
+            }
+            break;
         default:
           console.error("Undefined bubble class");
           break;
@@ -150,6 +181,9 @@ export default {
         case "resume":
           parsedClass = "left"
           break;
+        case "roadtrip":
+          parsedClass = "center"
+          break;
         default:
           console.error("Error parsing nav bubble class");
           break;
@@ -183,7 +217,9 @@ export default {
     diameter: { required: true },
     icon: { required: true },
     iconAlt: { required: true },
-    content: { required: true }
+    content: { required: true },
+    title: { required: true },
+    link: { required: false }
   }
 }
 </script>

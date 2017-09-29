@@ -3,6 +3,7 @@
     <nav>
       <NavBubble
         v-for="bubble in bubbles"
+        :title="bubble.title"
         :navBubbleClass="bubble.class"
         :start="bubble.start"
         :isActive="activeNav === bubble.class"
@@ -10,7 +11,8 @@
         :diameter="diameter"
         :icon="bubble.icon"
         :content="bubble.content"
-        iconAlt="bubble.iconAlt"
+        :iconAlt="bubble.iconAlt"
+        :link="bubble.link"
       />
     </nav>
   </div>
@@ -24,6 +26,7 @@ import resumeImg from "root/img/file.svg"
 import manImg from "root/img/man.svg"
 import phoneImg from "root/img/phone.svg"
 import workImg from "root/img/work.svg"
+import carImg from "root/img/car.svg"
 
 import content from "root/content/content"
 
@@ -60,28 +63,41 @@ export default {
           icon: manImg,
           iconAlt: "profile",
           start: !this.hasActiveRoute(),
-          content: content.profile
-        },
-        {
-          class: "projects",
-          icon: workImg,
-          iconAlt: "projects",
-          start: !this.hasActiveRoute(),
-          content: content.projects
-        },
-        {
-          class: "contact",
-          icon: phoneImg,
-          iconAlt: "contact",
-          start: !this.hasActiveRoute(),
-          content: content.contact
+          content: content.profile,
+          title: "About Me"
         },
         {
           class: "resume",
           icon: resumeImg,
           iconAlt: "resume",
           start: !this.hasActiveRoute(),
-          content: content.resume
+          content: content.resume,
+          title: "Resume"
+        },
+        {
+          class: "roadtrip",
+          link: "http://theronp.com/roadtrip",
+          icon: carImg,
+          iconAlt: "roadtrip",
+          start: !this.hasActiveRoute(),
+          content: "",
+          title: "Road Trip"
+        },
+        {
+          class: "contact",
+          icon: phoneImg,
+          iconAlt: "contact",
+          start: !this.hasActiveRoute(),
+          content: content.contact,
+          title: "Contact"
+        },
+        {
+          class: "projects",
+          icon: workImg,
+          iconAlt: "projects",
+          start: !this.hasActiveRoute(),
+          content: content.projects,
+          title: "Projects"
         }
       ]
     }
@@ -118,6 +134,14 @@ export default {
       return this.$route.params.sectionId ? true : false
     },
     navClick: function(nav) {
+
+      console.log("click " , nav);
+      // For some routes, just open link and don't 'open' a section
+      if (nav === "roadtrip") {
+        window.open("http://theronp.com/roadtrip", "_self");
+        return;
+      }
+
       if (!this.activeNav) {
         this.$router.push({
           path: `/${nav}`
@@ -135,7 +159,7 @@ export default {
       let dimension = Math.min(width, height)
 
       // Set diameter based on screen size
-      let diameter = dimension / 3
+      let diameter = dimension / 3.5
 
       // Set prop to calculated diameter (or min number so the bubbles don't get too small on mobile)
       let maxSize = 250

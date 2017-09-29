@@ -6,6 +6,7 @@ import SnapTheater from '@/components/SnapTheater'
 Vue.use(Router)
 
 let router = new Router({
+  mode: "history",
   routes: [
     {
       path: '/',
@@ -14,6 +15,21 @@ let router = new Router({
     },
     {
       path: '/summerofsnap',
+      name: 'SnapTheater',
+      component: SnapTheater,
+      meta: {
+        title: "Summer of Snap"
+      }
+    },
+    // Need to prefix routes with 'roadtrip' in history mode since that's where
+    // it'll be hosted on theronp.com
+    {
+      path: '/roadtrip',
+      name: 'Main',
+      component: Main,
+    },
+    {
+      path: '/roadtrip/summerofsnap',
       name: 'SnapTheater',
       component: SnapTheater,
       meta: {
