@@ -378,8 +378,6 @@ export default {
       // Delete our "skip" tag
       delete this.tags['skip']
 
-      console.log("tracks " , this.tags);
-
     },
     initGoogleMap() {
 
@@ -484,19 +482,6 @@ export default {
       this.playerReady = true;
 
       event.target.playVideo();
-
-      // Animate in info panel after video loads (after a delay)
-      // Also re-calculate center after a delay because for whatever reason the google API doesn't want to fucking work
-      setTimeout(() => {
-        if (!this.infoVisible && !this.tagsVisible) {
-            this.toggleInfo()
-
-            setTimeout(() => {
-              this.createGoogleMarkerForLocation()
-            }, 250)
-        }
-
-      }, 2000)
 
       // Set up interval to check time and update info panel
       setInterval(() => {
@@ -847,7 +832,7 @@ h2 {
 }
 .tour-highlighted {
   transform: scale(1.2);
-  box-shadow: 0 0 15px $orange;
+  box-shadow: 0 0 0 4px $orange;
 }
 
 // Notifications at top

@@ -91,7 +91,8 @@
 
   .tour-highlighted {
     transform: scale(1.2);
-    box-shadow: 0 0 15px $orange;
+    box-shadow: 0 0 0 4px $orange;
+    border-radius: 5px;
   }
 
   // src: http://www.cssportal.com/style-input-range/

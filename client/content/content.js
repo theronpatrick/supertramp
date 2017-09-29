@@ -10,6 +10,7 @@ export default {
   contact:
     `<p>I'm currently open to new clients (remote, contract only). To contact, please visit my <a href="https://www.linkedin.com/in/theronpatrick/" target="_blank">LinkedIn</a> or email at <a href="mailto:therondevelopment@gmail.com" target="_blank">therondevelopment@gmail.com</a> (<i>no recruiters, please</i>).</p>`,
   projects:
+    `<p><a href="http://theronp.com/roadtrip" target="_blank">Theron's 2017 Cross-Country Extravaganza</a> - Interactive movies, pictures, and stats from my 3 month journey across America in the summer of 2017.</p>
 
     <p><a href="https://itunes.apple.com/us/app/taetro/id1195441560" target="_blank">Taetro</a> - The official mobile app of electronic music/producer <a href="https://www.youtube.com/channel/UCNRFvq0JOm5VqHIBDDQgkMA" target="_blank">Taetro</a>. Platform to share and play soundpacks created by Taetro, and to connect to the YouTube community. View on the <a href="https://play.google.com/store/apps/details?id=com.theronp.taetro&hl=en" target="_blank">Google Play Store</a> or <a href="https://itunes.apple.com/us/app/taetro/id1195441560" target="_blank">iOS App Store</a>.</p>
 

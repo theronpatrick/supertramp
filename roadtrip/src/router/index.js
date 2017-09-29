@@ -25,12 +25,12 @@ let router = new Router({
     // it'll be hosted on theronp.com
     {
       path: '/roadtrip',
-      name: 'Main',
+      name: 'ProdMain',
       component: Main,
     },
     {
       path: '/roadtrip/summerofsnap',
-      name: 'SnapTheater',
+      name: 'ProdSnapTheater',
       component: SnapTheater,
       meta: {
         title: "Summer of Snap"

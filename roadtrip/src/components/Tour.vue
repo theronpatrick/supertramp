@@ -1,9 +1,11 @@
 <template>
-  <div class="tour-box" v-show="visible">
-    <img :src="images.close" class="close-button" role="button" @click="closeHandler"></img>
-    <img :src="images.arrow" class="next-button" :class="{'focused': nextArrowFocused}" role="button" @click="nextHandler"></img>
-    <span class="message">{{messages[messageIndex].message}}</span>
-  </div>
+  <transition name="tour-animation">
+    <div class="tour-box" v-show="visible">
+      <img :src="images.close" class="close-button" role="button" @click="closeHandler"></img>
+      <img :src="images.arrow" class="next-button" :class="{'focused': nextArrowFocused}" role="button" @click="nextHandler"></img>
+      <span class="message">{{messages[messageIndex].message}}</span>
+    </div>
+  </transition>
 </template>
 
 <script>
@@ -69,7 +71,7 @@ import tracks from "../data/snapchat-tracks.js"
       if (!hasSeen) {
         setTimeout(() => {
           this.visible = true
-        }, 500)
+        }, 1500)
       }
 
     },
@@ -89,33 +91,25 @@ import tracks from "../data/snapchat-tracks.js"
       },
       showTour() {
         this.visible = true;
-        this.messageIndex = 1;
+        this.messageIndex = 0;
       }
     },
     watch: {
       visible() {
 
-        let startTime = 1500;
+        let startTime = 2200;
         let blinkTime = 200;
+        let numOfBlinks = 4;
         if (this.visible === true) {
-          setTimeout(() => {
-            this.nextArrowFocused = true;
-          }, startTime)
-          setTimeout(() => {
-            this.nextArrowFocused = false;
-          }, startTime + blinkTime * 1)
-          setTimeout(() => {
-            this.nextArrowFocused = true;
-          }, startTime + blinkTime * 2)
-          setTimeout(() => {
-            this.nextArrowFocused = false;
-          }, startTime + blinkTime * 3)
-          setTimeout(() => {
-            this.nextArrowFocused = true;
-          }, startTime + blinkTime * 4)
-          setTimeout(() => {
-            this.nextArrowFocused = false;
-          }, startTime + blinkTime * 5)
+          for (let i = 0; i < numOfBlinks * 2; i = i + 2) {
+            setTimeout(() => {
+              this.nextArrowFocused = true;
+            }, startTime + i * blinkTime)
+
+            setTimeout(() => {
+              this.nextArrowFocused = false;
+            }, startTime + (i + 1) * blinkTime)
+          }
         }
       }
     }
@@ -126,18 +120,36 @@ import tracks from "../data/snapchat-tracks.js"
 
 @import "~../styles/colors";
 
+// Animation
+.tour-animation-enter {
+  transform: scale(0) translateX(-50%) !important;
+}
+.tour-animation-enter-to {
+  transform: scale(1) translateX(-50%) !important;
+}
+.tour-animation-leave {
+  transform: scale(1) translateX(-50%) !important;
+}
+.tour-animation-leave-to {
+  transform: scale(0) translateX(-50%) !important;
+}
+
+
 .tour-box {
   position: absolute;
   z-index: 9999;
   height: 200px;
-  width: 200px;
+  width: 336px;
 
-  bottom: 100px;
+  bottom: 105px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: scale(1) translateX(-50%);
 
-  background: $transparentGray;
+  background: rgba(250,250,250,.95);
   border: 2px solid #000;
+
+  transition: .75s all ease-in;
+  transform-origin: 0;
 }
 
 .close-button {
@@ -180,8 +192,8 @@ import tracks from "../data/snapchat-tracks.js"
   }
 
   &.focused {
-    transform: scale(1.5);
-    box-shadow: 0 0 25px $orange;
+    transform: scale(2);
+    box-shadow: 0 0 0 4px $orange;
   }
 }
 
