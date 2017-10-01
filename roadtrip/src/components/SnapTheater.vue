@@ -99,11 +99,15 @@
     </div>
 
     <!-- Toggle containers for tags/info -->
-    <transition name="tag-animation">
-      <div v-if="tagsVisible" class="info-container" key="tag-container">
+    <transition name="tag-menu-animation">
+      <div v-if="tagsVisible" class="info-container" key="tag-container" ref="tagInfoContainer">
         <img v-if="tagsVisible" :src="images.close" class="info-close-button" role="button" key="close-button" @click="infoCloseClickHandler" title="Close"></img>
         <h1>Tags</h1>
-        <p class="tag-info"><span v-for="tag in activeTags">{{tag}} </span></p>
+        <p class="tag-info">
+          <transition-group name="active-tag-animation">
+            <span v-for="tag in activeTags" key="tag" class="active-tag">{{tag}} </span>
+          </transition-group>
+        </p>
         <div class="tag-button-container">
           <button class="tag-button " v-for="(tag, index) in orderedTags" :key="tag" v-bind:class="{active: activeTags.indexOf(tag) > -1}" @click="tagClickHandler(tag)">
             <span class="">{{tag}} ({{tags[tag].length}})</span>
@@ -112,8 +116,8 @@
       </div>
     </transition>
 
-    <transition name="tag-animation">
-      <div v-show="infoVisible" class="info-container" key="info-container">
+    <transition name="tag-menu-animation">
+      <div v-show="infoVisible" class="info-container" key="info-container" ref="infoContainer">
         <img
           v-show="infoVisible"
           :src="images.close"
@@ -316,10 +320,16 @@ export default {
   },
   methods: {
     globalKeydown(e) {
-      if (e.code === "ArrowRight") {
+      let code = e.code.toLowerCase()
+
+      if (code === "arrowright") {
         this.seekForward()
-      } else if (e.code === "ArrowLeft") {
+      } else if (code === "arrowleft") {
         this.seekBackward()
+      } else if (code === "space") {
+        // Pains be to turn of accessibility control for space, but need to hijack control for play/pause
+        e.preventDefault()
+        this.playPauseHandler()
       }
     },
     debugDataInput(d) {
@@ -662,6 +672,7 @@ export default {
     toggleTags() {
       this.tagsVisible = !this.tagsVisible
       this.infoVisible = false;
+
     },
     toggleInfo() {
       this.infoVisible = !this.infoVisible
@@ -682,7 +693,7 @@ export default {
       }
 
       // If tags change, might need to seek ahead so trigger time check
-      this.checkCurrentTrackIndex()
+      this.checkTrackIndexForTime()
 
     },
     playPauseHandler() {
@@ -911,12 +922,47 @@ h2 {
   }
 }
 
-// Tag animation
-.tag-animation-enter-active, .tag-animation-leave-active {
+// Tag menu animation
+.tag-menu-animation-enter-active, .tag-menu-animation-leave-active {
   right: 0px !important;
 }
-.tag-animation-enter, .tag-animation-leave-to /* .fade-leave-active below version 2.1.8 */ {
+.tag-menu-animation-enter, .tag-menu-animation-leave-to {
   right: -336px !important;
+}
+
+// Animation for adding/removing tags
+
+.active-tag-animation-enter {
+  transform: scale(0)
+}
+.active-tag-animation-enter-to {
+  animation: active-tag-bounce .7s;
+}
+.active-tag-animation-leave {
+  transform: scale(1)
+}
+.active-tag-animation-leave-to {
+  animation: active-tag-bounce .2s reverse;
+}
+
+
+
+@keyframes active-tag-bounce {
+  0% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.active-tag {
+  display: inline-block;
+  margin-right: 4px;
+  // animation: active-tag-bounce 10s infinite;
 }
 
 .tag-toggle-container {
@@ -969,6 +1015,9 @@ h2 {
       height: 40px;
       margin-top: 52px;
       margin-bottom: 8px;
+
+      font-size: 16px;
+      font-weight: bold;
     }
 
     &.map-info-1 {
@@ -1005,7 +1054,7 @@ h2 {
 
   cursor: pointer;
 
-  &:hover {
+  &:hover, &:focus {
     transform: scale(1.2);
   }
 }
@@ -1021,7 +1070,7 @@ h2 {
 
   cursor: pointer;
 
-  &:hover {
+  &:hover, &:focus {
     transform: scale(1.2);
   }
 }

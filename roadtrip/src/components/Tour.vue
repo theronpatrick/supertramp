@@ -44,7 +44,7 @@ import tracks from "../data/snapchat-tracks.js"
             element: "seekForward"
           },
           {
-            message: `Use this button to play or pause the movie.`,
+            message: `Use this button (or your space bar) to play or pause the movie.`,
             element: "playPause"
           },
           {
