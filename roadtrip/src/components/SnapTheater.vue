@@ -101,7 +101,26 @@
     <!-- Toggle containers for tags/info -->
     <transition name="tag-menu-animation">
       <div v-if="tagsVisible" class="info-container" key="tag-container" ref="tagInfoContainer">
-        <img v-if="tagsVisible" :src="images.close" class="info-close-button" role="button" key="close-button" @click="infoCloseClickHandler" title="Close"></img>
+        <img
+          v-if="tagsVisible"
+          :src="images.close"
+          class="info-close-button"
+          role="button"
+          key="close-button"
+          @click="infoCloseClickHandler"
+          title="Close">
+        </img>
+
+        <img
+          v-show="tagsVisible"
+          :src="images.reload"
+          class="info-action-button"
+          role="button"
+          key="reload-tags-button"
+          @click="clearTagsHandler"
+          title="Clear Tags">
+        </img>
+
         <h1>Tags</h1>
         <p class="tag-info">
           <transition-group name="active-tag-animation">
@@ -130,7 +149,7 @@
         <img
           v-show="infoVisible"
           :src="images.question"
-          class="info-tour-button"
+          class="info-action-button"
           role="button"
           key="tour-button"
           @click="infoTourClickHandler"
@@ -162,6 +181,7 @@ import rewind from "../assets/rewind.svg"
 import tag from "../assets/tag.svg"
 import close from "../assets/close.svg"
 import question from "../assets/question.svg"
+import reload from "../assets/reload.svg"
 
 import slider from "./Slider.vue"
 import tour from "./Tour.vue"
@@ -184,7 +204,8 @@ export default {
         pause,
         tag,
         close,
-        question
+        question,
+        reload
       },
       tourHighlightedElement: "",
       notification: "",
@@ -683,6 +704,9 @@ export default {
         google.maps.event.trigger(this.infoMap, 'resize')
       })
     },
+    clearTagsHandler() {
+      this.activeTags = []
+    },
     tagClickHandler(tag) {
       let index = this.activeTags.indexOf(tag)
 
@@ -1059,7 +1083,7 @@ h2 {
   }
 }
 
-.info-tour-button {
+.info-action-button {
   position: absolute;
   top: 12px;
   right: 12px;
