@@ -872,7 +872,7 @@ h2 {
 
 // Notifications at top
 .notification-container {
-  width: 200px;
+  width: 336px;
   height: auto;
 
   z-index: 1;

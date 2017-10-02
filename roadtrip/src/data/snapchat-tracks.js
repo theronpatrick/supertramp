@@ -267,7 +267,7 @@ export default [
     "start": 249,
     "end": 256,
     "tags": [
-      "wildlife"
+      "animals"
     ],
     "location": "ChIJJSmiDrKjrkwRhFVV_A4i32I"
   },
@@ -6468,7 +6468,7 @@ export default [
     "start": 6489,
     "end": 6499,
     "tags": [
-      "wildlife",
+      "animals",
       "nationalparks"
     ],
     "location": "ChIJpX9B9TZm0FQRjl87lWYyzzY"

@@ -15,6 +15,10 @@ export default {
 // App wide styles
 html {
   box-sizing: border-box;
+
+  // Should be extraneous, but just in case include to remove delay on mobile
+  -ms-touch-action: manipulation;	/* IE10  */
+	touch-action: manipulation;
 }
 *, *:before, *:after {
   box-sizing: inherit;
