@@ -25,6 +25,7 @@
 
       <div class="slider-container">
         <slider
+          ref="slider"
           class="tour-highlightable"
           :tourHighlighted="tourHighlightedElement === 'slider'"
           :min="0"
@@ -44,6 +45,7 @@
             <img :src="images.rewind"></img>
         </button>
         <button
+          ref="seekBackwardButton"
           @click="seekBackwardHandler"
           class="seek-button seek-back tour-highlightable"
           :class="{'tour-highlighted' : tourHighlightedElement === 'seekBackward'}"
@@ -51,6 +53,7 @@
             <img :src="images.arrow"></img>
         </button>
         <button
+          ref="seekForwardButton"
           @click="seekForwardHandler"
           class="seek-button tour-highlightable"
           :class="{'tour-highlighted' : tourHighlightedElement === 'seekForward'}"
@@ -59,6 +62,7 @@
         </button>
 
         <button
+          ref="playButton"
           @click="playPauseHandler"
           class="seek-button play tour-highlightable"
           :class="{'tour-highlighted' : tourHighlightedElement === 'playPause'}"
@@ -68,6 +72,7 @@
         </button>
 
         <button @click="playPauseHandler"
+          ref="pauseButton"
           class="seek-button tour-highlightable"
           :class="{'tour-highlighted' : tourHighlightedElement === 'playPause'}"
           v-if="playerState === 1"
@@ -77,6 +82,7 @@
 
         <div class="tag-toggle-container">
           <button
+            ref="tagButton"
             @click="toggleTags"
             class="seek-button tour-highlightable"
             :class="{'tour-highlighted' : tourHighlightedElement === 'tagButton', 'active': tagsVisible}"
@@ -87,6 +93,7 @@
 
         <div class="tag-toggle-container">
           <button
+            ref="infoButton"
             @click="toggleInfo"
             class="seek-button tour-highlightable"
             :class="{'tour-highlighted' : tourHighlightedElement === 'infoButton', 'active': infoVisible}"
@@ -672,6 +679,13 @@ export default {
 
     // Click event handlers
     sliderChangeHandler(sliderValue) {
+
+      // If we're on tour, don't actually take action, just go to next element
+      if (this.tourHighlightedElement === "slider") {
+        this.$refs.tour.nextHandler()
+        return;
+      }
+
       // Debounce dat sucker
       if (this.sliderTimeout) {
         clearTimeout(this.sliderTimeout)
@@ -691,11 +705,23 @@ export default {
       this.$refs.tour.showTour()
     },
     toggleTags() {
+      // If we're on tour, don't actually take action, just go to next element
+      if (this.tourHighlightedElement === "tagButton") {
+        this.$refs.tour.nextHandler()
+        return;
+      }
+
       this.tagsVisible = !this.tagsVisible
       this.infoVisible = false;
 
     },
     toggleInfo() {
+      // If we're on tour, don't actually take action, just go to next element
+      if (this.tourHighlightedElement === "infoButton") {
+        this.$refs.tour.nextHandler()
+        return;
+      }
+
       this.infoVisible = !this.infoVisible
       this.tagsVisible = false;
 
@@ -722,6 +748,12 @@ export default {
     },
     playPauseHandler() {
 
+      // If we're on tour, don't actually take action, just go to next element
+      if (this.tourHighlightedElement === "playPause") {
+        this.$refs.tour.nextHandler()
+        return;
+      }
+
       if (this.playerState === 1) {
         this.player.pauseVideo()
       } else {
@@ -729,9 +761,13 @@ export default {
       }
     },
     seekForwardHandler() {
+      // If we're on tour, don't actually take action, just go to next element
+      if (this.tourHighlightedElement === "seekForward") {
+        this.$refs.tour.nextHandler()
+        return;
+      }
 
       this.seekForward()
-
     },
     seekForward(trackToSeekTo) {
 
@@ -749,10 +785,22 @@ export default {
 
     },
     startFromBeginningHandler() {
+      // If we're on tour, don't actually take action, just go to next element
+      if (this.tourHighlightedElement === "startFromBeginning") {
+        this.$refs.tour.nextHandler()
+        return;
+      }
+
       this.player.seekTo(0, true)
       this.currentTrackIndex = 0;
     },
     seekBackwardHandler() {
+      // If we're on tour, don't actually take action, just go to next element
+      if (this.tourHighlightedElement === "seekBackward") {
+        this.$refs.tour.nextHandler()
+        return;
+      }
+
       this.seekBackward()
     },
     seekBackward() {

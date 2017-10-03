@@ -44,7 +44,7 @@ import tracks from "../data/snapchat-tracks.js"
             element: "seekForward"
           },
           {
-            message: `Use this button (or your space bar) to play or pause the movie.`,
+            message: `Use this button (or your space bar) to play or pause the movie. You can also tap directly on the video.`,
             element: "playPause"
           },
           {
@@ -56,7 +56,7 @@ import tracks from "../data/snapchat-tracks.js"
             element: "infoButton"
           },
           {
-            message: `Enjoy!`,
+            message: `If the video does not play automatically, you may need to tap the "Play" button. Enjoy!`,
             element: ""
           }
         ],
