@@ -256,6 +256,13 @@ export default {
   },
   mounted() {
 
+    let params = this.$route.query
+
+    if (params.filters) {
+      let filters = params.filters.split(",");
+      this.activeTags = filters;
+    }
+
     // This will set initial window bounds
     this.handleResize();
 
