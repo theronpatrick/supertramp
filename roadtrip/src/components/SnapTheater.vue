@@ -154,15 +154,15 @@
           @click="infoCloseClickHandler"
           title="Close">
         </img>
-        <img
+        <span
           v-show="infoVisible"
           :src="images.question"
           class="info-action-button"
           role="button"
           key="tour-button"
           @click="infoTourClickHandler"
-          title="Show Tour">
-        </img>
+          title="Show Tour"
+        >Show Tour</span>
 
         <h1>Info</h1>
         <div class="map-info">
@@ -689,7 +689,6 @@ export default {
     // Click event handlers
     sliderClickHandler() {
       // If we're on tour, don't actually take action, just go to next element
-      console.log("clicky");
       if (this.tourHighlightedElement === "slider") {
         this.$refs.tour.nextHandler()
         return;
