@@ -31,6 +31,7 @@
           :min="0"
           :max="tracks.length - 1"
           :onChange="sliderChangeHandler"
+          :onClick="sliderClickHandler"
           :value="currentTrackIndex"
         ></slider>
       </div>
@@ -86,8 +87,8 @@
             @click="toggleTags"
             class="seek-button tour-highlightable"
             :class="{'tour-highlighted' : tourHighlightedElement === 'tagButton', 'active': tagsVisible}"
-            title="Tag Menu">
-            <img :src="images.tag"></img>
+            title="Filter Menu">
+            <img :src="images.filter"></img>
           </button>
         </div>
 
@@ -105,7 +106,7 @@
       </div>
     </div>
 
-    <!-- Toggle containers for tags/info -->
+    <!-- Toggle containers for tags (filters)/info -->
     <transition name="tag-menu-animation">
       <div v-if="tagsVisible" class="info-container" key="tag-container" ref="tagInfoContainer">
         <img
@@ -118,17 +119,17 @@
           title="Close">
         </img>
 
-        <img
+        <span
           v-show="tagsVisible"
           :src="images.reload"
           class="info-action-button"
           role="button"
           key="reload-tags-button"
           @click="clearTagsHandler"
-          title="Clear Tags">
-        </img>
+          title="Clear Tags"
+        >Clear Filters</span>
 
-        <h1>Tags</h1>
+        <h1>Filters</h1>
         <p class="tag-info">
           <transition-group name="active-tag-animation">
             <span v-for="tag in activeTags" key="tag" class="active-tag">{{tag}} </span>
@@ -164,9 +165,11 @@
         </img>
 
         <h1>Info</h1>
-        <p class="map-info-1">{{locations[tracks[currentTrackIndex].location] ? `${locations[tracks[currentTrackIndex].location].name}, ${locations[tracks[currentTrackIndex].location].state}` : ""}}</span></p>
-        <p class="map-info-2"><span v-for="tag in tracks[currentTrackIndex].tags">{{tag}} </span></p>
-        <p class="map-info-3">Snap {{currentTrackIndex + 1}} of {{tracks.length}}</p>
+        <div class="map-info">
+          <p>{{locations[tracks[currentTrackIndex].location] ? `${locations[tracks[currentTrackIndex].location].name}, ${locations[tracks[currentTrackIndex].location].state}` : ""}}</span></p>
+          <p><span v-for="tag in tracks[currentTrackIndex].tags">{{tag}} </span></p>
+          <p>Snap {{currentTrackIndex + 1}} of {{tracks.length}}</p>
+        </div>
         <div ref="googleMap" class="google-map "></div>
       </div>
     </transition>
@@ -177,6 +180,12 @@
 
 <script>
 
+/***
+Developer Notes:
+Throughout the app, 'tags' refer to metadata on clips, but they've been renamed to 'filters' in the UI
+
+***/
+
 import tracks from "../data/snapchat-tracks.js"
 import locations from "../data/snapchat-locations.js"
 import helpers from "../helpers/helpers.js"
@@ -185,7 +194,7 @@ import play from "../assets/play.svg"
 import pause from "../assets/pause.svg"
 import arrow from "../assets/arrow.svg"
 import rewind from "../assets/rewind.svg"
-import tag from "../assets/tag.svg"
+import filter from "../assets/filter.svg"
 import close from "../assets/close.svg"
 import question from "../assets/question.svg"
 import reload from "../assets/reload.svg"
@@ -209,7 +218,7 @@ export default {
         arrow,
         rewind,
         pause,
-        tag,
+        filter,
         close,
         question,
         reload
@@ -355,7 +364,7 @@ export default {
       } else if (code === "arrowleft") {
         this.seekBackward()
       } else if (code === "space") {
-        // Pains be to turn of accessibility control for space, but need to hijack control for play/pause
+        // Pains be to turn off accessibility controls, but need to hijack space bar for play/pause
         e.preventDefault()
         this.playPauseHandler()
       }
@@ -491,10 +500,6 @@ export default {
 
       });
 
-      // After creating, set size and load google map
-      this.resizePlayer()
-      this.initGoogleMap()
-
     },
 
     resizePlayer() {
@@ -518,6 +523,10 @@ export default {
     onPlayerReady(event) {
 
       this.playerReady = true;
+
+      // After player is ready, set size and load google map
+      this.handleResize()
+      this.initGoogleMap()
 
       event.target.playVideo();
 
@@ -678,6 +687,14 @@ export default {
 
 
     // Click event handlers
+    sliderClickHandler() {
+      // If we're on tour, don't actually take action, just go to next element
+      console.log("clicky");
+      if (this.tourHighlightedElement === "slider") {
+        this.$refs.tour.nextHandler()
+        return;
+      }
+    },
     sliderChangeHandler(sliderValue) {
 
       // If we're on tour, don't actually take action, just go to next element
@@ -909,18 +926,9 @@ h2 {
   color: #fff;
 }
 
-// Highlighted by first-time tour
-.tour-highlightable {
-  transition: all .1s linear;
-}
-.tour-highlighted {
-  transform: scale(1.2);
-  box-shadow: 0 0 0 4px $orange;
-}
-
 // Notifications at top
 .notification-container {
-  width: 336px;
+  width: 280px;
   height: auto;
 
   z-index: 1;
@@ -936,6 +944,7 @@ h2 {
 
   border: 2px solid #000;
   background: $transparentGray;
+  box-shadow: 2px 2px 10px #000;
 
   &.visible {
     top: 20px;
@@ -949,6 +958,7 @@ h2 {
   border: 2px solid #000;
 
   background-color: $gray1;
+  box-shadow: 2px 2px 4px #111;
   color: #000;
 
   font-size: 30px;
@@ -992,6 +1002,15 @@ h2 {
   &:focus {
     outline: 0
   }
+}
+
+// Highlighted by first-time tour
+.tour-highlightable {
+  transition: all .1s linear;
+}
+.tour-highlighted {
+  transform: scale(1.2);
+  box-shadow: 0 0 0 4px $orange;
 }
 
 // Tag menu animation
@@ -1054,6 +1073,7 @@ h2 {
   right: 0px;
 
   background: $transparentGray;
+  box-shadow: 2px 2px 10px #444;
 
   overflow-y: auto;
   overflow-x: hidden;
@@ -1079,33 +1099,30 @@ h2 {
     text-align: center;
   }
 
-  p {
+  .map-info {
+    height: 70px;
+    width: 290px;
+
+    margin: 45px auto 12px auto;
+
+    box-shadow: 1px 1px 3px $gray2;
+  }
+
+  .tag-info {
     display: block;
 
-    // Total height should equal 100px. Tag container has 1, info has 3.
-    &.tag-info {
-      height: 40px;
-      margin-top: 52px;
-      margin-bottom: 8px;
+    height: 40px;
+    width: 290px;
+    margin: 52px auto 8px auto;
 
-      font-size: 16px;
-      font-weight: bold;
-    }
+    font-size: 16px;
+    font-weight: bold;
 
-    &.map-info-1 {
-      margin-top: 35px;
-      height: 20px;
-    }
-    &.map-info-2 {
-      height: 20px;
-    }
-    &.map-info-3 {
-      height: 20px;
-      margin-bottom: 5px;
-    }
+    box-shadow: 1px 1px 3px $gray2;
+  }
 
-    margin-left: 12px;
-    margin-right: 12px;
+  p {
+    display: block;
 
     font-size: 14px;
     overflow-y: hidden;
@@ -1136,10 +1153,12 @@ h2 {
   top: 12px;
   right: 12px;
 
+  font-size: 14px;
+  text-decoration: underline;
+
   transition: all .2s;
 
   z-index: 1;
-
   cursor: pointer;
 
   &:hover, &:focus {
@@ -1179,17 +1198,20 @@ h2 {
   }
 }
 
-$menuMargin: 100px;
-$menuHeight: calc(100% - #{$menuMargin});
+$tagMenuMargin: 100px;
+$mapMenuMargin: 127px;
+
+$tagMenuHeight: calc(100% - #{$tagMenuMargin});
+$mapMenuHeight: calc(100% - #{$mapMenuMargin});
 .tag-button-container {
   width: 100%;
-  height: $menuHeight;
+  height: $tagMenuHeight;
   overflow: auto;
 }
 
 .google-map {
   width: 336px;
-  height: $menuHeight;
+  height: $mapMenuHeight;
 
   * {
     overflow: visible;

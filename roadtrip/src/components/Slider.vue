@@ -9,6 +9,7 @@
       :max="max"
       :class="{'tour-highlighted': tourHighlighted}"
       @input="sliderChangeHandler"
+      @click="sliderClickHandler"
       @mousedown="mousedownHandler"
       @mouseup="mouseupHandler"
       @touchstart="mousedownHandler"
@@ -23,7 +24,7 @@
   import locations from "../data/snapchat-locations.js"
 
   export default {
-    props: ["min", "max", "onChange", "value", "tourHighlighted"],
+    props: ["min", "max", "onChange", "onClick", "value", "tourHighlighted"],
     data() {
       return {
         infoVisible: false,
@@ -50,6 +51,9 @@
       }
     },
     methods: {
+      sliderClickHandler(e) {
+        this.onClick(e)
+      },
       sliderChangeHandler(e) {
         let val = parseInt(e.target.value, 10)
 
@@ -86,6 +90,7 @@
     border-radius: 5px;
     border: 2px solid #000;
     background: $transparentGray;
+    box-shadow: 2px 2px 5px #000;
   }
 
   input {

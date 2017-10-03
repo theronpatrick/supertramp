@@ -48,11 +48,11 @@ import tracks from "../data/snapchat-tracks.js"
             element: "playPause"
           },
           {
-            message: `Use this button to open the tag menu. Click one or more tags from that menu to filter which snaps you see.`,
+            message: `Use this button to open the filter menu. Only snaps that match your filters will be shown. You can select one or more filters.`,
             element: "tagButton"
           },
           {
-            message: `Use the info button to show or hide the info menu, which shows the name, location, and tags of the current snap.`,
+            message: `Use the info button to show or hide the info menu. This menu shows the name, location, and matching filters of the current snap.`,
             element: "infoButton"
           },
           {
@@ -139,13 +139,14 @@ import tracks from "../data/snapchat-tracks.js"
   position: absolute;
   z-index: 9999;
   height: 200px;
-  width: 336px;
+  width: 280px;
 
   bottom: 105px;
   left: 50%;
   transform: scale(1) translateX(-50%);
 
   background: rgba(250,250,250,.95);
+  box-shadow: 2px 2px 10px #000;
   border: 2px solid #000;
 
   transition: .75s all ease-in;
