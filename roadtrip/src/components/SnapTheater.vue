@@ -1096,7 +1096,6 @@ h2 {
   width: 23px;
   height: 23px;
 
-  font-style: bold;
   background: $gray1;
   color: #000;
 
@@ -1106,6 +1105,16 @@ h2 {
   cursor: pointer;
 
   transition: all .1s linear;
+
+  @include mobile {
+    width: 16px;
+    height: 16px;
+
+    span {
+      display: inline-block;
+      transform: translateY(-4px);
+    }
+  }
 
   &.highlighted {
     color: $yellow;
