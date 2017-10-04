@@ -659,22 +659,23 @@ export default {
             }
           }
         } else if (this.seekDirection === "backward") {
-          while (loopIndex > -1) {
-            let trackInLoop = this.tracks[loopIndex]
-            if ((helpers.arrayInArray(trackInLoop.tags, this.activeTags) || this.activeTags.length === 0) && trackInLoop.tags[0] !== "skip") {
-              foundMatch = true;
-              break;
-            } else {
-              loopIndex--;
+            while (loopIndex > 0) {
+              let trackInLoop = this.tracks[loopIndex]
+              if ((helpers.arrayInArray(trackInLoop.tags, this.activeTags) || this.activeTags.length === 0) && trackInLoop.tags[0] !== "skip") {
+                foundMatch = true;
+                break;
+              } else {
+                loopIndex--;
+              }
             }
+            // Reset direction after seeking
+            this.seekDirection = "forward"
+          } else {
+            // Aint supposed to be here!
+            console.error("Invalid seek direction");
           }
-          // Reset direction after seeking
-          this.seekDirection = "forward"
-        } else {
-          // Aint supposed to be here!
-          console.error("Invalid seek direction");
-        }
 
+        // Set index to wherever we got in loops
         this.currentTrackIndex = loopIndex;
 
       } else {
@@ -949,6 +950,8 @@ h2 {
   transition: all .3s linear;
 
   border: 2px solid #000;
+  border-radius: 5px;
+
   background: $transparentGray;
   box-shadow: 2px 2px 10px #000;
 
@@ -1110,6 +1113,7 @@ h2 {
     width: 290px;
 
     margin: 45px auto 12px auto;
+    border-radius: 5px;
 
     box-shadow: 1px 1px 3px $gray2;
   }
@@ -1119,6 +1123,8 @@ h2 {
 
     height: 40px;
     width: 290px;
+
+    border-radius: 5px;
     margin: 52px auto 8px auto;
 
     font-size: 16px;
