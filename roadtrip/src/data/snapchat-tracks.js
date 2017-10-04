@@ -157,7 +157,7 @@ export default [
     "start": 151,
     "end": 158,
     "tags": [
-      "plant",
+      "plants",
       "nationalparks"
     ],
     "location": "ChIJJSmiDrKjrkwRhFVV_A4i32I"
@@ -415,7 +415,6 @@ export default [
     "start": 380,
     "end": 390,
     "tags": [
-      "singing",
       "driving"
     ],
     "location": "ChIJ7x7nXrwE5IkRxJTI_SdCM6U"
@@ -627,7 +626,6 @@ export default [
     "start": 608,
     "end": 615,
     "tags": [
-      "hipster"
     ],
     "location": "ChIJuctoabtUyIkRvu9zCUGp4HY"
   },

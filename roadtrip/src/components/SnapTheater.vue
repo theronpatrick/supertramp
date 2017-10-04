@@ -90,6 +90,10 @@
             title="Filter Menu">
             <img :src="images.filter"></img>
           </button>
+
+          <div class="active-tag-count-container" v-bind:class="{'highlighted': activeTags.length > 0}" @click="toggleTags">
+            <span>{{activeTags.length}}</span>
+          </div>
         </div>
 
         <div class="tag-toggle-container">
@@ -1006,6 +1010,12 @@ h2 {
 
   &:hover, &.active {
     transform: scale(1.2);
+
+    &+ .active-tag-count-container {
+      transform: scale(1.2);
+      right: -1px;
+      top: -1px;
+    }
   }
 
   &:focus {
@@ -1020,6 +1030,13 @@ h2 {
 .tour-highlighted {
   transform: scale(1.2);
   box-shadow: 0 0 0 4px $orange;
+
+  // Just for filter button
+  &+ .active-tag-count-container {
+    transform: scale(1.2);
+    right: -1px;
+    top: -1px;
+  }
 }
 
 // Tag menu animation
@@ -1068,6 +1085,31 @@ h2 {
 .tag-toggle-container {
   display: inline-block;
   vertical-align: top;
+  position: relative;
+}
+
+.active-tag-count-container {
+  position: absolute;
+  border-radius: 50%;
+  z-index: 1;
+
+  width: 23px;
+  height: 23px;
+
+  font-style: bold;
+  background: $gray1;
+  color: #000;
+
+  right: 1px;
+  top: 0px;
+
+  cursor: pointer;
+
+  transition: all .1s linear;
+
+  &.highlighted {
+    color: $yellow;
+  }
 }
 
 .info-container {

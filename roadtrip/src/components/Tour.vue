@@ -48,7 +48,7 @@ import tracks from "../data/snapchat-tracks.js"
             element: "playPause"
           },
           {
-            message: `Use this button to open the filter menu. Only snaps that match your filters will be shown. You can select one or more filters.`,
+            message: `Use this button to open the filter menu, where you can choose what kind of snaps are shown. You can select one or more filters, and the total amount of active filters will be displayed next to the button icon.`,
             element: "tagButton"
           },
           {
