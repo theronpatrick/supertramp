@@ -3,10 +3,24 @@
     <div class="background-container"></div>
 
     <div class="button-container">
-      <router-link :to="'summerofsnap'">
-        <button class="snap-button" id="snap-button"></button>
-        <label for="snap-button">Summer of Snap</label>
-      </router-link>
+      <div class="link-aligner">
+        <router-link :to="'summerofsnap'">
+          <button class="link-button snap-button" id="snap-button"></button>
+          <label for="snap-button">Summer of Snap</label>
+        </router-link>
+        <router-link :to="''">
+          <button class="link-button selfie-button" id="selfie-button"></button>
+          <label for="selfie-button" class="disabled">Selfie Gallery <br />(coming soon)</label>
+        </router-link>
+        <router-link :to="''">
+          <button class="link-button infographic-button" id="infographic-button"></button>
+          <label for="infographic-button" class="disabled">Infographics <br />(coming soon)</label>
+        </router-link>
+        <router-link :to="''">
+          <button class="link-button stickers-button" id="stickers-button"></button>
+          <label for="stickers-button" class="disabled">Bumper Sticker Explorer <br />(coming soon)</label>
+        </router-link>
+      </div>
     </div>
   </div>
 </template>
@@ -36,6 +50,8 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+
+@import "~../styles/colors";
 
 .main {
   width: 100%;
@@ -77,8 +93,8 @@ export default {
 }
 
 .button-container {
-  width: 50%;
-  height: 50%;
+  width: 100%;
+  height: 100%;
   left: 50%;
   top: 50%;
   position: absolute;
@@ -90,24 +106,40 @@ export default {
     outline: none;
   }
 
+  .link-aligner {
+    position: absolute;
+    top: 50%;
+
+    height: 50%;
+    max-height: 100%;
+    width: 100%;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    transform: translateY(-50%);
+
+    text-align: center;
+  }
+
   a {
     display: inline-block;
-    position: absolute;
+    vertical-align: top;
 
-    left: 50%;
-    top: 50%;
+    margin: 28px;
 
     text-decoration: none;
     outline: none;
 
-    transform-origin: 0;
-    transform: scale(1) translateY(-50%) translateX(-50%);
+    transform-origin: center;
+    transform: scale(1);
 
     transition: all .25s linear;
 
+    cursor: pointer;
+
     &:hover {
-      transform: scale(1.2) translateY(-50%) translateX(-50%);
-      cursor: pointer;
+      transform: scale(1.2);
     }
   }
 }
@@ -117,7 +149,13 @@ label {
   font-size: 22px;
   color: #fff;
 
+  line-height: 1;
+
   cursor: pointer;
+
+  &.disabled {
+    color: $gray1;
+  }
 }
 
 h1 {
@@ -131,18 +169,33 @@ h1 {
   letter-spacing: 2px;
 }
 
-.snap-button {
+.link-button {
   width: 100px;
   height: 100px;
   border: 0;
 
-  background: url("../assets/snap-ghost.png");
   background-size: cover;
   background-color: transparent;
 
   transition: all .25s linear;
 
   cursor: pointer;
+
+  &.snap-button {
+    background-image: url("../assets/snap-ghost.png");
+  }
+
+  &.selfie-button {
+    background-image: url("../assets/smile.svg");
+  }
+
+  &.infographic-button {
+    background-image: url("../assets/chart.svg");
+  }
+
+  &.stickers-button {
+    background-image: url("../assets/car.svg");
+  }
 
 }
 
