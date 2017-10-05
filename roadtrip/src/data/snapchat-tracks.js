@@ -1799,10 +1799,8 @@ export default [
     "start": 1815,
     "end": 1825,
     "tags": [
-      "nationalparks",
-      "animals"
     ],
-    "location": {}
+    "location": "ChIJFRj7iGuYXogRYSR1p8Fvkjw"
   },
   {
     "start": 1825,
