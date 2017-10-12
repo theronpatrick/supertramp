@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Main from '@/components/Main'
 import SnapTheater from '@/components/SnapTheater'
+import SelfieGallery from '@/components/SelfieGallery'
 
 Vue.use(Router)
 
@@ -21,6 +22,14 @@ let router = new Router({
         title: "Summer of Snap"
       }
     },
+    {
+      path: '/selfiegallery',
+      name: 'SelfieGallery',
+      component: SelfieGallery,
+      meta: {
+        title: "Selfie Gallery"
+      }
+    },
     // Need to prefix routes with 'roadtrip' in history mode since that's where
     // it'll be hosted on theronp.com
     {
@@ -34,6 +43,14 @@ let router = new Router({
       component: SnapTheater,
       meta: {
         title: "Summer of Snap"
+      }
+    },
+    {
+      path: '/roadtrip/selfiegallery',
+      name: 'SelfieGallery',
+      component: SelfieGallery,
+      meta: {
+        title: "Selfie Gallery"
       }
     }
   ]
