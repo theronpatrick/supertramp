@@ -47,7 +47,7 @@ let router = new Router({
     },
     {
       path: '/roadtrip/selfiegallery',
-      name: 'SelfieGallery',
+      name: 'ProdSelfieGallery',
       component: SelfieGallery,
       meta: {
         title: "Selfie Gallery"
