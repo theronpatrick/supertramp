@@ -2,14 +2,18 @@
   <div class="main">
     <div class="background-container"></div>
     <div class="image-container" @scroll="imageScrollHandler" ref="imageContainer">
-      <div class="gallery-image-active-container" ref="activeImageContainer"></div>
-      <img v-for="(image, index) in images"
-        :src="image.link"
+      <div class="gallery-image-active-container" ref="activeImageContainer">
+        <img :src="images[activeIndex] ? images[activeIndex].link: ''"></img>
+      </div>
+      <div
+        v-for="(image, index) in images"
         ref="images"
-        class="gallery-image"
-        :class="{'active': activeIndex}"
-        :style="{'left': `${image._roadtripLeft}px`}"
-      ></img>
+        class="gallery-image-aligner"
+        :style="{'left': `${image._roadtripLeft}px`, 'height': `${image._roadtripHeight}%`}">
+          <img
+            :src="image.link"
+          ></img>
+      </div>
     </div>
 
     <div :style="debugStyle" v-if="false"></div>
@@ -91,6 +95,7 @@ export default {
               response.data.images[i]._roadtripActive = false;
             }
 
+            response.data.images[i]._roadtripHeight = 35;
             response.data.images[i]._roadtripLeft = i * 160;
           }
 
@@ -119,19 +124,37 @@ export default {
 
     },
     calcActiveImage() {
+      let center = this.$refs.imageContainer.clientWidth / 2;
+
       let containerRect = this.$refs.activeImageContainer.getBoundingClientRect()
 
-      this.matchingImages = [];
+      let matchingImages = [];
       for (let i = 0; i < this.images.length; i++) {
+
         let imageRect = this.$refs.images[i].getBoundingClientRect();
 
+        // Scale image based on distance to center
+        let distanceFromCenter = Math.abs(center - (imageRect.left + imageRect.width / 2))
+
+        console.log("distance " , distanceFromCenter);
+
+        let heightPercent = 70 - (distanceFromCenter ^ 2) * .05;
+
+        console.log("percent " , heightPercent);
+
+        if (heightPercent < 0) {
+          heightPercent = 0;
+        }
+        this.images[i]._roadtripHeight = heightPercent;
+
         if (imageRect.left >= containerRect.left && imageRect.right <= containerRect.right) {
-          this.matchingImages.push(i)
+          matchingImages.push(i)
         }
 
       }
 
-      console.log("images " , matchingImages);
+      // Images is an array because more than one image can be inside the 'container' at a time
+      this.activeIndex = matchingImages[0]
     }
   }
 }
@@ -177,7 +200,7 @@ export default {
   position: fixed;
 
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(-24px);
 
   // debug
   height: 80%;
@@ -185,30 +208,49 @@ export default {
 
   background: white;
 
+  z-index: 1;
+
+  img {
+    height: 100%;
+
+    border-radius: 4px;
+    box-shadow: 2px 2px 4px #202020;
+  }
+
 
 }
 
-.gallery-image {
+.gallery-image-aligner {
   position: absolute;
 
   bottom: 0;
 
   height: 35%;
+  width: 103px;
+
   margin: 8px;
 
-  border-radius: 4px;
-  box-shadow: 2px 2px 4px #202020;
+  text-align: center;
 
-  transition: all 0.3s linear;
+  img {
+    height: 100%;
+    bottom: 0%;
+    transition: all 0.3s linear;
+
+    border-radius: 4px;
+    box-shadow: 2px 2px 4px #202020;
+  }
 
   &.active {
-    height: 80%;
-    width: 200px;
-    position: fixed;
-    left: 50% !important;
-    bottom: auto;
-    margin: 0;
-    transform: translateX(-50%);
+    img {
+      height: 76%;
+      width: 200px;
+      position: fixed;
+      left: 50% !important;
+      bottom: 15%;
+      margin: 0;
+      transform: translateX(-50%);
+    }
   }
 }
 
