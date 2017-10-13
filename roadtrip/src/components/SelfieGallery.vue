@@ -2,8 +2,14 @@
   <div class="main">
     <div class="background-container"></div>
     <div class="image-container" @scroll="imageScrollHandler" ref="imageContainer">
-      <img class="gallery-image active aligner"></img>
-      <img v-for="(image, index) in images" :src="image.link" ref="images" class="gallery-image" :class="{'active': activeIndex === index}"></img>
+      <div class="gallery-image-active-container" ref="activeImageContainer"></div>
+      <img v-for="(image, index) in images"
+        :src="image.link"
+        ref="images"
+        class="gallery-image"
+        :class="{'active': activeIndex}"
+        :style="{'left': `${image._roadtripLeft}px`}"
+      ></img>
     </div>
 
     <div :style="debugStyle" v-if="false"></div>
@@ -73,19 +79,22 @@ export default {
         console.log(response);
         if (response.data) {
 
+          // Images stored in reverse chronological order
+          response.data.images.reverse()
+
           // add "_roadtripActive" to data
+          // also add positioning information
           for (let i = 0; i < response.data.images.length; i++) {
             if (i === 0) {
               response.data.images[i]._roadtripActive = true;
             } else {
               response.data.images[i]._roadtripActive = false;
             }
+
+            response.data.images[i]._roadtripLeft = i * 160;
           }
 
           this.images = response.data.images
-
-          // Images stored in reverse chronological order
-          this.images.reverse()
 
           // Calc initial image
           setTimeout(() => {
@@ -106,63 +115,23 @@ export default {
       let width = height = height * 0.75;
 
       this.calcActiveImage()
+
+
     },
     calcActiveImage() {
+      let containerRect = this.$refs.activeImageContainer.getBoundingClientRect()
 
-      // Find out threshold for active image
-      // width is 75% of height of container (including padding), plus margin between images
-      let imageWidth = (this.$refs.imageContainer.offsetHeight - 40) * 0.75 + 16
-      let center = this.$refs.imageContainer.clientWidth / 2;
+      this.matchingImages = [];
+      for (let i = 0; i < this.images.length; i++) {
+        let imageRect = this.$refs.images[i].getBoundingClientRect();
 
-      let leftBounds = center - (imageWidth / 2)
-
-      console.log("image " , imageWidth);
-      console.log("center " , center);
-      console.log("left " , leftBounds);
-
-      this.debugStyle = {
-        position: "absolute",
-        width: `${imageWidth}px`,
-        height: "100%",
-        'background-color': "rgba(255,0,0,.8)",
-        left: `${center - imageWidth / 2}px`,
-        top: 0
-      }
-
-      // For loop below
-      // src: https://stackoverflow.com/questions/123999/how-to-tell-if-a-dom-element-is-visible-in-the-current-viewport
-      function isInViewport(image) {
-        let rect = image.getBoundingClientRect();
-
-        return (
-            rect.top >= 0 &&
-            rect.left >= 0 &&
-            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-            rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-        );
-
-      }
-
-
-      let foundActive = false;
-      let imagesInViewport = []
-      for (let i = 0; i < this.$refs.images.length; i++) {
-        if (isInViewport(this.$refs.images[i])) {
-          imagesInViewport.push(i)
+        if (imageRect.left >= containerRect.left && imageRect.right <= containerRect.right) {
+          this.matchingImages.push(i)
         }
+
       }
 
-      let middle = Math.floor(imagesInViewport.length / 2)
-
-      if (middle < 1) {
-        middle = 1;
-      }
-
-      console.log("middle " , middle);
-
-      this.activeIndex = imagesInViewport[middle - 1]
-
-
+      console.log("images " , matchingImages);
     }
   }
 }
@@ -199,16 +168,30 @@ export default {
   top: 10%;
   margin: 0 24px;
 
-  padding: 0 40% 40px 40%;
-
   overflow-x: auto;
   overflow-y: hidden;
   white-space: nowrap;
 }
 
+.gallery-image-active-container {
+  position: fixed;
+
+  left: 50%;
+  transform: translateX(-50%);
+
+  // debug
+  height: 80%;
+  width: 300px;
+
+  background: white;
+
+
+}
+
 .gallery-image {
-  display: inline-block;
-  vertical-align: bottom;
+  position: absolute;
+
+  bottom: 0;
 
   height: 35%;
   margin: 8px;
@@ -219,12 +202,13 @@ export default {
   transition: all 0.3s linear;
 
   &.active {
-    height: 100%;
-  }
-
-  &.aligner {
-    width: 0px;
-    box-shadow: auto;
+    height: 80%;
+    width: 200px;
+    position: fixed;
+    left: 50% !important;
+    bottom: auto;
+    margin: 0;
+    transform: translateX(-50%);
   }
 }
 
