@@ -1,9 +1,12 @@
 <template>
   <div class="main">
     <div class="background-container"></div>
-    <div class="image-container">
-      <img v-for="image in images" :src="image.link"></img>
+    <div class="image-container" @scroll="imageScrollHandler" ref="imageContainer">
+      <img class="gallery-image active aligner"></img>
+      <img v-for="image in images" :src="image.link" ref="images" class="gallery-image" :class="{'active': image._roadtripActive}"></img>
     </div>
+
+    <div :style="debugStyle"></div>
   </div>
 </template>
 
@@ -18,11 +21,23 @@
 export default {
   data () {
     return {
-      images: []
+      images: [],
+      boundingRects: [],
+      windowHeight: 0,
+      windowWidth: 0,
+      debugStyle: {}
     }
   },
   mounted() {
     this.checkJquery()
+    // This will set initial window bounds
+    this.handleResize();
+  },
+  beforeMount() {
+    window.addEventListener('resize', this.handleResize)
+  },
+  beforeDestroy () {
+    window.removeEventListener('resize', this.handleResize)
   },
   methods: {
     checkJquery() {
@@ -36,6 +51,11 @@ export default {
           this.checkJquery()
         }, 1000)
       }
+    },
+    handleResize() {
+      this.windowHeight = window.innerHeight
+      this.windowWidth = window.innerWidth
+
     },
     loadImages() {
       var settings = {
@@ -51,14 +71,89 @@ export default {
       $.ajax(settings).done((response) => {
         console.log(response);
         if (response.data) {
+
+          // add "_roadtripActive" to data
+          for (let i = 0; i < response.data.images.length; i++) {
+            if (i === 0) {
+              response.data.images[i]._roadtripActive = true;
+            } else {
+              response.data.images[i]._roadtripActive = false;
+            }
+          }
+
           this.images = response.data.images
+
+          // Images stored in reverse chronological order
+          this.images.reverse()
+
+          // Calc initial image
+          setTimeout(() => {
+            this.calcActiveImage();
+          }, 300)
+
+
         }
       });
 
-      setTimeout(() => {
-        console.log("images ");
-        console.log(this.images);
-      }, 1500)
+    },
+    imageScrollHandler(e) {
+
+      // TODO: Remove if not using
+      let left = this.$refs.imageContainer.scrollLeft
+
+      let height = this.$refs.imageContainer.offsetHeight;
+      let width = height = height * 0.75;
+
+      this.calcActiveImage()
+    },
+    calcActiveImage() {
+
+      // Find out threshold for active image
+      // width is 75% of height of container (including padding), plus margin between images
+      let imageWidth = (this.$refs.imageContainer.offsetHeight - 40) * 0.75 + 16
+      let center = this.$refs.imageContainer.clientWidth / 2;
+
+      let leftBounds = center - (imageWidth / 2)
+
+      console.log("image " , imageWidth);
+      console.log("center " , center);
+      console.log("left " , leftBounds);
+
+      this.debugStyle = {
+        position: "absolute",
+        width: `${imageWidth}px`,
+        height: "100%",
+        'background-color': "rgba(255,0,0,.8)",
+        left: `${center - imageWidth / 2}px`,
+        top: 0
+      }
+
+      // For loop below
+      function isInBounds(image) {
+        let bounds = image.getBoundingClientRect();
+
+        let imageCenter = bounds.left + bounds.width / 2;
+
+        if (bounds.left - 8 <= center && bounds.right + 8 > center ) {
+          return true;
+        } else {
+          return false;
+        }
+
+      }
+
+
+      let foundActive = false;
+      for (let i = 0; i < this.$refs.images.length; i++) {
+        let image = this.$refs.images[i]
+        if (!foundActive && isInBounds(image)) {
+          this.images[i]._roadtripActive = true;
+          foundActive = true;
+        } else {
+          this.images[i]._roadtripActive = false;
+        }
+      }
+
     }
   }
 }
@@ -89,12 +184,38 @@ export default {
 .image-container {
 
   position: absolute;
+  height: 80%;
+  width: calc(100% - 48px);
 
-  img {
-    display: inline-block;
-    width: 100px;
-    height: 100px;
-    margin: 8px;
+  top: 10%;
+  margin: 0 24px;
+
+  padding: 0 40% 40px 40%;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+}
+
+.gallery-image {
+  display: inline-block;
+  vertical-align: bottom;
+
+  height: 35%;
+  margin: 8px;
+
+  border-radius: 4px;
+  box-shadow: 2px 2px 4px #202020;
+
+  transition: all 0.3s linear;
+
+  &.active {
+    height: 100%;
+  }
+
+  &.aligner {
+    width: 0px;
+    box-shadow: auto;
   }
 }
 
