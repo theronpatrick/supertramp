@@ -1,10 +1,11 @@
 <template>
   <div class="main">
     <div class="background-container"></div>
-    <div class="image-container" @scroll="imageScrollHandler" ref="imageContainer">
-      <div class="gallery-image-active-container" ref="activeImageContainer">
-        <img :src="images[activeIndex] ? images[activeIndex].link: ''"></img>
-      </div>
+    <div class="gallery-image-active-container" ref="activeImageContainer">
+      <img :src="images[activeIndex] ? images[activeIndex].link: ''"></img>
+    </div>
+    <div class="gallery-container" @scroll="imageScrollHandler" ref="imageContainer">
+      <div class="gallery-image-alignment-fixer"></div>
       <div
         v-for="(image, index) in images"
         ref="images"
@@ -136,11 +137,9 @@ export default {
         // Scale image based on distance to center
         let distanceFromCenter = Math.abs(center - (imageRect.left + imageRect.width / 2))
 
-        console.log("distance " , distanceFromCenter);
-
         let heightPercent = 70 - (distanceFromCenter ^ 2) * .05;
 
-        console.log("percent " , heightPercent);
+        // TODO: Fix right side of images not reflecting left side. Also scale margins
 
         if (heightPercent < 0) {
           heightPercent = 0;
@@ -182,14 +181,15 @@ export default {
   filter: brightness(60%) contrast(130%);
 }
 
-.image-container {
+.gallery-container {
 
   position: absolute;
   height: 80%;
-  width: calc(100% - 48px);
+  width: 80%;
 
   top: 10%;
-  margin: 0 24px;
+  left: 50%;
+  transform: translateX(-50%);
 
   overflow-x: auto;
   overflow-y: hidden;
@@ -200,7 +200,8 @@ export default {
   position: fixed;
 
   left: 50%;
-  transform: translateX(-50%) translateY(-24px);
+  top: 10%;
+  transform: translateX(-50%) translateY(-18px);
 
   // debug
   height: 80%;
@@ -220,8 +221,13 @@ export default {
 
 }
 
+.gallery-image-alignment-fixer {
+  display: inline-block;
+  height: 100%;
+}
+
 .gallery-image-aligner {
-  position: absolute;
+  display: inline-block;
 
   bottom: 0;
 
@@ -231,6 +237,14 @@ export default {
   margin: 8px;
 
   text-align: center;
+
+  &:nth-child(2) {
+    margin-left: 50%;
+  }
+
+  &:last-child {
+    margin-right: 50%;
+  }
 
   img {
     height: 100%;
