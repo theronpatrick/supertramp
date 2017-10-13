@@ -3,10 +3,10 @@
     <div class="background-container"></div>
     <div class="image-container" @scroll="imageScrollHandler" ref="imageContainer">
       <img class="gallery-image active aligner"></img>
-      <img v-for="image in images" :src="image.link" ref="images" class="gallery-image" :class="{'active': image._roadtripActive}"></img>
+      <img v-for="(image, index) in images" :src="image.link" ref="images" class="gallery-image" :class="{'active': activeIndex === index}"></img>
     </div>
 
-    <div :style="debugStyle"></div>
+    <div :style="debugStyle" v-if="false"></div>
   </div>
 </template>
 
@@ -25,6 +25,7 @@ export default {
       boundingRects: [],
       windowHeight: 0,
       windowWidth: 0,
+      activeIndex: 0,
       debugStyle: {}
     }
   },
@@ -129,30 +130,38 @@ export default {
       }
 
       // For loop below
-      function isInBounds(image) {
-        let bounds = image.getBoundingClientRect();
+      // src: https://stackoverflow.com/questions/123999/how-to-tell-if-a-dom-element-is-visible-in-the-current-viewport
+      function isInViewport(image) {
+        let rect = image.getBoundingClientRect();
 
-        let imageCenter = bounds.left + bounds.width / 2;
-
-        if (bounds.left - 8 <= center && bounds.right + 8 > center ) {
-          return true;
-        } else {
-          return false;
-        }
+        return (
+            rect.top >= 0 &&
+            rect.left >= 0 &&
+            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+            rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+        );
 
       }
 
 
       let foundActive = false;
+      let imagesInViewport = []
       for (let i = 0; i < this.$refs.images.length; i++) {
-        let image = this.$refs.images[i]
-        if (!foundActive && isInBounds(image)) {
-          this.images[i]._roadtripActive = true;
-          foundActive = true;
-        } else {
-          this.images[i]._roadtripActive = false;
+        if (isInViewport(this.$refs.images[i])) {
+          imagesInViewport.push(i)
         }
       }
+
+      let middle = Math.floor(imagesInViewport.length / 2)
+
+      if (middle < 1) {
+        middle = 1;
+      }
+
+      console.log("middle " , middle);
+
+      this.activeIndex = imagesInViewport[middle - 1]
+
 
     }
   }
