@@ -16,6 +16,7 @@
             :src="image.link"
           ></img>
       </div>
+      <div class="gallery-image-alignment-fixer"></div>
     </div>
 
     <div :style="debugStyle" v-if="debug"></div>
@@ -57,13 +58,13 @@ export default {
       if ($) {
         this.loadImages()
       } else {
-        console.log("in else");
         setTimeout(() => {
           this.checkJquery()
         }, 1000)
       }
     },
     loadImages() {
+      // TODO: Show loader while images are loading in
       var settings = {
         "async": true,
         "crossDomain": true,
@@ -75,7 +76,6 @@ export default {
       }
 
       $.ajax(settings).done((response) => {
-        console.log(response);
         if (response.data) {
 
           // Images stored in reverse chronological order
@@ -131,6 +131,7 @@ export default {
 
       let center = window.innerWidth / 2;
 
+      /*
       this.debugStyle = {
         position: 'absolute',
         'background-color': 'red',
@@ -139,18 +140,26 @@ export default {
         'top': 0,
         'left': `${center}px`
       }
+      */
 
       let containerRect = this.$refs.activeImageContainer.getBoundingClientRect()
 
       let matchingImages = [];
-      for (let i = 0; i < this.images.length; i++) {
+      let activeIndex = 0;
+      let lowestDistance = 99999;
 
+      for (let i = 0; i < this.images.length; i++) {
         let imageRect = this.$refs.images[i].getBoundingClientRect();
 
         // Scale image based on distance to center
         let distanceFromCenter = Math.abs(center - (imageRect.left + imageRect.width / 2))
 
-        let heightPercent = 80 - (distanceFromCenter ^ 3) * .05;
+        if (distanceFromCenter < lowestDistance) {
+          activeIndex = i;
+          lowestDistance = distanceFromCenter
+        }
+
+        let heightPercent = 80 - (distanceFromCenter * .05);
 
         // TODO: Also scale margins
 
@@ -159,26 +168,29 @@ export default {
         }
         this.images[i]._roadtripHeight = heightPercent;
 
-        if (imageRect.left >= containerRect.left && imageRect.right <= containerRect.right) {
-          matchingImages.push(i)
-        }
-
       }
 
       // Images is an array because more than one image can be inside the 'container' at a time
-      this.activeIndex = matchingImages[0]
+      this.activeIndex = activeIndex
     },
     galleryImageClickHandler(e) {
       // Scroll over to image
       let center = window.innerWidth / 2;
 
-      let offset = e.target.offsetLeft;
+      let offset = e.target.getBoundingClientRect().left;
       let width = this.$refs.galleryContainer.offsetWidth;
 
       let amount = offset - width / 2;
 
+      let frames = 20;
 
-      this.$refs.galleryContainer.scrollLeft = amount;
+      for (let i = 0; i < frames; i++) {
+        setTimeout(() => {
+          this.$refs.galleryContainer.scrollLeft = this.$refs.galleryContainer.scrollLeft + (amount / frames);
+        }, 16 * i)
+      }
+
+
     }
   }
 }
@@ -231,7 +243,6 @@ export default {
   height: 80%;
 
   // Note that width is a bit wider than actual images will probably be to decrease chance of overlap
-  background-color: blue;
 
   z-index: 1;
 
@@ -248,6 +259,7 @@ export default {
 .gallery-image-alignment-fixer {
   display: inline-block;
   height: 100%;
+  width: 50%;
 }
 
 .gallery-image-aligner {
@@ -262,13 +274,7 @@ export default {
 
   text-align: center;
 
-  &:nth-child(2) {
-    margin-left: 50%;
-  }
-
-  &:last-child {
-    margin-right: 50%;
-  }
+  cursor: pointer;
 
   img {
     height: 100%;
