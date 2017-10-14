@@ -1,7 +1,7 @@
 <template>
   <div class="main">
     <div class="background-container"></div>
-    <div class="gallery-image-active-container" ref="activeImageContainer">
+    <div class="gallery-image-active-container" ref="activeImageContainer" :style="galleryImageActiveStyle">
       <img :src="images[activeIndex] ? images[activeIndex].link: ''"></img>
     </div>
     <div class="gallery-container" @scroll="imageScrollHandler" ref="imageContainer">
@@ -10,6 +10,7 @@
         v-for="(image, index) in images"
         ref="images"
         class="gallery-image-aligner"
+        @click="galleryImageClickHandler"
         :style="{'left': `${image._roadtripLeft}px`, 'height': `${image._roadtripHeight}%`}">
           <img
             :src="image.link"
@@ -17,7 +18,7 @@
       </div>
     </div>
 
-    <div :style="debugStyle" v-if="false"></div>
+    <div :style="debugStyle" v-if="debug"></div>
   </div>
 </template>
 
@@ -32,24 +33,22 @@
 export default {
   data () {
     return {
+      debug: true,
       images: [],
       boundingRects: [],
-      windowHeight: 0,
-      windowWidth: 0,
       activeIndex: 0,
+      galleryImageActiveStyle: {},
       debugStyle: {}
     }
   },
   mounted() {
     this.checkJquery()
-    // This will set initial window bounds
-    this.handleResize();
   },
   beforeMount() {
-    window.addEventListener('resize', this.handleResize)
+    window.addEventListener('resize', this.calcActiveImage)
   },
   beforeDestroy () {
-    window.removeEventListener('resize', this.handleResize)
+    window.removeEventListener('resize', this.calcActiveImage)
   },
   methods: {
     checkJquery() {
@@ -63,11 +62,6 @@ export default {
           this.checkJquery()
         }, 1000)
       }
-    },
-    handleResize() {
-      this.windowHeight = window.innerHeight
-      this.windowWidth = window.innerWidth
-
     },
     loadImages() {
       var settings = {
@@ -124,8 +118,34 @@ export default {
 
 
     },
+    calcGalleryImageStyle() {
+      let height = window.innerHeight * 0.8;
+      let width = height * 0.75;
+
+      this.galleryImageActiveStyle = {
+        width: `${width}px`
+      }
+    },
     calcActiveImage() {
-      let center = this.$refs.imageContainer.clientWidth / 2;
+
+      // If our images aren't loaded yet, don't do anything
+      if (this.images.length < 1) {
+        return;
+      }
+
+      // Calc gallery image style based on height
+      this.calcGalleryImageStyle()
+
+      let center = window.innerWidth / 2;
+
+      this.debugStyle = {
+        position: 'absolute',
+        'background-color': 'red',
+        'height': '100%',
+        'width': '1px',
+        'top': 0,
+        'left': `${center}px`
+      }
 
       let containerRect = this.$refs.activeImageContainer.getBoundingClientRect()
 
@@ -137,7 +157,7 @@ export default {
         // Scale image based on distance to center
         let distanceFromCenter = Math.abs(center - (imageRect.left + imageRect.width / 2))
 
-        let heightPercent = 70 - (distanceFromCenter ^ 2) * .05;
+        let heightPercent = 80 - (distanceFromCenter ^ 3) * .05;
 
         // TODO: Fix right side of images not reflecting left side. Also scale margins
 
@@ -154,6 +174,9 @@ export default {
 
       // Images is an array because more than one image can be inside the 'container' at a time
       this.activeIndex = matchingImages[0]
+    },
+    galleryImageClickHandler(e) {
+      console.log("foo" , e);
     }
   }
 }
@@ -203,11 +226,10 @@ export default {
   top: 10%;
   transform: translateX(-50%) translateY(-18px);
 
-  // debug
   height: 80%;
-  width: 300px;
 
-  background: white;
+  // Note that width is a bit wider than actual images will probably be to decrease chance of overlap
+  background-color: blue;
 
   z-index: 1;
 
