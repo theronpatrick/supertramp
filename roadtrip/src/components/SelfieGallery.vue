@@ -4,7 +4,7 @@
     <div class="gallery-image-active-container" ref="activeImageContainer" :style="galleryImageActiveStyle">
       <img :src="images[activeIndex] ? images[activeIndex].link: ''"></img>
     </div>
-    <div class="gallery-container" @scroll="imageScrollHandler" ref="imageContainer">
+    <div class="gallery-container" @scroll="imageScrollHandler" ref="galleryContainer">
       <div class="gallery-image-alignment-fixer"></div>
       <div
         v-for="(image, index) in images"
@@ -33,7 +33,7 @@
 export default {
   data () {
     return {
-      debug: true,
+      debug: false,
       images: [],
       boundingRects: [],
       activeIndex: 0,
@@ -108,14 +108,7 @@ export default {
     },
     imageScrollHandler(e) {
 
-      // TODO: Remove if not using
-      let left = this.$refs.imageContainer.scrollLeft
-
-      let height = this.$refs.imageContainer.offsetHeight;
-      let width = height = height * 0.75;
-
       this.calcActiveImage()
-
 
     },
     calcGalleryImageStyle() {
@@ -159,7 +152,7 @@ export default {
 
         let heightPercent = 80 - (distanceFromCenter ^ 3) * .05;
 
-        // TODO: Fix right side of images not reflecting left side. Also scale margins
+        // TODO: Also scale margins
 
         if (heightPercent < 0) {
           heightPercent = 0;
@@ -176,7 +169,16 @@ export default {
       this.activeIndex = matchingImages[0]
     },
     galleryImageClickHandler(e) {
-      console.log("foo" , e);
+      // Scroll over to image
+      let center = window.innerWidth / 2;
+
+      let offset = e.target.offsetLeft;
+      let width = this.$refs.galleryContainer.offsetWidth;
+
+      let amount = offset - width / 2;
+
+
+      this.$refs.galleryContainer.scrollLeft = amount;
     }
   }
 }
@@ -256,7 +258,7 @@ export default {
   height: 35%;
   width: 103px;
 
-  margin: 8px;
+  margin: 60px;
 
   text-align: center;
 
