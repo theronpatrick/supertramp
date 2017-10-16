@@ -191,7 +191,7 @@ Throughout the app, 'tags' refer to metadata on clips, but they've been renamed 
 ***/
 
 import tracks from "../data/snapchat-tracks.js"
-import locations from "../data/snapchat-locations.js"
+import locations from "../data/locations.js"
 import helpers from "../helpers/helpers.js"
 
 import play from "../assets/play.svg"

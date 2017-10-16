@@ -21,7 +21,7 @@
 
 <script>
   import tracks from "../data/snapchat-tracks.js"
-  import locations from "../data/snapchat-locations.js"
+  import locations from "../data/locations.js"
 
   export default {
     props: ["min", "max", "onChange", "onClick", "value", "tourHighlighted"],
