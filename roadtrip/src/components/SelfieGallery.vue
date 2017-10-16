@@ -4,8 +4,9 @@
 
     <div class="debug-data-container" v-if="debug">
       <p>Current Track : {{activeIndex}}</p>
-      Location: {{ locations[images[activeIndex]] ? locations[images[activeIndex].location].name : ""}} <input ref="debugLocationInput" @keyup.enter="debugInputEnter"></input>
-      <p>{{images}}</p>
+      Location: {{ locations[images[activeIndex]] ? locations[images[activeIndex].location].name : ""}} <input ref="debugLocationInput" @keyup.enter="debugSaveData"></input>
+      <button @click="debugSaveData">Save</button>
+      <p>export default [<span v-for="image in images">{"location": "{{image.location}}"},</span>]</p>
       <hr />
       <p style="color: red">{{locations}}</p>
     </div>
@@ -30,7 +31,36 @@
 
     <div :style="debugStyle" v-if="debug"></div>
 
-    <transition name="tag-menu-animation">
+    <div class="controls-buttons-container">
+      <button
+        ref="seekBackwardButton"
+        @click="seekBackwardHandler"
+        class="seek-button seek-back tour-highlightable"
+        :class="{'tour-highlighted' : tourHighlightedElement === 'seekBackward'}"
+        title="Previous Selfie">
+          <img :src="buttons.arrow"></img>
+      </button>
+      <button
+        ref="seekForwardButton"
+        @click="seekForwardHandler"
+        class="seek-button tour-highlightable"
+        :class="{'tour-highlighted' : tourHighlightedElement === 'seekForward'}"
+        title="Next Selfie">
+        <img :src="buttons.arrow"></img>
+      </button>
+
+      <button
+        ref="infoButton"
+        @click="toggleInfo"
+        class="seek-button tour-highlightable"
+        :class="{'tour-highlighted' : tourHighlightedElement === 'infoButton', 'active': infoVisible}"
+         title="Info Menu">
+        <span class="">i</span>
+      </button>
+
+    </div>
+
+    <transition name="menu-animation">
       <div v-show="infoVisible" class="info-container" key="info-container" ref="infoContainer">
         <img
           v-show="infoVisible"
@@ -82,13 +112,13 @@ import question from "../assets/question.svg"
 export default {
   data () {
     return {
-      debug: true,
+      debug: false,
       images: [],
-      buttons: [
+      buttons: {
         arrow,
         close,
         question
-      ],
+      },
       boundingRects: [],
       activeIndex: 0,
       galleryImageActiveStyle: {},
@@ -100,8 +130,9 @@ export default {
       infoMapMarker: {},
       locations,
       imageData,
-      infoVisible: true,
+      infoVisible: false,
       googleMapAPILoaded: false,
+      tourHighlightedElement: ""
     }
   },
   mounted() {
@@ -113,8 +144,6 @@ export default {
 
       setTimeout(() => {
         this.debugGeocoder = new google.maps.Geocoder;
-
-        console.log("places..." , google.maps.places);
 
         var searchBox = new google.maps.places.SearchBox(this.$refs.debugLocationInput);
 
@@ -128,7 +157,7 @@ export default {
             let location = {
               name: place.name,
               lat: place.geometry.location.lat(),
-              lng: place.geometry.location.lat(),
+              lng: place.geometry.location.lng(),
               placeId: place.place_id
             }
 
@@ -142,7 +171,7 @@ export default {
               this.locations[place.place_id] = {
                 name: place.name,
                 lat: place.geometry.location.lat(),
-                lng: place.geometry.location.lat()
+                lng: place.geometry.location.lng()
               }
             }
           })
@@ -218,8 +247,7 @@ export default {
         })
       }
     },
-    debugInputEnter(d) {
-
+    debugSaveData() {
       let places = this.debugSearchBox.getPlaces()
 
       places.forEach((place) => {
@@ -233,7 +261,6 @@ export default {
 
         this.images[this.activeIndex].location = place.place_id;
       })
-
     },
     checkJquery() {
       // Pretty hacky check to see if jquery is loaded, and if not keep retrying
@@ -300,6 +327,29 @@ export default {
       this.calcActiveImage()
 
     },
+    seekForwardHandler() {
+      // Get element for next image
+      let index = this.activeIndex + 1;
+      if (index < this.$refs.images.length) {
+        this.focusImage(this.$refs.images[index])
+      }
+    },
+    seekBackwardHandler() {
+      // Get element for previous image
+      let index = this.activeIndex - 1;
+      if (index >= 0) {
+        this.focusImage(this.$refs.images[index])
+      }
+    },
+    toggleInfo() {
+      this.infoVisible = !this.infoVisible;
+
+      // Map loads in at 0 by 0 px cause it's hidden, so resize here
+      setTimeout(() => {
+        google.maps.event.trigger(this.infoMap, 'resize')
+        this.createGoogleMarkerForLocation()
+      })
+    },
     calcGalleryImageStyle() {
       let height = window.innerHeight * 0.8;
       let width = height * 0.75;
@@ -364,9 +414,11 @@ export default {
     },
     galleryImageClickHandler(e) {
       // Scroll over to image
-      let center = window.innerWidth / 2;
+      this.focusImage(e.target)
 
-      let offset = e.target.getBoundingClientRect().left;
+    },
+    focusImage(target) {
+      let offset = target.getBoundingClientRect().left - target.getBoundingClientRect().width / 2;
       let width = this.$refs.galleryContainer.offsetWidth;
 
       let amount = offset - width / 2;
@@ -380,10 +432,15 @@ export default {
       }
     },
     infoCloseClickHandler() {
-
+      this.infoVisible = false;
     },
     infoTourClickHandler() {
 
+    }
+  },
+  watch: {
+    activeIndex: function(newVal, oldVal) {
+      this.createGoogleMarkerForLocation()
     }
   }
 }
@@ -399,6 +456,8 @@ export default {
   width: 100%;
   height: 100%;
   position: relative;
+
+  overflow-x: hidden;
 }
 
 .background-container {
@@ -499,15 +558,31 @@ export default {
   position: absolute;
   top: 0;
   left: 0;
-  width: 300px;
+  width: 500px;
   height: 80%;
   overflow-y: auto;
   background-color: #fff;
 
   z-index: 2;
+
+  input {
+    width: 100%;
+  }
 }
+
+// Animation
+// Tag menu animation
+.menu-animation-enter-active, .menu-animation-leave-active {
+  right: 0px !important;
+}
+.menu-animation-enter, .menu-animation-leave-to {
+  right: -336px !important;
+}
+
 .info-container {
   position: absolute;
+
+  z-index: 1;
 
   width: 336px;
   height: calc(100% - 100px);
@@ -634,6 +709,126 @@ $mapMenuHeight: calc(100% - #{$mapMenuMargin});
   }
 }
 
+// Control buttons
+.controls-buttons-container {
 
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  text-align: center;
+
+}
+
+h1 {
+  color: #fff;
+  height: 50px;
+}
+h2 {
+  color: #fff;
+}
+
+// Notifications at top
+.notification-container {
+  width: 280px;
+  height: auto;
+
+  z-index: 1;
+
+  position: absolute;
+  top: -50px;
+  left: 50%;
+
+  padding: 12px;
+
+  transform: translateX(-50%);
+  transition: all .3s linear;
+
+  border: 2px solid #000;
+  border-radius: 5px;
+
+  background: $transparentGray;
+  box-shadow: 2px 2px 10px #000;
+
+  &.visible {
+    top: 20px;
+  }
+}
+
+.seek-button {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 2px solid #000;
+
+  background-color: $gray1;
+  box-shadow: 2px 2px 4px #111;
+  color: #000;
+
+  font-size: 30px;
+  font-family: "serif";
+
+  position: relative;
+  vertical-align: top;
+
+  margin: 0 10px;
+  padding: 0;
+
+  cursor: pointer;
+
+  @include mobile {
+    width: 40px;
+    height: 40px;
+    margin: 0 4px;
+  }
+
+  img {
+    width: 24px;
+    height: 24px;
+    display: block;
+    margin: 0 auto;
+  }
+
+  // Button-specific styles
+  &.seek-back {
+    img {
+      transform: scaleX(-1)
+    }
+  }
+  &.play {
+    padding-left: 4px;
+  }
+
+  &:hover, &.active {
+    transform: scale(1.2);
+
+    &+ .active-tag-count-container {
+      transform: scale(1.2);
+      right: -1px;
+      top: -1px;
+    }
+  }
+
+  &:focus {
+    outline: 0
+  }
+}
+
+// Highlighted by first-time tour
+.tour-highlightable {
+  transition: all .1s linear;
+}
+.tour-highlighted {
+  transform: scale(1.2);
+  box-shadow: 0 0 0 4px $orange;
+
+  // Just for filter button
+  &+ .active-tag-count-container {
+    transform: scale(1.2);
+    right: -1px;
+    top: -1px;
+  }
+}
 
 </style>

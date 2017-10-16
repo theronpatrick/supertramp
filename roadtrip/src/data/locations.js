@@ -579,5 +579,25 @@ export default {
     "lat": 41.7014912,
     "lng": -71.1550451,
     "state": "MA"
+  },
+  "ChIJe7u0juSsyYkRMnbULfQbG50": {
+    "name": "Gettysburg National Military Park",
+    "lat": 39.8106438,
+    "lng": -77.2271061
+  },
+  "ChIJdfUpIkjeMIgRquWefEq-yco": {
+    "name": "Cuyahoga Valley National Park",
+    "lat": 41.2808248,
+    "lng": -81.56781199999999
+  },
+  "ChIJ2fhEiNDqyoAR9VY2qhU6Lnw": {
+    "name": "Zion National Park",
+    "lat": 37.2982022,
+    "lng": -113.0263005
+  },
+  "ChIJ625w7BPx5IkRNtO6nlh7CHg": {
+    "name": "Assonet",
+    "lat": 41.7959352,
+    "lng": -71.0678212
   }
 }

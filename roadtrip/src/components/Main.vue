@@ -8,9 +8,9 @@
           <button class="link-button snap-button" id="snap-button"></button>
           <label for="snap-button">Summer of Snap</label>
         </router-link>
-        <router-link :to="''">
+        <router-link :to="'selfiegallery'">
           <button class="link-button selfie-button" id="selfie-button"></button>
-          <label for="selfie-button" class="disabled">Selfie Gallery <br />(coming soon)</label>
+          <label for="selfie-button">Selfie Gallery</label>
         </router-link>
         <router-link :to="''">
           <button class="link-button infographic-button" id="infographic-button"></button>
@@ -52,6 +52,7 @@ export default {
 <style scoped lang="scss">
 
 @import "~../styles/colors";
+@import "~../styles/variables";
 
 .main {
   width: 100%;
@@ -68,6 +69,7 @@ export default {
   background-size: cover;
 
   filter: brightness(60%) contrast(130%);
+
 }
 
 .globe {
@@ -101,6 +103,8 @@ export default {
 
   transform: translateX(-50%) translateY(-50%);
   text-align: center;
+
+  -webkit-overflow-scrolling: touch;
 
   button {
     outline: none;
@@ -140,6 +144,11 @@ export default {
 
     &:hover {
       transform: scale(1.2);
+    }
+
+    @include mobile {
+      display: block;
+      margin: 32px auto;
     }
   }
 }
