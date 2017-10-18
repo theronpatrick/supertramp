@@ -1,9 +1,12 @@
 <template>
-  <div class="main" v-on:keyup.space="debugClick">
+  <div
+    class="main"
+    @click="mainContainerClickHandler"
+  >
     <div class="background-container"></div>
 
     <div class="button-container">
-      <div class="link-aligner">
+      <div class="link-aligner" ref="linkAligner">
         <router-link :to="'summerofsnap'">
           <button class="link-button snap-button" id="snap-button"></button>
           <label for="snap-button">Summer of Snap</label>
@@ -42,6 +45,15 @@ export default {
     if (this.$route.query) {
       if (this.$route.query.page === "summerofsnap") {
         this.$router.replace({ path: 'summerofsnap' })
+      }
+    }
+  },
+  methods: {
+    // Prevent silly users on iOS from losing focus on scrollable container
+    // TODO: Try to fix swipe behavior as well
+    mainContainerClickHandler() {
+      if (this.$refs.linkAligner) {
+        this.$refs.linkAligner.focus()
       }
     }
   }

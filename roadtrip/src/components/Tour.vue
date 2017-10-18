@@ -29,7 +29,6 @@ import tracks from "../data/snapchat-tracks.js"
     props: ["tourHighlightElement", "messages", "tourId"],
     mounted() {
       let id = `${this.tourId}_hasSeenTour`
-      console.log("id " , id);
       let hasSeen = localStorage.getItem(id)
 
       if (!hasSeen) {
