@@ -22,51 +22,15 @@ import tracks from "../data/snapchat-tracks.js"
           close,
           arrow
         },
-        messages: [
-          {
-            message: "Welcome to my Summer of Snap! Click the arrow to continue.",
-            element: ""
-          },
-          {
-            message: `You can seek through all ${tracks.length} snaps with this bar.`,
-            element: "slider"
-          },
-          {
-            message: `Use this button to start from the beginning`,
-            element: "startFromBeginning"
-          },
-          {
-            message: `Use this button (or your left arrow key) to go one snap backwards.`,
-            element: "seekBackward"
-          },
-          {
-            message: `Use this button (or your right arrow key) to go one snap forwards.`,
-            element: "seekForward"
-          },
-          {
-            message: `Use this button (or your space bar) to play or pause the movie. You can also tap directly on the video.`,
-            element: "playPause"
-          },
-          {
-            message: `Use this button to open the filter menu, where you can choose what kind of snaps are shown. You can select one or more filters, and the total amount of active filters will be displayed next to the button icon.`,
-            element: "tagButton"
-          },
-          {
-            message: `Use the info button to show or hide the info menu. This menu shows the name, location, and matching filters of the current snap.`,
-            element: "infoButton"
-          },
-          {
-            message: `If the video does not play automatically, you may need to tap the "Play" button. Enjoy!`,
-            element: ""
-          }
-        ],
         messageIndex: 0,
         nextArrowFocused: false
       }
     },
-    props: ["tourHighlightElement"],
+    props: ["tourHighlightElement", "messages", "tourId"],
     mounted() {
-      let hasSeen = localStorage.getItem("hasSeenTour")
+      let id = `${this.tourId}_hasSeenTour`
+      console.log("id " , id);
+      let hasSeen = localStorage.getItem(id)
 
       if (!hasSeen) {
         setTimeout(() => {
@@ -78,12 +42,16 @@ import tracks from "../data/snapchat-tracks.js"
     methods: {
       closeHandler() {
         this.visible = false
+
+        let id = `${this.tourId}_hasSeenTour`
+        localStorage.setItem(id, "true");
       },
       nextHandler() {
         if (this.messageIndex === this.messages.length - 1) {
           this.visible = false;
           this.tourHighlightElement("")
-          localStorage.setItem("hasSeenTour", "true");
+          let id = `${this.tourId}_hasSeenTour`
+          localStorage.setItem(id, "true");
         } else {
           this.messageIndex++
           this.tourHighlightElement(this.messages[this.messageIndex].element)

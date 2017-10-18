@@ -2,6 +2,13 @@
   <div class="main">
     <div class="background-container"></div>
 
+    <tour
+      :tourHighlightElement="tourHighlightElementCallback"
+      ref="tour"
+      tourId="selfie"
+      :messages="tourMessages"
+    ></tour>
+
     <div class="debug-data-container" v-if="debug">
       <p>Current Track : {{activeIndex}}</p>
       Location: {{ locations[images[activeIndex]] ? locations[images[activeIndex].location].name : ""}} <input ref="debugLocationInput" @keyup.enter="debugSaveData"></input>
@@ -12,7 +19,15 @@
     </div>
 
     <div class="gallery-image-active-container" ref="activeImageContainer" :style="galleryImageActiveStyle">
-      <img :src="images[activeIndex] ? images[activeIndex].link: ''"></img>
+      <img
+        :src="images[activeIndex] ? images[activeIndex].link: ''"
+        :class="{'loading': !images[activeIndex] || images[activeIndex]._roadtripLoaded === false}"
+      ></img>
+      <img
+        :src="loaderImg"
+        class="loader"
+        :class="{'loading': images[activeIndex] && images[activeIndex]._roadtripLoaded === true}"
+      ></img>
     </div>
     <div class="gallery-container" @scroll="imageScrollHandler" ref="galleryContainer">
       <div class="gallery-image-alignment-fixer"></div>
@@ -23,7 +38,14 @@
         @click="galleryImageClickHandler"
         :style="{'left': `${image._roadtripLeft}px`, 'height': `${image._roadtripHeight}%`}">
           <img
+            :src="loaderImg"
+            class="loader"
+            :class="{'loading': image._roadtripLoaded}"
+          ></img>
+          <img
             :src="image.link"
+            v-on:load="imageLoaded(index)"
+            :class="{'loading': !image._roadtripLoaded}"
           ></img>
       </div>
       <div class="gallery-image-alignment-fixer"></div>
@@ -108,8 +130,14 @@ import imageData from "../data/selfies.js"
 import arrow from "../assets/arrow.svg"
 import close from "../assets/close.svg"
 import question from "../assets/question.svg"
+import loaderImg from "../assets/loader.svg"
+
+import tour from "./Tour.vue"
 
 export default {
+  components: {
+    tour
+  },
   data () {
     return {
       debug: false,
@@ -119,6 +147,7 @@ export default {
         close,
         question
       },
+      loaderImg,
       boundingRects: [],
       activeIndex: 0,
       galleryImageActiveStyle: {},
@@ -132,7 +161,33 @@ export default {
       imageData,
       infoVisible: false,
       googleMapAPILoaded: false,
-      tourHighlightedElement: ""
+      tourHighlightedElement: "",
+      tourMessages: [
+        {
+          message: "Welcome to my Selfie Gallery! Click the arrow to continue.",
+          element: ""
+        },
+        {
+          message: `If you're on a desktop, use the scrollbar to scroll through all 130 images. If you're on mobile, tap and drag to swipe through.`,
+          element: ""
+        },
+        {
+          message: `Use this button to go one image backwards.`,
+          element: "seekBackward"
+        },
+        {
+          message: `Use this button to go one image forwards.`,
+          element: "seekForward"
+        },
+        {
+          message: `Use the info button to show or hide the info menu. This menu shows the location where the image was taken.`,
+          element: "infoButton"
+        },
+        {
+          message: `Enjoy!`,
+          element: ""
+        }
+      ],
     }
   },
   mounted() {
@@ -262,6 +317,9 @@ export default {
         this.images[this.activeIndex].location = place.place_id;
       })
     },
+    tourHighlightElementCallback(element) {
+      this.tourHighlightedElement = element
+    },
     checkJquery() {
       // Pretty hacky check to see if jquery is loaded, and if not keep retrying
       // TODO: Fuck with webpack stuff to make sure external dependency is loaded
@@ -308,6 +366,8 @@ export default {
               response.data.images[i].location = imageData[i].location
             }
 
+            response.data.images[i]._roadtripLoaded = false;
+
           }
 
           this.images = response.data.images
@@ -322,12 +382,21 @@ export default {
       });
 
     },
+    imageLoaded(index) {
+      this.images[index]._roadtripLoaded = true;
+    },
     imageScrollHandler(e) {
 
       this.calcActiveImage()
 
     },
     seekForwardHandler() {
+      // If we're on tour, don't actually take action, just go to next element
+      if (this.tourHighlightedElement === "seekForward") {
+        this.$refs.tour.nextHandler()
+        return;
+      }
+
       // Get element for next image
       let index = this.activeIndex + 1;
       if (index < this.$refs.images.length) {
@@ -335,6 +404,12 @@ export default {
       }
     },
     seekBackwardHandler() {
+      // If we're on tour, don't actually take action, just go to next element
+      if (this.tourHighlightedElement === "seekBackward") {
+        this.$refs.tour.nextHandler()
+        return;
+      }
+
       // Get element for previous image
       let index = this.activeIndex - 1;
       if (index >= 0) {
@@ -342,6 +417,12 @@ export default {
       }
     },
     toggleInfo() {
+      // If we're on tour, don't actually take action, just go to next element
+      if (this.tourHighlightedElement === "infoButton") {
+        this.$refs.tour.nextHandler()
+        return;
+      }
+
       this.infoVisible = !this.infoVisible;
 
       // Map loads in at 0 by 0 px cause it's hidden, so resize here
@@ -435,8 +516,8 @@ export default {
       this.infoVisible = false;
     },
     infoTourClickHandler() {
-
-    }
+      this.$refs.tour.showTour()
+    },
   },
   watch: {
     activeIndex: function(newVal, oldVal) {
@@ -451,6 +532,19 @@ export default {
 
 @import "~../styles/colors";
 @import "~../styles/variables";
+
+// Make sure scrollbar is visible
+::-webkit-scrollbar {
+    -webkit-appearance: visible;
+    width: 7px;
+    background: rgba(255,255,255,.2);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(255,255,255,.5);
+    -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
+}
 
 .main {
   width: 100%;
@@ -538,6 +632,9 @@ export default {
 
     border-radius: 4px;
     box-shadow: 2px 2px 4px #202020;
+    opacity: 1;
+
+    transition: 1s all linear;
   }
 
   &.active {
@@ -551,6 +648,19 @@ export default {
       transform: translateX(-50%);
     }
   }
+}
+
+// When images are loading, make invisible and take out of flow
+// TODO: Figure out how to get it to not "bump" in height, maybe by calc'ing what the height for the loader
+// should be
+.loading {
+  opacity: 0 !important;
+  position: absolute;
+  left: -9999px;
+}
+
+.loader {
+  box-shadow: inherit !important;
 }
 
 // Google map stuff

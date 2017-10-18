@@ -3,7 +3,12 @@
 
     <div class="notification-container" :class="{visible: notification}">{{notification}}</div>
 
-    <tour :tourHighlightElement="tourHighlightElementCallback" ref="tour"></tour>
+    <tour
+      :tourHighlightElement="tourHighlightElementCallback"
+      ref="tour"
+      tourId="snap"
+      :messages="tourMessages"
+      ></tour>
 
     <div class="snap-theater-background"></div>
 
@@ -250,7 +255,45 @@ export default {
       infoMapMarker: {},
       googleMapAPILoaded: false,
       debugGeocoder: {},
-      debugSearchBox: {}
+      debugSearchBox: {},
+      tourMessages: [
+        {
+          message: "Welcome to my Summer of Snap! Click the arrow to continue.",
+          element: ""
+        },
+        {
+          message: `You can seek through all ${tracks.length} snaps with this bar.`,
+          element: "slider"
+        },
+        {
+          message: `Use this button to start from the beginning`,
+          element: "startFromBeginning"
+        },
+        {
+          message: `Use this button (or your left arrow key) to go one snap backwards.`,
+          element: "seekBackward"
+        },
+        {
+          message: `Use this button (or your right arrow key) to go one snap forwards.`,
+          element: "seekForward"
+        },
+        {
+          message: `Use this button (or your space bar) to play or pause the movie. You can also tap directly on the video.`,
+          element: "playPause"
+        },
+        {
+          message: `Use this button to open the filter menu, where you can choose what kind of snaps are shown. You can select one or more filters, and the total amount of active filters will be displayed next to the button icon.`,
+          element: "tagButton"
+        },
+        {
+          message: `Use the info button to show or hide the info menu. This menu shows the name, location, and matching filters of the current snap.`,
+          element: "infoButton"
+        },
+        {
+          message: `If the video does not play automatically, you may need to tap the "Play" button. Enjoy!`,
+          element: ""
+        }
+      ],
     }
   },
   computed: {
