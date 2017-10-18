@@ -43,8 +43,8 @@ export default {
     // So we're setting a redirect from those pages to the main page with a query param, and then send the user to the correct location
 
     if (this.$route.query) {
-      if (this.$route.query.page === "summerofsnap") {
-        this.$router.replace({ path: 'summerofsnap' })
+      if (this.$route.query.page) {
+        this.$router.replace({ path: this.$route.query.page })
       }
     }
   },
