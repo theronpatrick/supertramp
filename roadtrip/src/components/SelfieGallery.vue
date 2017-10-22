@@ -533,6 +533,18 @@ export default {
 @import "~../styles/colors";
 @import "~../styles/variables";
 
+// Make sure scrollbar is visible
+::-webkit-scrollbar {
+    width: 7px;
+    background: rgba(255,255,255,.2);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(255,255,255,.5);
+    -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
+}
+
 .main {
   width: 100%;
   height: 100%;

@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Main from '@/components/Main'
 import SnapTheater from '@/components/SnapTheater'
 import SelfieGallery from '@/components/SelfieGallery'
+import Infographics from '@/components/Infographics'
 
 Vue.use(Router)
 
@@ -30,6 +31,14 @@ let router = new Router({
         title: "Selfie Gallery"
       }
     },
+    {
+      path: '/infographics',
+      name: 'Infographics',
+      component: Infographics,
+      meta: {
+        title: "Infographics"
+      }
+    },
     // Need to prefix routes with 'roadtrip' in history mode since that's where
     // it'll be hosted on theronp.com
     {
@@ -51,6 +60,14 @@ let router = new Router({
       component: SelfieGallery,
       meta: {
         title: "Selfie Gallery"
+      }
+    },
+    {
+      path: '/roadtrip/infographics',
+      name: 'ProfInfographics',
+      component: Infographics,
+      meta: {
+        title: "Infographics"
       }
     }
   ]
