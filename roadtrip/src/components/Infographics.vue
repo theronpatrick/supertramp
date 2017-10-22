@@ -2,7 +2,8 @@
   <div class="main">
     <section :style="{'height': windowHeight}" class="purple">
       <div class="content-aligner">
-        <div>Content</div>
+        <h1>Road Trip Stats</h1>
+        <img :src="img.doubleArrow" class="scroll-down-arrow"></img>
       </div>
     </section>
 
@@ -15,11 +16,16 @@
 
 <script>
 
+import doubleArrow from "../assets/double-arrow.svg"
+
 export default {
   components: {
   },
   data () {
     return {
+      img: {
+        doubleArrow
+      },
       windowHeight: `${this.windowHeight}px`
     }
   },
@@ -51,10 +57,43 @@ export default {
   height: 100%;
 }
 
+h1 {
+  display: block;
+  font-size: 38px;
+  color: #fff;
+  margin: 0 auto;
+}
+
+.scroll-down-arrow {
+  position: absolute;
+
+  transform: rotate(90deg);
+  transform-origin: 0;
+  width: 94px;
+  bottom: 50px;
+
+  animation: arrow-bounce 1s infinite ease-in-out;
+
+}
+
+@keyframes arrow-bounce {
+  0% {
+    bottom: 50px;
+  }
+  50% {
+    bottom: 150px
+  }
+  100% {
+    bottom: 50px;
+  }
+}
+
 section {
   min-height: 100px;
   width: 100%;
   display: table;
+  text-align: center;
+  position: relative;
 
   &.green {
     background-color: $infoGreen;
