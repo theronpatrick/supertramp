@@ -25,6 +25,10 @@ module.exports = {
       '@': resolve('src'),
     }
   },
+  externals: {
+    jquery: 'jQuery',
+    tween: 'TWEEN'
+  },
   module: {
     rules: [
       {

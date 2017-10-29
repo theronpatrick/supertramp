@@ -6,8 +6,13 @@
       :class="{'in-viewport': sections[0].inViewport}"
     >
       <div class="content-aligner">
-        <h1>Road Trip Stats</h1>
-        <img :src="img.doubleArrow" class="scroll-down-arrow"></img>
+        <h1>
+          <span class="fade-in" :class="{'visible': statsVisible}">Stats, </span>
+          <span class="fade-in" :class="{'visible': factsVisible}">Facts, </span>
+          <span class="fade-in" :class="{'visible': funVisible}">and <span>Fun</span></span>
+        </h1>
+        <h2 class="fade-in" :class="{'visible': subTitleVisible}">From Theron's 2017 Road Trip Extravaganza</h2>
+        <img :src="img.doubleArrow" class="scroll-down-arrow fade-in" :class="{'visible': scrollDownArrowVisible}"></img>
       </div>
     </section>
 
@@ -17,8 +22,10 @@
       :class="{'in-viewport': sections[1].inViewport}"
     >
       <div class="content-aligner">
-        <h1>Total Miles Driven / Total Time / Total States</h1>
-        <img class="test-image" :src="img.doubleArrow"></img>
+        <h1>Miles Driven: {{milesDriven}}</h1>
+        <h1>Days on the Road: {{daysOnRoad}}</h1>
+        <h1>Speeding tickets: {{speedingTickets}} <span class="font-expand" :class="{visible: speedingTicketVisible}">😓</span></h1>
+        <img class="test-image" :src="img.doubleArrow" v-if="debug"></img>
       </div>
     </section>
 
@@ -78,6 +85,7 @@
 <script>
 
 import doubleArrow from "../assets/double-arrow.svg"
+import tween from "tween"
 
 export default {
   components: {
@@ -87,7 +95,17 @@ export default {
       img: {
         doubleArrow
       },
+      debug: false,
       sections: [],
+      statsVisible: false,
+      factsVisible: false,
+      funVisible: false,
+      scrollDownArrowVisible: false,
+      subTitleVisible: false,
+      milesDriven: 0,
+      daysOnRoad: 0,
+      speedingTickets: 0,
+      speedingTicketVisible: false,
       windowHeight: `${this.windowHeight}px`
     }
   },
@@ -129,6 +147,126 @@ export default {
         }
       }
 
+    },
+    inViewportChangeHandler(index) {
+      console.log(index);
+      switch (index) {
+        case 0:
+          this.introBlockHandler()
+          break;
+        case 1:
+          this.distanceBlockHandler()
+          break;
+        default:
+          // No default case
+      }
+    },
+    tweenAnimate() {
+      if (tween.update()) {
+        requestAnimationFrame(this.tweenAnimate)
+      }
+    },
+    introBlockHandler() {
+
+      // Durations
+      let time1 = 1200;
+      let time2 = 1200;
+      let time3 = 1200;
+      let time4 = 1200;
+
+      setTimeout(() => {
+        this.statsVisible = true
+      })
+
+      setTimeout(() => {
+        this.factsVisible = true
+      }, time1)
+
+      setTimeout(() => {
+        this.funVisible = true
+      }, time1 + time2)
+
+      setTimeout(() => {
+        this.subTitleVisible = true
+      }, time1 + time2 + time3)
+
+      setTimeout(() => {
+        this.scrollDownArrowVisible = true
+      }, time1 + time2 + time3 + time4)
+
+    },
+    distanceBlockHandler() {
+      // Animate up miles driven
+      let vm = this
+      let start = 0;
+      let distance = 20369;
+      let daysOnRoad = 92;
+      let speedingTickets = 1;
+
+      // Durations
+      let time1 = 2000;
+      let time2 = 1500;
+      let time3 = 1000;
+      let time4 = 500;
+
+      new tween.Tween({ tweeningNumber: 0 })
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .to({ tweeningNumber: distance }, time1)
+        .onUpdate(function () {
+          vm.milesDriven = this.tweeningNumber.toFixed(0)
+        })
+        .start()
+
+        this.tweenAnimate()
+
+        // Days
+        setTimeout(() => {
+          new tween.Tween({ tweeningNumber: 0 })
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .to({ tweeningNumber: daysOnRoad }, time2)
+            .onUpdate(function () {
+              vm.daysOnRoad = this.tweeningNumber.toFixed(0)
+            })
+            .start()
+          this.tweenAnimate()
+        }, time1)
+
+        // Speeding ticket
+        // Days
+        setTimeout(() => {
+          new tween.Tween({ tweeningNumber: 0 })
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .to({ tweeningNumber: speedingTickets }, time3)
+            .onUpdate(function () {
+              vm.speedingTickets = this.tweeningNumber.toFixed(0)
+            })
+            .start()
+          this.tweenAnimate()
+        }, time1 + time2)
+
+        // Oh my
+        setTimeout(() => {
+          this.speedingTicketVisible = true;
+        }, time1 + time2 + time3)
+
+      }
+
+
+  },
+  watch: {
+    sections: {
+      handler: function(newVal, oldVal) {
+        // Go through our array, trigger onChange for last visible block
+        let lastVisibleIndex = 0;
+        for (let i = 0; i < newVal.length; i++) {
+          if (newVal[i].inViewport) {
+            lastVisibleIndex = i;
+          }
+        }
+
+        this.inViewportChangeHandler(lastVisibleIndex)
+      },
+      deep: true
     }
   }
 }
@@ -141,7 +279,9 @@ export default {
 @import "~../styles/variables";
 
 .main {
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+
   height: 100%;
   color: #fff;
 
@@ -153,33 +293,6 @@ h1 {
   font-size: 38px;
   margin: 0 auto;
 }
-
-.scroll-down-arrow {
-  position: absolute;
-
-  transform: rotate(90deg);
-  transform-origin: 0;
-  width: 94px;
-  bottom: 50px;
-
-  animation: arrow-bounce 1s infinite ease-in-out;
-
-}
-
-// Animations
-@keyframes arrow-bounce {
-  0% {
-    bottom: 50px;
-  }
-  50% {
-    bottom: 150px
-  }
-  100% {
-    bottom: 50px;
-  }
-}
-
-
 
 section {
   min-height: 100px;
@@ -228,6 +341,60 @@ section {
     }
   }
 }
+
+.scroll-down-arrow {
+  position: absolute;
+
+  transform: rotate(90deg);
+  transform-origin: 0;
+  width: 94px;
+  bottom: 50px;
+
+  animation: arrow-bounce 1s infinite ease-in-out;
+
+}
+
+// Animations
+@keyframes arrow-bounce {
+  0% {
+    bottom: 50px;
+  }
+  50% {
+    bottom: 150px
+  }
+  100% {
+    bottom: 50px;
+  }
+}
+
+// TODO: Make sure fonts are good on mobile
+.font-expand {
+  font-size: 0px;
+  transition: 1s all linear;
+
+  &.visible {
+    font-size: 38px
+  }
+}
+
+.fade-in {
+  opacity: 0;
+  transition: 1s all linear;
+
+  &.visible {
+    opacity: 1;
+  }
+}
+
+.fly-from-left {
+  margin-right: 100%;
+  transition: 1s all linear;
+
+  &.visible {
+    margin-right: 0%;
+  }
+}
+
 
 
 </style>
