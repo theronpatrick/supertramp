@@ -34,8 +34,20 @@
       class="teal"
       :class="{'in-viewport': sections[2].inViewport}"
     >
-      <div class="content-aligner">
-        <h1>Cities Visited / National Parks Visited</h1>
+      <div class="content-aligner align-top">
+        <div class="sub-panel left">
+          <div class="table-aligner">
+            <div class="content-aligner">
+              <h1>Major Cities Visited: {{citiesVisited}}</h1>
+              <h1>National Parks Visited: {{nationalParksVisited}}</h1>
+            </div>
+          </div>
+        </div>
+        <div class="sub-panel right align-left">
+          <iframe
+            class="map-iframe fade-in"
+            :class="{'visible': myMapsVisible}" src="https://www.google.com/maps/d/u/0/embed?mid=1jBoe1OhHUXtiMh6UfHw4t35spCA"></iframe>
+          </div>
       </div>
     </section>
 
@@ -97,6 +109,8 @@ export default {
       },
       debug: false,
       sections: [],
+      windowInnerHeight: window.innerHeight,
+      windowHeight: '0px',
       statsVisible: false,
       factsVisible: false,
       funVisible: false,
@@ -106,7 +120,9 @@ export default {
       daysOnRoad: 0,
       speedingTickets: 0,
       speedingTicketVisible: false,
-      windowHeight: `${this.windowHeight}px`
+      citiesVisited: 0,
+      nationalParksVisited: 0,
+      myMapsVisible: false
     }
   },
   mounted() {
@@ -134,6 +150,8 @@ export default {
   },
   methods: {
     resizeHandler() {
+      // Save absolute total (for calc) and px size (for template)
+      this.windowInnerHeight = window.innerHeight
       this.windowHeight = `${window.innerHeight}px`
     },
     scrollHandler(e) {
@@ -156,6 +174,9 @@ export default {
           break;
         case 1:
           this.distanceBlockHandler()
+          break;
+        case 2:
+          this.mapBlockHandler()
           break;
         default:
           // No default case
@@ -248,9 +269,46 @@ export default {
         setTimeout(() => {
           this.speedingTicketVisible = true;
         }, time1 + time2 + time3)
+      },
+      mapBlockHandler() {
+        // Animate up miles driven
+        let vm = this
+        let start = 0;
+        let citiesVisited = 23;
+        let nationalParksVisited = 33;
 
-      }
+        // Durations
+        let time1 = 1500;
+        let time2 = 1500;
 
+        new tween.Tween({ tweeningNumber: 0 })
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .to({ tweeningNumber: citiesVisited }, time1)
+          .onUpdate(function () {
+            vm.citiesVisited = this.tweeningNumber.toFixed(0)
+          })
+          .start()
+
+          this.tweenAnimate()
+
+          // Parks
+          setTimeout(() => {
+            new tween.Tween({ tweeningNumber: 0 })
+              .easing(TWEEN.Easing.Quadratic.Out)
+              .to({ tweeningNumber: nationalParksVisited }, time2)
+              .onUpdate(function () {
+                vm.nationalParksVisited = this.tweeningNumber.toFixed(0)
+              })
+              .start()
+            this.tweenAnimate()
+          }, time1)
+
+          // Map
+          setTimeout(() => {
+            this.myMapsVisible = true;
+          }, time1 + time2)
+
+        }
 
   },
   watch: {
@@ -289,9 +347,17 @@ export default {
 }
 
 h1 {
-  display: block;
   font-size: 38px;
   margin: 0 auto;
+}
+
+h2 {
+  font-size: 30px;
+  margin: 0 auto;
+}
+
+h1, h2 {
+  text-shadow: 2px 1px 0px $gray3
 }
 
 section {
@@ -323,9 +389,19 @@ section {
     background-color: $infoBrown;
   }
 
+  .table-aligner {
+    display: table;
+    height: 100%;
+  }
+
   .content-aligner {
     display: table-cell;
     vertical-align: middle;
+    height: 100%;
+
+    &.align-top {
+      display: block;
+    }
   }
 
   .test-image {
@@ -342,6 +418,10 @@ section {
   }
 }
 
+.align-left {
+  text-align: left;
+}
+
 .scroll-down-arrow {
   position: absolute;
 
@@ -352,6 +432,29 @@ section {
 
   animation: arrow-bounce 1s infinite ease-in-out;
 
+}
+
+.sub-panel {
+  display: inline-block;
+  height: 100%;
+  vertical-align: top;
+
+  padding: 5px;
+
+  &.left {
+    // TODO: Figure out where phantom 1% is coming from throwing this off
+    width: 19%;
+  }
+  &.right {
+    width: 80%;
+  }
+}
+
+.map-iframe {
+  border: none;
+  border-radius: 5px;
+  height: 100%;
+  width: 80%;
 }
 
 // Animations
