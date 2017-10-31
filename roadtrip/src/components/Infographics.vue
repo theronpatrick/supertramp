@@ -57,8 +57,18 @@
       :class="{'in-viewport': sections[3].inViewport}"
     >
       <div class="content-aligner">
-        <h1>Total Miles Walked</h1>
+        <h1>Miles Walked/Hiked: {{milesWalked}}</h1>
+        <h2
+          class="fade-in"
+          :class="{'visible': marathonsWalkedVisible}">(that's {{marathonsWalked}} marathons!)</h2>
       </div>
+        <div class="marathon-animation-block">
+          <span
+            v-for="(marathonWalker, index) in marathonWalkers"
+            class="marathon-walker"
+          >{{index % 2 === 0 ? '🚶' : '🏃'}}
+          </span>
+        </div>
     </section>
 
     <section
@@ -122,7 +132,11 @@ export default {
       speedingTicketVisible: false,
       citiesVisited: 0,
       nationalParksVisited: 0,
-      myMapsVisible: false
+      myMapsVisible: false,
+      milesWalked: 0,
+      marathonsWalkedVisible: false,
+      marathonsWalked: 0,
+      marathonWalkers: []
     }
   },
   mounted() {
@@ -177,6 +191,9 @@ export default {
           break;
         case 2:
           this.mapBlockHandler()
+          break;
+        case 3:
+          this.walkedHandler()
           break;
         default:
           // No default case
@@ -308,7 +325,52 @@ export default {
             this.myMapsVisible = true;
           }, time1 + time2)
 
-        }
+        },
+        walkedHandler() {
+          // Animate up miles driven
+          let vm = this
+          let start = 0;
+          let milesWalked = 446.94;
+          let marathonsWalked = 17.19;
+
+          // Durations
+          let time1 = 2500;
+          let spawner = 450;
+          let time2 = spawner * marathonsWalked.toFixed(0);
+
+          new tween.Tween({ tweeningNumber: 0 })
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .to({ tweeningNumber: milesWalked }, time1)
+            .onUpdate(function () {
+              vm.milesWalked = this.tweeningNumber.toFixed(2)
+            })
+            .start()
+
+            this.tweenAnimate()
+
+            // Marathons
+            setTimeout(() => {
+              new tween.Tween({ tweeningNumber: 0 })
+                .easing(TWEEN.Easing.Quadratic.Out)
+                .to({ tweeningNumber: marathonsWalked }, time2)
+                .onUpdate(function () {
+                  vm.marathonsWalked = this.tweeningNumber.toFixed(2)
+                })
+                .start()
+              this.marathonsWalkedVisible = true
+              this.tweenAnimate()
+            }, time1)
+
+            // Spawner animation
+            for (let i = 0; i < marathonsWalked.toFixed(0); i++) {
+              setTimeout(() => {
+                this.marathonWalkers.push(true)
+
+              }, time1 + i * spawner)
+            }
+
+          }
+
 
   },
   watch: {
@@ -496,6 +558,71 @@ section {
   &.visible {
     margin-right: 0%;
   }
+}
+
+.marathon-animation-block {
+  position: absolute;
+  left: 50%;
+  top: 0%;
+  transform: translateX(-50%);
+
+  height: 100%;
+  width: 80%;
+}
+
+@keyframes marathon-walk {
+  0% {
+    top: 0px;
+    left: 0px;
+    transform: rotate(0deg)
+  }
+  1% {
+    top: 0px;
+    left: 0px;
+    transform: rotate(-90deg)
+  }
+  25% {
+    left: 0px;
+    top: calc(100% - 85px);
+    transform: rotate(-90deg)
+  }
+  26% {
+    left: 0px;
+    top: calc(100% - 85px);
+    transform: rotate(-180deg)
+  }
+  50% {
+    left: calc(100% - 65px);
+    top: calc(100% - 85px);
+    transform: rotate(-180deg)
+  }
+  51% {
+    left: calc(100% - 65px);
+    top: calc(100% - 85px);
+    transform: rotate(-270deg)
+  }
+  75% {
+    left: calc(100% - 65px);
+    top: 0px;
+    transform: rotate(-270deg)
+  }
+  76% {
+    left: calc(100% - 65px);
+    top: 0px;
+    transform: rotate(-360deg)
+  }
+  100% {
+    top: 0px;
+    left: 0px;
+    transform: rotate(-360deg)
+  }
+}
+
+.marathon-walker {
+  font-size: 50px;
+  position: absolute;
+
+  animation: marathon-walk 10s infinite linear;
 }
 
 
