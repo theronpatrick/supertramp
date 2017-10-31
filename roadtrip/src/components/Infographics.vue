@@ -659,10 +659,12 @@ section {
     transition: 1s all;
   }
 
+  // Change CSS based on visibility of section in viewport
   &.in-viewport {
     .test-image {
       left: 50%;
     }
+
   }
 }
 
@@ -703,6 +705,12 @@ section {
   border-radius: 5px;
   height: 100%;
   width: 80%;
+  pointer-events: none;
+
+  // Prevent scrolling/clicking until map is visible
+  &.visible {
+    pointer-events: auto;
+  }
 }
 
 // Animations
