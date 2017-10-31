@@ -15,9 +15,9 @@
           <button class="link-button selfie-button" id="selfie-button"></button>
           <label for="selfie-button">Selfie Gallery</label>
         </router-link>
-        <router-link :to="''">
+        <router-link :to="'infographics'">
           <button class="link-button infographic-button" id="infographic-button"></button>
-          <label for="infographic-button" class="disabled">Infographics <br />(coming soon)</label>
+          <label for="infographic-button">Stats</label>
         </router-link>
         <router-link :to="''">
           <button class="link-button stickers-button" id="stickers-button"></button>

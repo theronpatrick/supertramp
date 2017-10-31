@@ -104,27 +104,27 @@
       :class="{'in-viewport': sections[5].inViewport}"
     >
       <div class="content-aligner">
-        <h1 class="fade-in" :class="{'visible': snapchatsVisible}">
+        <h1>
           <a href="http://theronp.com/roadtrip/summerofsnap" target="_blank">
             <span>Snapchats Taken: {{snapchatsTaken}}</span>
-            <img class="no-border" :src="img.snapGhost"></img>
+            <img class="no-border fade-in" :class="{'visible': snapchatsVisible}" :src="img.snapGhost"></img>
           </a>
         </h1>
 
-        <h1 class="fade-in" :class="{'visible': selfiesVisible}">
+        <h1>
           <a href="http://theronp.com/roadtrip/selfiegallery" target="_blank">
             <span>Selfies Taken: {{selfiesTaken}} </span>
-            <span class="selfie-image-aligner">
+            <span class="selfie-image-aligner fade-in" :class="{'visible': selfiesVisible}">
               <img class="selfie" src="https://i.imgur.com/CtmHtEW.jpg"></img>
               <img class="selfie reverse" src="https://i.imgur.com/CAZvye8.jpg"></img>
             </span>
           </a>
         </h1>
 
-        <h1 class="fade-in" :class="{'visible': instagramsVisible}">
+        <h1>
           <a href="https://www.instagram.com/therontosomething/" target="_blank">
             <span>Instagram Photos Posted: {{instagramsTaken}}</span>
-            <img src="https://i.imgur.com/WzTFqkq.jpg"></img>
+            <img src="https://i.imgur.com/WzTFqkq.jpg" class="fade-in" :class="{'visible': instagramsVisible}"></img>
           </a>
         </h1>
       </div>
@@ -135,8 +135,8 @@
       class="brown"
       :class="{'in-viewport': sections[6].inViewport}"
     >
-      <div class="content-aligner">
-        <h1>Fun Had</h1>
+      <div class="content-aligner" :style="favoritePlaceStyle">
+        <h1>Favorite Place: {{favoritePlace}}</h1>
       </div>
     </section>
 
@@ -192,7 +192,10 @@ export default {
       instagramsVisible: false,
       snapchatsTaken: 0,
       selfiesTaken: 0,
-      instagramsTaken: 0
+      instagramsTaken: 0,
+      favoritePlaceList: [],
+      favoritePlace: "",
+      favoritePlaceStyle: {}
     }
   },
   mounted() {
@@ -256,6 +259,9 @@ export default {
           break;
         case 5:
           this.photoBlockHandler()
+          break;
+        case 6:
+          this.favoritePlaceBlockHandler()
           break;
         default:
           // No default case
@@ -394,7 +400,7 @@ export default {
       let vm = this
       let start = 0;
       let milesWalked = 446.94;
-      let marathonsWalked = 17.19;
+      let marathonsWalked = 17.06;
       let weightLost = 29;
 
       // Durations
@@ -491,7 +497,7 @@ export default {
 
     },
     photoBlockHandler() {
-      // Animate up photos
+      // Animate through photos
       let vm = this
       let start = 0;
       let snapchatsTaken = 1664;
@@ -541,7 +547,13 @@ export default {
         this.tweenAnimate()
         this.instagramsVisible = true
       }, time1 + time2 + time3)
+    },
+    favoritePlaceBlockHandler() {
+      // Loop through panoramas, set background
+      let vm = this
+      let start = 0;
 
+      // Loop through photos and set background
 
     }
 

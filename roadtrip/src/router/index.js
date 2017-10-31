@@ -36,7 +36,7 @@ let router = new Router({
       name: 'Infographics',
       component: Infographics,
       meta: {
-        title: "Infographics"
+        title: "Stats, Facts, and Fun"
       }
     },
     // Need to prefix routes with 'roadtrip' in history mode since that's where
@@ -67,7 +67,7 @@ let router = new Router({
       name: 'ProfInfographics',
       component: Infographics,
       meta: {
-        title: "Infographics"
+        title: "Stats, Facts, and Fun"
       }
     }
   ]
