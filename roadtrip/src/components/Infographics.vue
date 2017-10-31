@@ -57,10 +57,11 @@
       :class="{'in-viewport': sections[3].inViewport}"
     >
       <div class="content-aligner">
-        <h1>Miles Walked/Hiked: {{milesWalked}}</h1>
+        <h1>Miles Walked: {{milesWalked}}</h1>
         <h2
           class="fade-in"
           :class="{'visible': marathonsWalkedVisible}">(that's {{marathonsWalked}} marathons!)</h2>
+        <h2 class="fade-in" :class="{'visible': weightLostVisible}">Weight Lost: {{weightLost}}lbs.</h2>
       </div>
         <div class="marathon-animation-block">
           <span
@@ -77,7 +78,23 @@
       :class="{'in-viewport': sections[4].inViewport}"
     >
       <div class="content-aligner">
-        <h1>Burritos Eaten / Weight Lost</h1>
+        <h1 class="fade-in" :class="{'visible': burritosEatenVisible}">Breakfast Burritos eaten: {{burritosEaten}}</h1>
+        <div class="fade-in" :class="{'visible': burritoListVisible}">
+          <h1>Top 3 Breakfast Burritos Joints:</h1>
+          <h2
+            class="fade-in burrito-list-item"
+            :class="{'visible': burritoRankVisible1}">
+              <span class="burrito-spinner">🌯</span>
+              <span class="burrito-spinner flipped">🌯</span>
+              <span class="burrito-spinner">🌯</span>
+              <span>1. Colima's - San Diego, CA</span>
+              <span class="burrito-spinner">🌯</span>
+              <span class="burrito-spinner flipped">🌯</span>
+              <span class="burrito-spinner">🌯</span>
+          </h2>
+          <h2 class="fade-in burrito-list-item small" :class="{'visible': burritoRankVisible2}">2. Chill Out Cafe - Santa Cruz, CA</h2>
+          <h2 class="fade-in burrito-list-item small" :class="{'visible': burritoRankVisible3}">3. Crossroads Cafe - Joshua Tree, CA</h2>
+        </div>
       </div>
     </section>
 
@@ -136,7 +153,15 @@ export default {
       milesWalked: 0,
       marathonsWalkedVisible: false,
       marathonsWalked: 0,
-      marathonWalkers: []
+      marathonWalkers: [],
+      burritosEaten: 0,
+      weightLost: 0,
+      burritosEatenVisible: false,
+      weightLostVisible: false,
+      burritoListVisible: false,
+      burritoRankVisible3: false,
+      burritoRankVisible2: false,
+      burritoRankVisible1: false
     }
   },
   mounted() {
@@ -193,12 +218,16 @@ export default {
           this.mapBlockHandler()
           break;
         case 3:
-          this.walkedHandler()
+          this.walkedBlockHandler()
+          break;
+        case 4:
+          this.burritoBlockHandler()
           break;
         default:
           // No default case
       }
     },
+    // TODO: Read more docs about TWEEN, make sure this is not being called too much
     tweenAnimate() {
       if (tween.update()) {
         requestAnimationFrame(this.tweenAnimate)
@@ -286,90 +315,147 @@ export default {
         setTimeout(() => {
           this.speedingTicketVisible = true;
         }, time1 + time2 + time3)
-      },
-      mapBlockHandler() {
-        // Animate up miles driven
-        let vm = this
-        let start = 0;
-        let citiesVisited = 23;
-        let nationalParksVisited = 33;
+    },
+    mapBlockHandler() {
+      // Animate map
+      let vm = this
+      let start = 0;
+      let citiesVisited = 23;
+      let nationalParksVisited = 33;
 
-        // Durations
-        let time1 = 1500;
-        let time2 = 1500;
+      // Durations
+      let time1 = 1500;
+      let time2 = 1500;
 
-        new tween.Tween({ tweeningNumber: 0 })
-          .easing(TWEEN.Easing.Quadratic.Out)
-          .to({ tweeningNumber: citiesVisited }, time1)
-          .onUpdate(function () {
-            vm.citiesVisited = this.tweeningNumber.toFixed(0)
-          })
-          .start()
+      new tween.Tween({ tweeningNumber: 0 })
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .to({ tweeningNumber: citiesVisited }, time1)
+        .onUpdate(function () {
+          vm.citiesVisited = this.tweeningNumber.toFixed(0)
+        })
+        .start()
 
-          this.tweenAnimate()
+        this.tweenAnimate()
 
-          // Parks
-          setTimeout(() => {
-            new tween.Tween({ tweeningNumber: 0 })
-              .easing(TWEEN.Easing.Quadratic.Out)
-              .to({ tweeningNumber: nationalParksVisited }, time2)
-              .onUpdate(function () {
-                vm.nationalParksVisited = this.tweeningNumber.toFixed(0)
-              })
-              .start()
-            this.tweenAnimate()
-          }, time1)
-
-          // Map
-          setTimeout(() => {
-            this.myMapsVisible = true;
-          }, time1 + time2)
-
-        },
-        walkedHandler() {
-          // Animate up miles driven
-          let vm = this
-          let start = 0;
-          let milesWalked = 446.94;
-          let marathonsWalked = 17.19;
-
-          // Durations
-          let time1 = 2500;
-          let spawner = 450;
-          let time2 = spawner * marathonsWalked.toFixed(0);
-
+        // Parks
+        setTimeout(() => {
           new tween.Tween({ tweeningNumber: 0 })
             .easing(TWEEN.Easing.Quadratic.Out)
-            .to({ tweeningNumber: milesWalked }, time1)
+            .to({ tweeningNumber: nationalParksVisited }, time2)
             .onUpdate(function () {
-              vm.milesWalked = this.tweeningNumber.toFixed(2)
+              vm.nationalParksVisited = this.tweeningNumber.toFixed(0)
             })
             .start()
+          this.tweenAnimate()
+        }, time1)
 
-            this.tweenAnimate()
+        // Map
+        setTimeout(() => {
+          this.myMapsVisible = true;
+        }, time1 + time2)
 
-            // Marathons
-            setTimeout(() => {
-              new tween.Tween({ tweeningNumber: 0 })
-                .easing(TWEEN.Easing.Quadratic.Out)
-                .to({ tweeningNumber: marathonsWalked }, time2)
-                .onUpdate(function () {
-                  vm.marathonsWalked = this.tweeningNumber.toFixed(2)
-                })
-                .start()
-              this.marathonsWalkedVisible = true
-              this.tweenAnimate()
-            }, time1)
+    },
+    walkedBlockHandler() {
+      // Animate up miles walked
+      let vm = this
+      let start = 0;
+      let milesWalked = 446.94;
+      let marathonsWalked = 17.19;
+      let weightLost = 29;
 
-            // Spawner animation
-            for (let i = 0; i < marathonsWalked.toFixed(0); i++) {
-              setTimeout(() => {
-                this.marathonWalkers.push(true)
+      // Durations
+      let time1 = 2500;
+      let spawner = 450;
+      let time2 = spawner * marathonsWalked.toFixed(0);
+      let time3 = 1600;
 
-              }, time1 + i * spawner)
-            }
+      new tween.Tween({ tweeningNumber: 0 })
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .to({ tweeningNumber: milesWalked }, time1)
+        .onUpdate(function () {
+          vm.milesWalked = this.tweeningNumber.toFixed(2)
+        })
+        .start()
 
-          }
+        this.tweenAnimate()
+
+        // Marathons
+        setTimeout(() => {
+          new tween.Tween({ tweeningNumber: 0 })
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .to({ tweeningNumber: marathonsWalked }, time2)
+            .onUpdate(function () {
+              vm.marathonsWalked = this.tweeningNumber.toFixed(2)
+            })
+            .start()
+          this.marathonsWalkedVisible = true
+          this.tweenAnimate()
+        }, time1)
+
+        // Spawner animation
+        for (let i = 0; i < marathonsWalked.toFixed(0); i++) {
+          setTimeout(() => {
+            this.marathonWalkers.push(true)
+
+          }, time1 + i * spawner)
+        }
+
+        // Weight timeout
+        setTimeout(() => {
+          new tween.Tween({ tweeningNumber: 0 })
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .to({ tweeningNumber: weightLost }, time3)
+            .onUpdate(function () {
+              vm.weightLost = this.tweeningNumber.toFixed(0)
+            })
+            .start()
+          this.tweenAnimate()
+
+          this.weightLostVisible = true
+        }, time1 + time2)
+
+    },
+    burritoBlockHandler() {
+      // Animate up miles driven
+      let vm = this
+      let start = 0;
+      let burritosEaten = 25;
+      let weightLost = 29;
+
+      // Durations
+      let time1 = 1800;
+      let time2 = 2800;
+      let time3 = 1800;
+      let time4 = 2400;
+
+      new tween.Tween({ tweeningNumber: 0 })
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .to({ tweeningNumber: burritosEaten }, time1)
+        .onUpdate(function () {
+          vm.burritosEaten = this.tweeningNumber.toFixed(0)
+        })
+        .start()
+
+      this.tweenAnimate()
+      this.burritosEatenVisible = true
+
+      // List
+      setTimeout(() => {
+        this.burritoListVisible = true
+      }, time1)
+
+      // Top 3 burritos
+      setTimeout(() => {
+        this.burritoRankVisible3 = true
+      }, time1 + time2)
+      setTimeout(() => {
+        this.burritoRankVisible2 = true
+      }, time1 + time2 + time3)
+      setTimeout(() => {
+        this.burritoRankVisible1 = true
+      }, time1 + time2 + time3 + time4)
+
+    }
 
 
   },
@@ -623,6 +709,40 @@ section {
   position: absolute;
 
   animation: marathon-walk 10s infinite linear;
+}
+
+@keyframes burrito-spin {
+  0% {
+    transform: rotate(0deg)
+  }
+  100% {
+    transform: rotate(360deg)
+  }
+}
+
+@keyframes burrito-spin-flipped {
+  0% {
+    transform: rotate(0deg)
+  }
+  100% {
+    transform: rotate(-360deg)
+  }
+}
+
+.burrito-list-item {
+  font-size: 35px;
+  &.small {
+    font-size: 28px;
+  }
+}
+
+.burrito-spinner {
+  display: inline-block;
+  animation: burrito-spin 1s infinite linear;
+
+  &.flipped {
+    animation: burrito-spin-flipped 1s infinite linear;
+  }
 }
 
 
