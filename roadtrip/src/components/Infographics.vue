@@ -100,11 +100,33 @@
 
     <section
       :style="{'height': windowHeight}"
-      class="red"
+      class="red photo-block"
       :class="{'in-viewport': sections[5].inViewport}"
     >
       <div class="content-aligner">
-        <h1>Instagram Photos Posted / Selfies Taken / Snapchats Taken</h1>
+        <h1 class="fade-in" :class="{'visible': snapchatsVisible}">
+          <a href="http://theronp.com/roadtrip/summerofsnap" target="_blank">
+            <span>Snapchats Taken: {{snapchatsTaken}}</span>
+            <img class="no-border" :src="img.snapGhost"></img>
+          </a>
+        </h1>
+
+        <h1 class="fade-in" :class="{'visible': selfiesVisible}">
+          <a href="http://theronp.com/roadtrip/selfiegallery" target="_blank">
+            <span>Selfies Taken: {{selfiesTaken}} </span>
+            <span class="selfie-image-aligner">
+              <img class="selfie" src="https://i.imgur.com/CtmHtEW.jpg"></img>
+              <img class="selfie reverse" src="https://i.imgur.com/CAZvye8.jpg"></img>
+            </span>
+          </a>
+        </h1>
+
+        <h1 class="fade-in" :class="{'visible': instagramsVisible}">
+          <a href="https://www.instagram.com/therontosomething/" target="_blank">
+            <span>Instagram Photos Posted: {{instagramsTaken}}</span>
+            <img src="https://i.imgur.com/WzTFqkq.jpg"></img>
+          </a>
+        </h1>
       </div>
     </section>
 
@@ -124,6 +146,8 @@
 <script>
 
 import doubleArrow from "../assets/double-arrow.svg"
+import snapGhost from "../assets/snap-ghost.png"
+
 import tween from "tween"
 
 export default {
@@ -132,7 +156,8 @@ export default {
   data () {
     return {
       img: {
-        doubleArrow
+        doubleArrow,
+        snapGhost
       },
       debug: false,
       sections: [],
@@ -161,7 +186,13 @@ export default {
       burritoListVisible: false,
       burritoRankVisible3: false,
       burritoRankVisible2: false,
-      burritoRankVisible1: false
+      burritoRankVisible1: false,
+      snapchatsVisible: false,
+      selfiesVisible: false,
+      instagramsVisible: false,
+      snapchatsTaken: 0,
+      selfiesTaken: 0,
+      instagramsTaken: 0
     }
   },
   mounted() {
@@ -222,6 +253,9 @@ export default {
           break;
         case 4:
           this.burritoBlockHandler()
+          break;
+        case 5:
+          this.photoBlockHandler()
           break;
         default:
           // No default case
@@ -416,7 +450,7 @@ export default {
 
     },
     burritoBlockHandler() {
-      // Animate up miles driven
+      // Animate up burritos eaten
       let vm = this
       let start = 0;
       let burritosEaten = 25;
@@ -454,6 +488,60 @@ export default {
       setTimeout(() => {
         this.burritoRankVisible1 = true
       }, time1 + time2 + time3 + time4)
+
+    },
+    photoBlockHandler() {
+      // Animate up photos
+      let vm = this
+      let start = 0;
+      let snapchatsTaken = 1664;
+      let instagramsTaken = 247;
+      let selfiesTaken = 130;
+
+      // Durations
+      let time1 = 1200;
+      let time2 = 1800;
+      let time3 = 1800;
+
+      setTimeout(() => {
+        new tween.Tween({ tweeningNumber: 0 })
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .to({ tweeningNumber: snapchatsTaken }, time1)
+          .onUpdate(function () {
+            vm.snapchatsTaken = this.tweeningNumber.toFixed(0)
+          })
+          .start()
+
+        this.tweenAnimate()
+        this.snapchatsVisible = true
+      }, time1)
+
+      setTimeout(() => {
+        new tween.Tween({ tweeningNumber: 0 })
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .to({ tweeningNumber: selfiesTaken }, time1)
+          .onUpdate(function () {
+            vm.selfiesTaken = this.tweeningNumber.toFixed(0)
+          })
+          .start()
+
+        this.tweenAnimate()
+        this.selfiesVisible = true
+      }, time1 + time2)
+
+      setTimeout(() => {
+        new tween.Tween({ tweeningNumber: 0 })
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .to({ tweeningNumber: instagramsTaken }, time1)
+          .onUpdate(function () {
+            vm.instagramsTaken = this.tweeningNumber.toFixed(0)
+          })
+          .start()
+
+        this.tweenAnimate()
+        this.instagramsVisible = true
+      }, time1 + time2 + time3)
+
 
     }
 
@@ -742,6 +830,72 @@ section {
 
   &.flipped {
     animation: burrito-spin-flipped 1s infinite linear;
+  }
+}
+
+@keyframes selfie-switch {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+    display: none;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes selfie-switch-reverse {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.photo-block {
+  .selfie-image-aligner {
+    display: inline-block;
+    vertical-align: top;
+    position: relative;
+  }
+
+  a {
+    display: inline-block;
+    margin: 0 auto;
+    color: #fff;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  img {
+    display: inline-block;
+    vertical-align: middle;
+    width: 50px;
+    border-radius: 50%;
+    border: 1px solid #fff;
+
+    &.no-border {
+      border: none;
+    }
+
+    &.selfie {
+      position: absolute;
+
+      animation: selfie-switch 5s infinite linear;
+
+      &.reverse {
+        animation: selfie-switch-reverse 5s infinite linear;
+      }
+    }
   }
 }
 
