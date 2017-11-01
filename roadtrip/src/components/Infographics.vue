@@ -135,8 +135,14 @@
       class="brown"
       :class="{'in-viewport': sections[6].inViewport}"
     >
-      <div class="content-aligner" :style="favoritePlaceStyle">
-        <h1>Favorite Place: {{favoritePlace}}</h1>
+      <div class="content-aligner favorite-place-background align-top" :style="favoritePlaceStyle">
+        <h1>
+          <span>Panoramas Taken: {{panos.length}}</span>
+        </h1>
+        <h2>
+          <span>{{favoritePlace}}</span>
+        </h2>
+        <div><img v-for="place in favoritePlacePreload" :src="place" class="preload-image"></img></div>
       </div>
     </section>
 
@@ -147,6 +153,8 @@
 
 import doubleArrow from "../assets/double-arrow.svg"
 import snapGhost from "../assets/snap-ghost.png"
+
+import panos from "../data/panoramas.js"
 
 import tween from "tween"
 
@@ -193,9 +201,12 @@ export default {
       snapchatsTaken: 0,
       selfiesTaken: 0,
       instagramsTaken: 0,
-      favoritePlaceList: [],
+      favoritePlaceIndex: 0,
+      favoritePlacePreload: [],
       favoritePlace: "",
-      favoritePlaceStyle: {}
+      favoritePlaceStyle: {},
+      favoritePlaceTimeout: {},
+      panos
     }
   },
   mounted() {
@@ -207,6 +218,9 @@ export default {
     for (let i = 0; i < this.sections.length; i++) {
       this.sections[i].sectionElement = sections[i]
     }
+
+    // Load images for last section
+    this.loadImages()
 
   },
   beforeMount() {
@@ -220,6 +234,9 @@ export default {
   },
   beforeDestroy () {
     window.removeEventListener('resize', this.resizeHandler)
+
+    // Clear timeout if we set it up
+    clearTimeout(this.favoritePlaceTimeout)
   },
   methods: {
     resizeHandler() {
@@ -240,7 +257,6 @@ export default {
 
     },
     inViewportChangeHandler(index) {
-      console.log(index);
       switch (index) {
         case 0:
           this.introBlockHandler()
@@ -548,12 +564,93 @@ export default {
         this.instagramsVisible = true
       }, time1 + time2 + time3)
     },
+    shuffleFavoriteImages() {
+      // Randomize our image order in a non-optimized way cuz something weird going on with vue arrays
+      let newArray = []
+
+      while (this.panos.length > 0) {
+        let length = this.panos.length;
+        let index = Math.floor(Math.random() * length) + 0
+        newArray.push(this.panos[index])
+        this.panos.splice(index, 1)
+      }
+
+      // Reset to our shuffled aray
+      this.panos = newArray
+
+      // Preload 5 images
+      for (let i = 0; i < 5; i++) {
+        this.favoritePlacePreload.push(this.panos[i].url)
+      }
+    },
     favoritePlaceBlockHandler() {
       // Loop through panoramas, set background
       let vm = this
       let start = 0;
 
-      // Loop through photos and set background
+      // Start up interval
+      this.favoritePlaceInterval()
+
+    },
+    favoritePlaceInterval() {
+      let interval = 3000;
+
+      let imageIndex = this.favoritePlaceIndex
+
+      // Preload backgrounds
+      for (let i = 0; i < 5; i++) {
+        // If we previously set imageIndex to be out of bounds, reset to beginning of array
+        if (imageIndex === this.panos.length) {
+          imageIndex = 0;
+        }
+
+        // Use $set so vue sees array update
+        this.$set(this.favoritePlacePreload, i, this.panos[imageIndex].url)
+
+        imageIndex++
+      }
+
+      // Set background style
+      this.favoritePlaceStyle = {
+        "background-image": `url(${this.panos[this.favoritePlaceIndex].url})`
+      }
+      this.favoritePlace = this.panos[this.favoritePlaceIndex].name
+
+      // Increment index, or reset to 0
+      if (this.favoritePlaceIndex === this.panos.length) {
+        this.favoritePlaceIndex = 0
+      } else {
+        this.favoritePlaceIndex++
+      }
+
+      this.favoritePlaceTimeout = setTimeout(() => {
+        this.favoritePlaceInterval()
+      }, interval)
+    },
+    loadImages() {
+      // TODO: Show loader while images are loading in
+      var settings = {
+        "async": true,
+        "crossDomain": true,
+        "url": "https://api.imgur.com/3/album/9Gaeh",
+        "method": "GET",
+        "headers": {
+          "authorization": "Client-ID 27a13f9320a8875"
+        }
+      }
+
+      $.ajax(settings).done((response) => {
+        if (response.data) {
+
+          for (let i = 0; i < response.data.images.length; i++) {
+            this.panos[i].url = response.data.images[i].link
+          }
+
+          // After loading, shuffle images and start preload
+          this.shuffleFavoriteImages()
+
+        }
+      });
 
     }
 
@@ -919,6 +1016,21 @@ section {
   }
 }
 
+.preload-image {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  left: -9999px;
+}
+
+.favorite-place-background {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-attachment: fixed;
+
+  transition: all 1s ease-in-out;
+}
 
 
 </style>
