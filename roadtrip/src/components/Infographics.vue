@@ -38,8 +38,8 @@
         <div class="sub-panel left">
           <div class="table-aligner">
             <div class="content-aligner">
-              <h1>Major Cities Visited: {{citiesVisited}}</h1>
-              <h1>National Parks Visited: {{nationalParksVisited}}</h1>
+              <h2>Major Cities Visited: {{citiesVisited}}</h2>
+              <h2>National Parks Visited: {{nationalParksVisited}}</h2>
             </div>
           </div>
         </div>
@@ -81,19 +81,30 @@
         <h1 class="fade-in" :class="{'visible': burritosEatenVisible}">Breakfast Burritos eaten: {{burritosEaten}}</h1>
         <div class="fade-in" :class="{'visible': burritoListVisible}">
           <h1>Top 3 Breakfast Burritos Joints:</h1>
-          <h2
+          <div
             class="fade-in burrito-list-item"
             :class="{'visible': burritoRankVisible1}">
-              <span class="burrito-spinner">🌯</span>
-              <span class="burrito-spinner flipped">🌯</span>
-              <span class="burrito-spinner">🌯</span>
-              <span>1. Colima's - San Diego, CA</span>
-              <span class="burrito-spinner">🌯</span>
-              <span class="burrito-spinner flipped">🌯</span>
-              <span class="burrito-spinner">🌯</span>
-          </h2>
-          <h2 class="fade-in burrito-list-item small" :class="{'visible': burritoRankVisible2}">2. Chill Out Cafe - Santa Cruz, CA</h2>
-          <h2 class="fade-in burrito-list-item small" :class="{'visible': burritoRankVisible3}">3. Crossroads Cafe - Joshua Tree, CA</h2>
+              <div>
+                <span class="burrito-spinner">🌯</span>
+                <span class="burrito-spinner flipped">🌯</span>
+                <span class="burrito-spinner">🌯</span>
+              </div>
+              <h1>1. Colima's</h1>
+              <h2>San Diego, CA</h2>
+              <div>
+                <span class="burrito-spinner">🌯</span>
+                <span class="burrito-spinner flipped">🌯</span>
+                <span class="burrito-spinner">🌯</span>
+              </div>
+          </div>
+          <div class="fade-in burrito-list-item small" :class="{'visible': burritoRankVisible2}">
+            <h1>2. Chill Out Cafe</h1>
+            <h2>Santa Cruz, CA</h2>
+          </div>
+          <div class="fade-in burrito-list-item small" :class="{'visible': burritoRankVisible3}">
+            <h1>3. Crossroads Cafe</h1>
+            <h2>Joshua Tree, CA</h2>
+          </div>
         </div>
       </div>
     </section>
@@ -222,6 +233,9 @@ export default {
     // Load images for last section
     this.loadImages()
 
+    // Set up tween animation loop
+    requestAnimationFrame(this.tweenAnimate);
+
   },
   beforeMount() {
     window.addEventListener('resize', this.resizeHandler)
@@ -250,7 +264,10 @@ export default {
       // TODO: Play with factor for images to animate in
       for (let i = 0; i < this.sections.length; i++) {
         let rect = this.sections[i].sectionElement.getBoundingClientRect()
-        if (rect.y <= window.innerHeight / 2) {
+
+        let top = rect.y || rect.top
+
+        if (top <= window.innerHeight / 2) {
           this.sections[i].inViewport = true
         }
       }
@@ -284,10 +301,9 @@ export default {
       }
     },
     // TODO: Read more docs about TWEEN, make sure this is not being called too much
-    tweenAnimate() {
-      if (tween.update()) {
-        requestAnimationFrame(this.tweenAnimate)
-      }
+    tweenAnimate(time) {
+      requestAnimationFrame(this.tweenAnimate);
+      tween.update(time);
     },
     introBlockHandler() {
 
@@ -340,8 +356,6 @@ export default {
         })
         .start()
 
-        this.tweenAnimate()
-
         // Days
         setTimeout(() => {
           new tween.Tween({ tweeningNumber: 0 })
@@ -351,7 +365,7 @@ export default {
               vm.daysOnRoad = this.tweeningNumber.toFixed(0)
             })
             .start()
-          this.tweenAnimate()
+
         }, time1)
 
         // Speeding ticket
@@ -364,7 +378,6 @@ export default {
               vm.speedingTickets = this.tweeningNumber.toFixed(0)
             })
             .start()
-          this.tweenAnimate()
         }, time1 + time2)
 
         // Oh my
@@ -391,8 +404,6 @@ export default {
         })
         .start()
 
-        this.tweenAnimate()
-
         // Parks
         setTimeout(() => {
           new tween.Tween({ tweeningNumber: 0 })
@@ -402,7 +413,6 @@ export default {
               vm.nationalParksVisited = this.tweeningNumber.toFixed(0)
             })
             .start()
-          this.tweenAnimate()
         }, time1)
 
         // Map
@@ -433,8 +443,6 @@ export default {
         })
         .start()
 
-        this.tweenAnimate()
-
         // Marathons
         setTimeout(() => {
           new tween.Tween({ tweeningNumber: 0 })
@@ -445,7 +453,6 @@ export default {
             })
             .start()
           this.marathonsWalkedVisible = true
-          this.tweenAnimate()
         }, time1)
 
         // Spawner animation
@@ -465,7 +472,6 @@ export default {
               vm.weightLost = this.tweeningNumber.toFixed(0)
             })
             .start()
-          this.tweenAnimate()
 
           this.weightLostVisible = true
         }, time1 + time2)
@@ -480,7 +486,7 @@ export default {
 
       // Durations
       let time1 = 1800;
-      let time2 = 2800;
+      let time2 = 2000;
       let time3 = 1800;
       let time4 = 2400;
 
@@ -492,7 +498,6 @@ export default {
         })
         .start()
 
-      this.tweenAnimate()
       this.burritosEatenVisible = true
 
       // List
@@ -534,7 +539,6 @@ export default {
           })
           .start()
 
-        this.tweenAnimate()
         this.snapchatsVisible = true
       }, time1)
 
@@ -547,7 +551,6 @@ export default {
           })
           .start()
 
-        this.tweenAnimate()
         this.selfiesVisible = true
       }, time1 + time2)
 
@@ -560,7 +563,6 @@ export default {
           })
           .start()
 
-        this.tweenAnimate()
         this.instagramsVisible = true
       }, time1 + time2 + time3)
     },
@@ -694,14 +696,32 @@ export default {
 h1 {
   font-size: 38px;
   margin: 0 auto;
+
+  @include mobile {
+    font-size: 28px;
+  }
 }
 
 h2 {
   font-size: 30px;
   margin: 0 auto;
+
+  @include mobile {
+    font-size: 20px;
+  }
 }
 
-h1, h2 {
+h2 {
+  font-size: 22px;
+  margin: 0 auto;
+
+  @include mobile {
+    font-size: 16px;
+  }
+}
+
+
+h1, h2, h3 {
   text-shadow: 2px 1px 0px $gray3
 }
 
@@ -791,9 +811,17 @@ section {
   &.left {
     // TODO: Figure out where phantom 1% is coming from throwing this off
     width: 19%;
+
+    @include mobile {
+      width: 29%;
+    }
   }
   &.right {
     width: 80%;
+
+    @include mobile {
+      width: 70%;
+    }
   }
 }
 
@@ -807,6 +835,14 @@ section {
   // Prevent scrolling/clicking until map is visible
   &.visible {
     pointer-events: auto;
+  }
+}
+
+.burrito-list-item {
+  &.small {
+    h1 {
+      font-size: 28px
+    }
   }
 }
 
@@ -934,16 +970,11 @@ section {
   }
 }
 
-.burrito-list-item {
-  font-size: 35px;
-  &.small {
-    font-size: 28px;
-  }
-}
-
 .burrito-spinner {
   display: inline-block;
   animation: burrito-spin 1s infinite linear;
+
+  font-size: 32px;
 
   &.flipped {
     animation: burrito-spin-flipped 1s infinite linear;
@@ -976,8 +1007,18 @@ section {
 }
 
 .photo-block {
+
+  h1 {
+    @include mobile {
+      font-size: 22px;
+      margin-bottom: 20px;
+    }
+  }
+
   .selfie-image-aligner {
     display: inline-block;
+    height: 66px;
+
     vertical-align: top;
     position: relative;
   }
