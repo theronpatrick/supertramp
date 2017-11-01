@@ -5,7 +5,7 @@
       class="purple"
       :class="{'in-viewport': sections[0].inViewport}"
     >
-      <div class="content-aligner">
+      <div class="content-aligner" :style="{'height': windowHeight}">
         <h1>
           <span class="fade-in" :class="{'visible': statsVisible}">Stats, </span>
           <span class="fade-in" :class="{'visible': factsVisible}">Facts, </span>
@@ -21,7 +21,7 @@
       class="green"
       :class="{'in-viewport': sections[1].inViewport}"
     >
-      <div class="content-aligner">
+      <div class="content-aligner" :style="{'height': windowHeight}">
         <h1>Miles Driven: {{milesDriven}}</h1>
         <h1>Days on the Road: {{daysOnRoad}}</h1>
         <h1>Speeding tickets: {{speedingTickets}} <span class="font-expand" :class="{visible: speedingTicketVisible}">😓</span></h1>
@@ -34,7 +34,7 @@
       class="teal"
       :class="{'in-viewport': sections[2].inViewport}"
     >
-      <div class="content-aligner align-top">
+      <div class="content-aligner align-top" :style="{'height': windowHeight}">
         <div class="sub-panel left">
           <div class="table-aligner">
             <div class="content-aligner">
@@ -56,7 +56,7 @@
       class="orange"
       :class="{'in-viewport': sections[3].inViewport}"
     >
-      <div class="content-aligner">
+      <div class="content-aligner" :style="{'height': windowHeight}">
         <h1>Miles Walked: {{milesWalked}}</h1>
         <h2
           class="fade-in"
@@ -77,7 +77,7 @@
       class="yellow"
       :class="{'in-viewport': sections[4].inViewport}"
     >
-      <div class="content-aligner">
+      <div class="content-aligner" :style="{'height': windowHeight}">
         <h1 class="fade-in" :class="{'visible': burritosEatenVisible}">Breakfast Burritos eaten: {{burritosEaten}}</h1>
         <div class="fade-in" :class="{'visible': burritoListVisible}">
           <h1>Top 3 Breakfast Burritos Joints:</h1>
@@ -114,7 +114,7 @@
       class="red photo-block"
       :class="{'in-viewport': sections[5].inViewport}"
     >
-      <div class="content-aligner">
+      <div class="content-aligner" :style="{'height': windowHeight}">
         <h1>
           <a href="http://theronp.com/roadtrip/summerofsnap" target="_blank">
             <span>Snapchats Taken: {{snapchatsTaken}}</span>
@@ -614,7 +614,8 @@ export default {
 
       // Set background style
       this.favoritePlaceStyle = {
-        "background-image": `url(${this.panos[this.favoritePlaceIndex].url})`
+        "background-image": `url(${this.panos[this.favoritePlaceIndex].url})`,
+        "height": this.windowHeight
       }
       this.favoritePlace = this.panos[this.favoritePlaceIndex].name
 

@@ -32,7 +32,7 @@ let router = new Router({
       }
     },
     {
-      path: '/infographics',
+      path: '/stats',
       name: 'Infographics',
       component: Infographics,
       meta: {
@@ -63,7 +63,7 @@ let router = new Router({
       }
     },
     {
-      path: '/roadtrip/infographics',
+      path: '/roadtrip/stats',
       name: 'ProfInfographics',
       component: Infographics,
       meta: {
