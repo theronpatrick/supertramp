@@ -4,6 +4,7 @@ import Main from '@/components/Main'
 import SnapTheater from '@/components/SnapTheater'
 import SelfieGallery from '@/components/SelfieGallery'
 import Infographics from '@/components/Infographics'
+import BumperStickers from '@/components/BumperStickers'
 
 Vue.use(Router)
 
@@ -39,6 +40,14 @@ let router = new Router({
         title: "Stats, Facts, and Fun"
       }
     },
+    {
+      path: '/bumperstickers',
+      name: 'BumperStickers',
+      component: BumperStickers,
+      meta: {
+        title: "Bumper Sticker Explorer"
+      }
+    },
     // Need to prefix routes with 'roadtrip' in history mode since that's where
     // it'll be hosted on theronp.com
     {
@@ -69,7 +78,15 @@ let router = new Router({
       meta: {
         title: "Stats, Facts, and Fun"
       }
-    }
+    },
+    {
+      path: '/roadtrip/bumperstickers',
+      name: 'ProdBumperStickers',
+      component: BumperStickers,
+      meta: {
+        title: "Bumper Sticker Explorer"
+      }
+    },
   ]
 })
 
