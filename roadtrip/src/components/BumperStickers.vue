@@ -40,6 +40,7 @@ export default {
       backgroundStyle: {},
       backgroundUrl: "",
       backgroundWidth: 0,
+      backgroundHeight: 0,
       hitboxes: [],
       activePark: ""
     }
@@ -62,13 +63,17 @@ export default {
   },
   methods: {
     resizeHandler() {
-      // TODO: Accommodate scenario where 100% height does not take up whole window
+      // TODO: Make sure larger screens get all bumper stickers in, or at least scroll
+      // Also should probably force visible scroll bar on mac
+      
       let height = window.innerHeight;
 
       // TODO: 728 x 308 is what imgur displays in album view, determine if actual size is bit off
+      this.backgroundHeight = window.innerHeight
       this.backgroundWidth = window.innerHeight * (728 / 308)
 
       this.backgroundStyle.width = `${this.backgroundWidth}px`
+      this.backgroundStyle.height = `${this.backgroundHeight}px`
     },
     initHitboxes() {
       for (let key in hitboxData) {
@@ -108,7 +113,8 @@ export default {
 
           this.backgroundStyle = {
             'background-image': `url(${this.backgroundUrl})`,
-            width: this.backgroundWidth
+            width: this.backgroundWidth,
+            height: this.backgroundHeight
           }
         }
       });
@@ -155,18 +161,19 @@ export default {
   .background-container {
     width: 100%;
     height: 100%;
+
+    overflow: auto;
   }
 
   .background {
-    height: 100%;
-
     margin: 0 auto;
     position: relative;
 
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center center;
-    background-attachment: fixed;
+
+    // background-attachment: fixed;
 
     border-radius: 8px;
     // TODO: Figure out way to get nice blend into background
