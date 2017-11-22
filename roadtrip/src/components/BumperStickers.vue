@@ -1,33 +1,94 @@
 <template>
   <div class="main" @mousemove="mouseMoveHandler">
-    <div class="background" :style="backgroundStyle">
+    <div class="background-container">
+      <div class="background" :style="backgroundStyle" ref="background">
+        <div
+          v-for="(hitbox, index) in hitboxes"
+          class="hitbox"
+          :style="hitbox.style"
+          v-on:mouseenter="hitboxMouseEnter(hitbox)"
+          v-on:mouseleave="hitboxMouseLeave(hitbox)"
+          ></div>
+      </div>
     </div>
 
-    <div class="magnifier" :style="magnifierStyle">
+    <div class="magnifier" :style="magnifierStyle"></div>
 
+    <div class="debug-panel" v-if="debug">
+      <p>Zoom X: {{xPercent}}</p>
+      <p>Zoom Y: {{yPercent}}</p>
+      <p>Active Park: {{activePark}}</p>
     </div>
   </div>
 </template>
 
 <script>
 
+import hitboxData from "../data/bumper-sticker-coords.js"
+
 export default {
   data() {
     return {
-      debug: false,
+      debug: true,
+      // TODO: Take out absolute values if we're just using percent
       zoomX: 0,
+      zoomXOffset: 0,
       zoomY: 0,
+      xPercent: 0,
+      yPercent: 0,
       magnifierStyle: {},
       backgroundStyle: {},
-      backgroundUrl: ""
+      backgroundUrl: "",
+      backgroundWidth: 0,
+      hitboxes: [],
+      activePark: ""
     }
+  },
+  beforeMount() {
+    window.addEventListener('resize', this.resizeHandler)
+  },
+  beforeDestroy () {
+    window.removeEventListener('resize', this.resizeHandler)
   },
   mounted() {
     console.log("foo");
 
     this.getBackground()
+    // Calc initial dimensions for image
+    this.resizeHandler()
+
+    // Draw hitboxes
+    this.initHitboxes()
   },
   methods: {
+    resizeHandler() {
+      // TODO: Accommodate scenario where 100% height does not take up whole window
+      let height = window.innerHeight;
+
+      // TODO: 728 x 308 is what imgur displays in album view, determine if actual size is bit off
+      this.backgroundWidth = window.innerHeight * (728 / 308)
+
+      this.backgroundStyle.width = `${this.backgroundWidth}px`
+    },
+    initHitboxes() {
+      for (let key in hitboxData) {
+
+        let park = hitboxData[key]
+
+        this.hitboxes.push({
+          name: key,
+          style: {
+            width: `${park.x2 - park.x1}%`,
+            height: `${park.y2 - park.y1}%`,
+            left: `${park.x1}%`,
+            top: `${park.y1}%`
+          }
+        })
+
+      }
+
+      console.log(this.hitboxes);
+    },
     getBackground() {
       var settings = {
         "async": true,
@@ -46,7 +107,8 @@ export default {
           this.backgroundUrl = response.data.link
 
           this.backgroundStyle = {
-            'background-image': `url(${this.backgroundUrl})`
+            'background-image': `url(${this.backgroundUrl})`,
+            width: this.backgroundWidth
           }
         }
       });
@@ -61,17 +123,20 @@ export default {
         'background-image': `url(${this.backgroundUrl})`
       }
 
-      console.log("X" , this.zoomX);
-      console.log("Y " , this.zoomY);
+      // Change X position to include image margin offset
+      let box = this.$refs.background.getBoundingClientRect()
+      this.zoomXOffset = this.zoomX - box.left
 
-      if (this.debug) {
-        this.magnifierStyle = {
-          top: `50px`,
-          left: `50px`,
-          'background-image': `url(${this.backgroundUrl})`
-        }
-      }
+      this.xPercent = this.zoomXOffset / box.width
+      this.yPercent = this.zoomY / box.height;
 
+
+    },
+    hitboxMouseEnter(hitbox) {
+      this.activePark = hitbox.name
+    },
+    hitboxMouseLeave(e) {
+      this.activePark = ""
     }
   }
 }
@@ -87,28 +152,25 @@ export default {
     background: linear-gradient(to bottom, #a8c1ea 0%, #1c2329 100%);
   }
 
+  .background-container {
+    width: 100%;
+    height: 100%;
+  }
+
   .background {
+    height: 100%;
+
+    margin: 0 auto;
+    position: relative;
+
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center center;
     background-attachment: fixed;
 
-    width: 100%;
-    height: 100%;
-
-    &.aftertest {
-    content: "";
-    position: absolute;
-    left: 200px;
-    width: 200px;
-    top: 100px;
-    height: 200px;
-    border-radius: 50%;
-    background: inherit;
-    -webkit-transform: scale(1.1);
-    -webkit-animation: inherit;
-    -webkit-animation-delay: -4s;
-    }
+    border-radius: 8px;
+    // TODO: Figure out way to get nice blend into background
+    // box-shadow: 0 0 8px 8px transparent inset;
   }
 
   .magnifier {
@@ -117,6 +179,9 @@ export default {
     background-repeat: no-repeat;
     background-position: center center;
     background-attachment: fixed;
+
+    // TODO: Make sure this works cross browser
+    pointer-events: none;
 
     width: 100px;
     height: 100px;
@@ -127,5 +192,20 @@ export default {
     transform: scale(2);
     border-radius: 50%;
     border: 1px solid #fff;
+  }
+
+  .hitbox {
+    position: absolute;
+    background: rgba(0,0,255,.2)
+  }
+
+  .debug-panel {
+    background: white;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: auto;
+    width: 300px;
+
   }
 </style>
