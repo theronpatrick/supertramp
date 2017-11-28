@@ -10,9 +10,11 @@
           v-on:mouseleave="hitboxMouseLeave(hitbox)"
           ></div>
       </div>
-    </div>
 
-    <div class="magnifier" :style="magnifierStyle"></div>
+      <div class="magnifier" :style="magnifierStyle">
+        <div class="magnifier-background" :style="magnifierBackgroundStyle"></div>
+      </div>
+    </div>
 
     <div class="debug-panel" v-if="debug">
       <p>Zoom X: {{xPercent}}</p>
@@ -37,6 +39,7 @@ export default {
       xPercent: 0,
       yPercent: 0,
       magnifierStyle: {},
+      magnifierBackgroundStyle: {},
       backgroundStyle: {},
       backgroundUrl: "",
       backgroundWidth: 0,
@@ -52,11 +55,7 @@ export default {
     window.removeEventListener('resize', this.resizeHandler)
   },
   mounted() {
-    console.log("foo");
-
     this.getBackground()
-    // Calc initial dimensions for image
-    this.resizeHandler()
 
     // Draw hitboxes
     this.initHitboxes()
@@ -65,7 +64,7 @@ export default {
     resizeHandler() {
       // TODO: Make sure larger screens get all bumper stickers in, or at least scroll
       // Also should probably force visible scroll bar on mac
-      
+
       let height = window.innerHeight;
 
       // TODO: 728 x 308 is what imgur displays in album view, determine if actual size is bit off
@@ -74,6 +73,15 @@ export default {
 
       this.backgroundStyle.width = `${this.backgroundWidth}px`
       this.backgroundStyle.height = `${this.backgroundHeight}px`
+
+      this.magnifierBackgroundStyle.width = `${this.backgroundWidth}px`
+      this.magnifierBackgroundStyle.height = `${this.backgroundHeight}px`
+
+      // Set top / left offset based on image size and magnifier size
+      let magnifierOffset = 50
+
+      this.magnifierBackgroundStyle.left = `${this.backgroundWidth / 2 + magnifierOffset}px`
+      this.magnifierBackgroundStyle.top = `${this.backgroundHeight / 2 + magnifierOffset}px`
     },
     initHitboxes() {
       for (let key in hitboxData) {
@@ -112,10 +120,15 @@ export default {
           this.backgroundUrl = response.data.link
 
           this.backgroundStyle = {
-            'background-image': `url(${this.backgroundUrl})`,
-            width: this.backgroundWidth,
-            height: this.backgroundHeight
+            'background-image': `url(${this.backgroundUrl})`
           }
+
+          this.magnifierBackgroundStyle = {
+            'background-image': `url(${this.backgroundUrl})`
+          }
+
+          // Calc initial dimensions for image
+          this.resizeHandler()
         }
       });
     },
@@ -125,8 +138,7 @@ export default {
 
       this.magnifierStyle = {
         top: `${this.zoomY - 50}px`,
-        left: `${this.zoomX - 50}px`,
-        'background-image': `url(${this.backgroundUrl})`
+        left: `${this.zoomX - 50}px`
       }
 
       // Change X position to include image margin offset
@@ -136,6 +148,12 @@ export default {
       this.xPercent = this.zoomXOffset / box.width
       this.yPercent = this.zoomY / box.height;
 
+      // Adjust background of based on new position
+
+
+      let transform = `translateX(-${this.xPercent * 100 * 2}%) translateY(-${this.yPercent * 100 * 2}%) scale(2)`
+
+      this.magnifierBackgroundStyle.transform = transform
 
     },
     hitboxMouseEnter(hitbox) {
@@ -159,6 +177,8 @@ export default {
   }
 
   .background-container {
+    position: relative;
+
     width: 100%;
     height: 100%;
 
@@ -182,10 +202,6 @@ export default {
 
   .magnifier {
     position: absolute;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-attachment: fixed;
 
     // TODO: Make sure this works cross browser
     pointer-events: none;
@@ -193,12 +209,21 @@ export default {
     width: 100px;
     height: 100px;
 
+    overflow: hidden;
+
     top: 0;
     left: 0;
 
-    transform: scale(2);
     border-radius: 50%;
     border: 1px solid #fff;
+  }
+
+  .magnifier-background {
+    position: absolute;
+
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
   }
 
   .hitbox {
