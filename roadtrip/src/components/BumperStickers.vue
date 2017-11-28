@@ -11,6 +11,15 @@
           ></div>
       </div>
 
+      <transition name="label-transition">
+        <div
+          class="magnifier-label-container"
+          :style="magnifierLabelContainerStyle"
+          v-show="activePark !== ''">
+          <label>{{activePark}}</label>
+        </div>
+      </transition>
+
       <div class="magnifier" :style="magnifierStyle">
         <div class="magnifier-background" :style="magnifierBackgroundStyle"></div>
       </div>
@@ -39,6 +48,7 @@ export default {
       xPercent: 0,
       yPercent: 0,
       magnifierStyle: {},
+      magnifierLabelContainerStyle: {},
       magnifierBackgroundStyle: {},
       backgroundStyle: {},
       backgroundUrl: "",
@@ -133,10 +143,12 @@ export default {
       });
     },
     mouseMoveHandler(e) {
+      // TODO: Make sure this works when mouse leaving page, might need to hook onto another property
       this.zoomX = e.pageX
       this.zoomY = e.pageY
 
-      this.magnifierStyle = {
+      // Set both magnifier and label for magnifier position
+      this.magnifierStyle = this.magnifierLabelContainerStyle = {
         top: `${this.zoomY - 50}px`,
         left: `${this.zoomX - 50}px`
       }
@@ -168,12 +180,16 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+
+@import "~../styles/colors";
+@import "~../styles/variables";
+
   .main {
     position: fixed;
     height: 100%;
     width: 100%;
 
-    background: linear-gradient(to bottom, #a8c1ea 0%, #1c2329 100%);
+    background: linear-gradient(to bottom, #a8c1ea 0%, $carGray 100%);
   }
 
   .background-container {
@@ -215,7 +231,41 @@ export default {
     left: 0;
 
     border-radius: 50%;
-    border: 1px solid #fff;
+    border: 1px solid $carGray;
+  }
+
+  .magnifier-label-container {
+    position: absolute;
+    width: 200px;
+    min-height: 20px;
+
+    margin-top: -40px;
+    margin-left: -50px;
+
+    text-align: center;
+
+    background-color: rgba(28, 35, 41, .75);
+
+    border: 1px solid $carGray;
+    border-radius: 5px;
+
+    font-size: 20px;
+    color: #fff;
+    text-shadow: 2px 1px 0px $carGray;
+
+    opacity: 1;
+    transform: scale(1);
+    transition: opacity .2s ease, transform .2s ease;
+  }
+
+  .label-transition-enter, .label-transition-leave-active {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  .label-transition-enter-to {
+    opacity: 1;
+    transform: scale(1);
   }
 
   .magnifier-background {
