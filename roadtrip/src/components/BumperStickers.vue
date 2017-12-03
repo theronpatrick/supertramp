@@ -1,6 +1,6 @@
 <template>
   <div class="main" @mousemove="mouseMoveHandler">
-    <div class="background-container">
+    <div class="background-container" ref="backgroundContainer">
       <div class="background" :style="backgroundStyle" ref="background">
         <div
           v-for="(hitbox, index) in hitboxes"
@@ -143,8 +143,12 @@ export default {
       });
     },
     mouseMoveHandler(e) {
-      // TODO: Make sure this works when mouse leaving page, might need to hook onto another property
-      this.zoomX = e.pageX
+
+      // Get mouse position on image and
+      // add offset if we've been scrolling in main container
+      let scrollOffset = this.$refs.backgroundContainer.scrollLeft
+
+      this.zoomX = e.pageX + scrollOffset
       this.zoomY = e.pageY
 
       // Set both magnifier and label for magnifier position
@@ -166,6 +170,10 @@ export default {
       let transform = `translateX(-${this.xPercent * 100 * 2}%) translateY(-${this.yPercent * 100 * 2}%) scale(2)`
 
       this.magnifierBackgroundStyle.transform = transform
+
+      // Also add offset from scrolling
+      let magnifierOffset = 50
+      this.magnifierBackgroundStyle.left = `${this.backgroundWidth / 2 + magnifierOffset + scrollOffset * 2}px`
 
     },
     hitboxMouseEnter(hitbox) {
@@ -236,11 +244,13 @@ export default {
 
   .magnifier-label-container {
     position: absolute;
-    width: 200px;
+    min-width: 200px;
     min-height: 20px;
 
     margin-top: -40px;
     margin-left: -50px;
+
+    padding: 0 12px;
 
     text-align: center;
 
@@ -278,7 +288,6 @@ export default {
 
   .hitbox {
     position: absolute;
-    background: rgba(0,0,255,.2)
   }
 
   .debug-panel {
