@@ -16,7 +16,8 @@ export default {
     x1: 15.48,
     x2: 22.04,
     y1: 34.62,
-    y2: 45.98
+    y2: 45.98,
+    url: "MLqTy"
   },
   "Shenandoah": {
     x1: 22.50,
@@ -178,7 +179,8 @@ export default {
     x1: 70.60,
     x2: 74.50,
     y1: 56.13,
-    y2: 65.79
+    y2: 65.79,
+    url: "MMgqW"
   },
   "Canyonlands": {
     x1: 74.70,

@@ -23,6 +23,15 @@
       <div class="magnifier" :style="magnifierStyle">
         <div class="magnifier-background" :style="magnifierBackgroundStyle"></div>
       </div>
+
+      <div class="image-carousel-container">
+        <h1 v-if="carouselImages.length === 0">Click a Bumper Sticker to Load Images</h1>
+        <img
+          v-for="image in carouselImages"
+          :src="image.url"
+          class="image-carousel-item">
+        </img>
+      </div>
     </div>
 
     <div class="debug-panel" v-if="debug">
@@ -35,7 +44,7 @@
 
 <script>
 
-import hitboxData from "../data/bumper-sticker-coords.js"
+import bumperStickerData from "../data/bumper-stickers.js"
 
 export default {
   data() {
@@ -55,14 +64,18 @@ export default {
       backgroundWidth: 0,
       backgroundHeight: 0,
       hitboxes: [],
+      carouselImages: [],
+      parkImages: {}, // key is park name, value is array of loaded carousel images
       activePark: ""
     }
   },
   beforeMount() {
     window.addEventListener('resize', this.resizeHandler)
+    window.addEventListener('click', this.globalClickHandler)
   },
   beforeDestroy () {
     window.removeEventListener('resize', this.resizeHandler)
+    window.removeEventListener('click', this.globalClickHandler)
   },
   mounted() {
     this.getBackground()
@@ -94,9 +107,9 @@ export default {
       this.magnifierBackgroundStyle.top = `${this.backgroundHeight / 2 + magnifierOffset}px`
     },
     initHitboxes() {
-      for (let key in hitboxData) {
+      for (let key in bumperStickerData) {
 
-        let park = hitboxData[key]
+        let park = bumperStickerData[key]
 
         this.hitboxes.push({
           name: key,
@@ -165,8 +178,6 @@ export default {
       this.yPercent = this.zoomY / box.height;
 
       // Adjust background of based on new position
-
-
       let transform = `translateX(-${this.xPercent * 100 * 2}%) translateY(-${this.yPercent * 100 * 2}%) scale(2)`
 
       this.magnifierBackgroundStyle.transform = transform
@@ -178,9 +189,67 @@ export default {
     },
     hitboxMouseEnter(hitbox) {
       this.activePark = hitbox.name
+      this.backgroundStyle.cursor = "none"
     },
     hitboxMouseLeave(e) {
       this.activePark = ""
+      this.backgroundStyle.cursor = "default"
+    },
+    globalClickHandler() {
+
+      // TODO: Loading spinner for images, CSS juice for transitions,
+      // actual resolution for images in carousel
+
+      if (this.activePark) {
+
+        if (!this.parkImages[this.activePark]) {
+          this.loadImagesForPark(this.activePark)
+        } else {
+          // Clear out active images and step through to add them so vue picks up the change
+          this.carouselImages.length = 0
+
+          for (let i = 0; i < this.parkImages[this.activePark].length; i++) {
+            this.carouselImages.push(this.parkImages[this.activePark][i])
+          }
+        }
+      }
+    },
+    loadImagesForPark(park) {
+
+      let url = bumperStickerData[park].url
+
+      let settings = {
+        "async": true,
+        "crossDomain": true,
+        "url": `https://api.imgur.com/3/album/${url}`,
+        "method": "GET",
+        "headers": {
+          "authorization": "Client-ID 27a13f9320a8875"
+        }
+      }
+
+      $.ajax(settings).done((response) => {
+        if (response.data) {
+          console.log("data " , response.data);
+
+          // Clear old images
+          this.carouselImages.length = 0
+
+          // Set up cache array
+          this.parkImages[park] = []
+
+          // For each image make an object with the url and flag to set if it's the "active" one
+          for (let i = 0; i < response.data.images.length; i++) {
+            let image =  {
+              active: false,
+              url: response.data.images[i].link
+            }
+
+            this.carouselImages.push(image)
+            this.parkImages[park].push(image)
+          }
+        }
+      })
     }
   }
 }
@@ -206,7 +275,8 @@ export default {
     width: 100%;
     height: 100%;
 
-    overflow: auto;
+    overflow-y: hidden;
+    overflow-x: auto;
   }
 
   .background {
@@ -297,6 +367,47 @@ export default {
     left: 0;
     height: auto;
     width: 300px;
+  }
 
+  // Image carousel
+  .image-carousel-container {
+    position: absolute;
+    width: 50%;
+
+    height: 120px;
+    bottom: 50px;
+    padding: 5px;
+
+    text-align: center;
+    border-radius: 4px;
+    background: rgba(32, 32, 32, .7);
+    box-shadow: 0px 2px 4px 3px #111;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+
+    left: 50%;
+    transform: translateX(-50%);
+
+    h1 {
+      padding: 25px;
+      color: #fff;
+      text-shadow: 2px 1px 0px #000;
+    }
+  }
+
+  .image-carousel-item {
+
+    display: inline-block;
+    vertical-align: top;
+
+    width: 160px;
+    height: 90px;
+    border: 1px solid rgba(255,255,255,.9);
+
+    margin: 0 10px;
+
+    cursor: pointer;
   }
 </style>

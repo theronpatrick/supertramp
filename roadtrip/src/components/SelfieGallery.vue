@@ -332,7 +332,6 @@ export default {
       }
     },
     loadImages() {
-      // TODO: Show loader while images are loading in
       var settings = {
         "async": true,
         "crossDomain": true,
