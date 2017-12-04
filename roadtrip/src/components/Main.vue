@@ -19,9 +19,9 @@
           <button class="link-button infographic-button" id="infographic-button"></button>
           <label for="infographic-button">Stats</label>
         </router-link>
-        <router-link :to="''">
+        <router-link :to="'bumperstickers'">
           <button class="link-button stickers-button" id="stickers-button"></button>
-          <label for="stickers-button" class="disabled">Bumper Sticker Explorer <br />(coming soon)</label>
+          <label for="stickers-button">Bumper Sticker Explorer</label>
         </router-link>
       </div>
     </div>

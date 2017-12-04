@@ -110,16 +110,26 @@ export default {
   beforeMount() {
     window.addEventListener('resize', this.resizeHandler)
     window.addEventListener('click', this.globalClickHandler)
+    window.addEventListener('keydown', (e) => {
+      this.globalKeydown(e)
+    });
   },
   beforeDestroy () {
     window.removeEventListener('resize', this.resizeHandler)
     window.removeEventListener('click', this.globalClickHandler)
+    window.removeEventListener('keydown', (e) => {
+      this.globalKeydown(e)
+    });
   },
   mounted() {
     this.getBackground()
 
     // Draw hitboxes
     this.initHitboxes()
+
+    // TODO: Some kind of message that this won't work on mobile
+    // TODO: Something for kings canyon
+    // TODO: Something to say no pics for sumter, arch
   },
   methods: {
     resizeHandler() {
@@ -227,7 +237,6 @@ export default {
     },
     hitboxMouseEnter(hitbox) {
       this.activePark = hitbox.name
-      console.log(this.activePark);
       this.backgroundStyle.cursor = "none"
     },
     hitboxMouseLeave(e) {
@@ -269,7 +278,7 @@ export default {
 
       $.ajax(settings).done((response) => {
         if (response.data) {
-          console.log("data " , response.data);
+          console.log("album response: " , response.data);
 
           // Clear old images
           this.carouselImages.length = 0
@@ -319,7 +328,18 @@ export default {
     },
     imageLoadedHandler(image) {
       image.loading = false
-    }
+    },
+    globalKeydown(e) {
+      let code = e.code.toLowerCase()
+
+      console.log("global " , code);
+
+      if (code === "arrowleft") {
+        this.prevImageHandler()
+      } else if (code === "arrowright") {
+        this.nextImageHandler()
+      }
+    },
   }
 }
 </script>
