@@ -1,7 +1,9 @@
 <template>
   <div class="main" @mousemove="mouseMoveHandler">
     <div class="background-container" ref="backgroundContainer">
-      <div class="background" :style="backgroundStyle" ref="background">
+      <img class="background-loader-container" :src="backgroundImage.url" v-on:load="imageLoadedHandler(backgroundImage)" v-show="backgroundImage.loading"></img>
+      <img class="background-loader" :src="images.loader" v-show="backgroundImage.loading"></img>
+      <div class="background" :style="backgroundStyle" ref="background" :class="{loading: backgroundImage.loading}">
         <div
           v-for="(hitbox, index) in hitboxes"
           class="hitbox"
@@ -24,13 +26,34 @@
         <div class="magnifier-background" :style="magnifierBackgroundStyle"></div>
       </div>
 
-      <div class="image-carousel-container">
+      <div class="image-carousel-container" v-show="!backgroundImage.loading">
         <h1 v-if="carouselImages.length === 0">Click a Bumper Sticker to Load Images</h1>
-        <img
-          v-for="image in carouselImages"
-          :src="image.url"
-          class="image-carousel-item">
-        </img>
+
+        <div v-for="(image, index) in carouselImages" class="image-carousel-item" @click="carouselImageClick(index)">
+          <img
+            :class="{'loading': image.loading}"
+            v-on:load="imageLoadedHandler(image)"
+            :src="image.url"
+          ></img>
+          <img :src="images.loader" v-show="image.loading === true"></img>
+        </div>
+      </div>
+
+      <div class="lightbox-container" v-show="lightboxVisible" @click="lightboxClick">
+        <div class="lightbox">
+          <img :src="images.close" class="close-button" role="button" @click="closeLightboxHandler"></img>
+
+          <!-- Normal arrows -->
+          <img :src="images.arrow" class="prev-button" role="button" @click="prevImageHandler" v-show="lightboxIndex !== 0"></img>
+          <img :src="images.arrow" class="next-button" role="button" @click="nextImageHandler" v-show="lightboxIndex !== carouselImages.length - 1"></img>
+
+          <!-- Disabled arrows -->
+          <img :src="images.arrow" class="prev-button" role="button" v-show="lightboxIndex === 0" disabled="true"></img>
+          <img :src="images.arrow" class="next-button" role="button" v-show="lightboxIndex === carouselImages.length - 1" disabled="true"></img>
+
+          <img class="lightbox-image" :src="lightboxImage.url" :class="{'loading': lightboxImage.loading}"></img>
+          <img class="lightbox-image" :src="images.loader" v-show="lightboxImage.loading === true"></img>
+        </div>
       </div>
     </div>
 
@@ -46,10 +69,19 @@
 
 import bumperStickerData from "../data/bumper-stickers.js"
 
+import close from "../assets/close.svg"
+import arrow from "../assets/arrow-white.svg"
+import loader from "../assets/loader.svg"
+
 export default {
   data() {
     return {
-      debug: true,
+      images: {
+        close,
+        arrow,
+        loader
+      },
+      debug: false,
       // TODO: Take out absolute values if we're just using percent
       zoomX: 0,
       zoomXOffset: 0,
@@ -60,13 +92,19 @@ export default {
       magnifierLabelContainerStyle: {},
       magnifierBackgroundStyle: {},
       backgroundStyle: {},
+      backgroundImage: {
+        loading: true
+      },
       backgroundUrl: "",
       backgroundWidth: 0,
       backgroundHeight: 0,
       hitboxes: [],
       carouselImages: [],
       parkImages: {}, // key is park name, value is array of loaded carousel images
-      activePark: ""
+      activePark: "",
+      lightboxIndex: 0,
+      lightboxImage: {},
+      lightboxVisible: false
     }
   },
   beforeMount() {
@@ -122,8 +160,6 @@ export default {
         })
 
       }
-
-      console.log(this.hitboxes);
     },
     getBackground() {
       var settings = {
@@ -140,7 +176,9 @@ export default {
       $.ajax(settings).done((response) => {
         if (response.data) {
 
+          // TODO: Remove backgroundUrl string now that we have backgroundImage object
           this.backgroundUrl = response.data.link
+          this.backgroundImage.url = response.data.link
 
           this.backgroundStyle = {
             'background-image': `url(${this.backgroundUrl})`
@@ -189,6 +227,7 @@ export default {
     },
     hitboxMouseEnter(hitbox) {
       this.activePark = hitbox.name
+      console.log(this.activePark);
       this.backgroundStyle.cursor = "none"
     },
     hitboxMouseLeave(e) {
@@ -242,6 +281,7 @@ export default {
           for (let i = 0; i < response.data.images.length; i++) {
             let image =  {
               active: false,
+              loading: true,
               url: response.data.images[i].link
             }
 
@@ -250,6 +290,35 @@ export default {
           }
         }
       })
+    },
+    carouselImageClick(imageIndex) {
+      // TODO: Could add watcher for index and update image accordingly
+      this.lightboxIndex = imageIndex
+      this.lightboxImage = this.carouselImages[imageIndex]
+      this.lightboxVisible = true
+    },
+    prevImageHandler() {
+      if (this.lightboxIndex > 0) {
+        this.lightboxIndex = this.lightboxIndex - 1
+        this.lightboxImage = this.carouselImages[this.lightboxIndex]
+      }
+    },
+    nextImageHandler() {
+      if (this.lightboxIndex < this.carouselImages.length - 1) {
+        this.lightboxIndex = this.lightboxIndex + 1
+        this.lightboxImage = this.carouselImages[this.lightboxIndex]
+      }
+    },
+    lightboxClick(e) {
+      if (e.target.tagName.toLowerCase() !== "img") {
+        this.closeLightboxHandler()
+      }
+    },
+    closeLightboxHandler() {
+      this.lightboxVisible = false
+    },
+    imageLoadedHandler(image) {
+      image.loading = false
     }
   }
 }
@@ -277,6 +346,24 @@ export default {
 
     overflow-y: hidden;
     overflow-x: auto;
+  }
+
+  // Should be noted that this is just to load the image file, not the 'loader' component
+  .background-loader-container {
+    position: absolute;
+    left: -9999px;
+    height: 1px;
+    width: 1px;
+  }
+
+  .background-loader {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+
+    height: 200px;
+    width: 200px;
   }
 
   .background {
@@ -370,6 +457,14 @@ export default {
   }
 
   // Image carousel
+
+  // Load images off screen
+  .loading {
+    left: -9999px !important;
+    height: 1px !important;
+    width: 1px !important;
+  }
+
   .image-carousel-container {
     position: absolute;
     width: 50%;
@@ -400,7 +495,10 @@ export default {
   .image-carousel-item {
 
     display: inline-block;
+    position: relative;
     vertical-align: top;
+
+    background: #000;
 
     width: 160px;
     height: 90px;
@@ -409,5 +507,74 @@ export default {
     margin: 0 10px;
 
     cursor: pointer;
+
+    img {
+      height: 100%;
+      max-width: 100%;
+    }
+  }
+
+  // Lightbox
+  .lightbox-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 11;
+
+    width: 100%;
+    height: 100%;
+  }
+  .lightbox {
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    background: rgba(52, 52, 52, .9);
+
+    text-align: center;
+
+    .lightbox-image {
+      height: 80%;
+      margin-top: 20px;
+      max-width: 80%;
+
+      border: 1px solid #000;
+      box-shadow: 1px 1px 1px #000;
+    }
+
+    [role="button"] {
+      cursor: pointer;
+      width: 50px;
+      height: 50px;
+    }
+
+    .next-button, .prev-button {
+      position: absolute;
+      transform: translateY(-50%);
+      top: 50%;
+
+      &[disabled="disabled"] {
+        opacity: 0.5;
+        cursor: default;
+      }
+    }
+
+    .prev-button {
+      position: absolute;
+      transform: translateY(-50%) rotate(180deg);
+      left: 20px;
+    }
+    .next-button {
+      right: 20px;
+    }
+
+    .close-button {
+      position: absolute;
+      top: 25px;
+      left: 25px;
+
+      border-radius: 50%;
+      background: #fff;
+    }
   }
 </style>
