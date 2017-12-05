@@ -31,11 +31,16 @@
 
         <div v-for="(image, index) in carouselImages" class="image-carousel-item" @click="carouselImageClick(index)">
           <img
-            :class="{'loading': image.loading}"
-            v-on:load="imageLoadedHandler(image)"
-            :src="image.url"
+            :class="{'loading': image.thumbnailLoading}"
+            v-on:load="thumbnailImageLoadedHandler(image)"
+            :src="thumbnailUrl(image.url)"
           ></img>
-          <img :src="images.loader" v-show="image.loading === true"></img>
+
+          <img
+            class="loading"
+            v-on:load="thumbnailImageLoadedHandler(image)"
+            :src="thumbnailUrl(image.url)"></img>
+          <img :src="images.loader" v-show="image.thumbnailLoading === true"></img>
         </div>
       </div>
 
@@ -51,8 +56,19 @@
           <img :src="images.arrow" class="prev-button" role="button" v-show="lightboxIndex === 0" disabled="true"></img>
           <img :src="images.arrow" class="next-button" role="button" v-show="lightboxIndex === carouselImages.length - 1" disabled="true"></img>
 
-          <img class="lightbox-image" :src="lightboxImage.url" :class="{'loading': lightboxImage.loading}"></img>
-          <img class="lightbox-image" :src="images.loader" v-show="lightboxImage.loading === true"></img>
+          <img class="lightbox-image"
+            :src="lightboxImage.url"
+            v-on:load="imageLoadedHandler(lightboxImage)"
+            :class="{'loading': lightboxImage.loading}">
+          </img>
+
+          <!-- Show thumbnail image until regular one is loaded -->
+          <img class="lightbox-image"
+            :src="thumbnailUrl(lightboxImage.url)"
+            :class="{'loading': !lightboxImage.loading || lightboxImage.thumbnailLoading}">
+          </img>
+
+          <img class="lightbox-image" :src="images.loader" v-show="lightboxImage.loading === true && lightboxImage.thumbnailLoading === true"></img>
         </div>
       </div>
     </div>
@@ -103,7 +119,9 @@ export default {
       parkImages: {}, // key is park name, value is array of loaded carousel images
       activePark: "",
       lightboxIndex: 0,
-      lightboxImage: {},
+      lightboxImage: {
+        url: ""
+      },
       lightboxVisible: false
     }
   },
@@ -130,6 +148,7 @@ export default {
     // TODO: Some kind of message that this won't work on mobile
     // TODO: Something for kings canyon
     // TODO: Something to say no pics for sumter, arch
+    // TODO: Guadalupe cuts off
   },
   methods: {
     resizeHandler() {
@@ -291,6 +310,7 @@ export default {
             let image =  {
               active: false,
               loading: true,
+              thumbnailLoading: true,
               url: response.data.images[i].link
             }
 
@@ -329,10 +349,11 @@ export default {
     imageLoadedHandler(image) {
       image.loading = false
     },
+    thumbnailImageLoadedHandler(image) {
+      image.thumbnailLoading = false
+    },
     globalKeydown(e) {
       let code = e.code.toLowerCase()
-
-      console.log("global " , code);
 
       if (code === "arrowleft") {
         this.prevImageHandler()
@@ -340,6 +361,16 @@ export default {
         this.nextImageHandler()
       }
     },
+    thumbnailUrl(url) {
+
+      if (!url) {
+        return ""
+      }
+
+      let thumbnailUrlArray = url.split(".jpg")
+      thumbnailUrlArray[0] = thumbnailUrlArray[0] + "m.jpg"
+      return thumbnailUrlArray[0]
+    }
   }
 }
 </script>
@@ -480,6 +511,7 @@ export default {
 
   // Load images off screen
   .loading {
+    position: absolute !important;
     left: -9999px !important;
     height: 1px !important;
     width: 1px !important;
