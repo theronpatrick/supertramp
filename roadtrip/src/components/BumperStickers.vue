@@ -29,7 +29,9 @@
       <div class="image-carousel-container" v-show="!backgroundImage.loading">
         <h1 v-if="carouselImages.length === 0">Click a Bumper Sticker to Load Images</h1>
 
-        <div v-for="(image, index) in carouselImages" class="image-carousel-item" @click="carouselImageClick(index)">
+        <h1 v-if="carouselImages.length === 1 && carouselImages[0].url === null">No photos for this park ☹. Please click another one.</h1>
+
+        <div v-for="(image, index) in carouselImages" class="image-carousel-item" @click="carouselImageClick(index)" v-if="carouselImages.length > 1">
           <img
             :class="{'loading': image.thumbnailLoading}"
             v-on:load="thumbnailImageLoadedHandler(image)"
@@ -71,6 +73,10 @@
           <img class="lightbox-image" :src="images.loader" v-show="lightboxImage.loading === true && lightboxImage.thumbnailLoading === true"></img>
         </div>
       </div>
+    </div>
+
+    <div v-if="mobileMessageVisible" v-on:click="mobileMessageClickHandler" class="mobile-message">
+      <h1>This app is only optimized for desktop viewing, sorry! 😪</h1>
     </div>
 
     <div class="debug-panel" v-if="debug">
@@ -122,7 +128,8 @@ export default {
       lightboxImage: {
         url: ""
       },
-      lightboxVisible: false
+      lightboxVisible: false,
+      mobileMessageVisible: false
     }
   },
   beforeMount() {
@@ -145,10 +152,7 @@ export default {
     // Draw hitboxes
     this.initHitboxes()
 
-    // TODO: Some kind of message that this won't work on mobile
     // TODO: Something for kings canyon
-    // TODO: Something to say no pics for sumter, arch
-    // TODO: Guadalupe cuts off
   },
   methods: {
     resizeHandler() {
@@ -172,6 +176,13 @@ export default {
 
       this.magnifierBackgroundStyle.left = `${this.backgroundWidth / 2 + magnifierOffset}px`
       this.magnifierBackgroundStyle.top = `${this.backgroundHeight / 2 + magnifierOffset}px`
+
+      // Show mobile message if dimensions call for it
+      if (window.innerWidth < 400 || window.innerWidth < window.innerHeight) {
+        this.mobileMessageVisible = true
+      } else {
+        this.mobileMessageVisible = false;
+      }
     },
     initHitboxes() {
       for (let key in bumperStickerData) {
@@ -283,7 +294,20 @@ export default {
     },
     loadImagesForPark(park) {
 
+      // Clear old images
+      this.carouselImages.length = 0
+
       let url = bumperStickerData[park].url
+
+      // If there isn't a url for a park, just show `no images` message
+      if (!bumperStickerData[park].url) {
+        this.carouselImages.push({
+          url: null
+        })
+
+        return;
+      }
+
 
       let settings = {
         "async": true,
@@ -298,9 +322,6 @@ export default {
       $.ajax(settings).done((response) => {
         if (response.data) {
           console.log("album response: " , response.data);
-
-          // Clear old images
-          this.carouselImages.length = 0
 
           // Set up cache array
           this.parkImages[park] = []
@@ -370,6 +391,9 @@ export default {
       let thumbnailUrlArray = url.split(".jpg")
       thumbnailUrlArray[0] = thumbnailUrlArray[0] + "m.jpg"
       return thumbnailUrlArray[0]
+    },
+    mobileMessageClickHandler() {
+      this.mobileMessageVisible = false
     }
   }
 }
@@ -627,6 +651,26 @@ export default {
 
       border-radius: 50%;
       background: #fff;
+    }
+  }
+
+  .mobile-message {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+
+    background: rgba(25,25,25,.9);
+
+    h1 {
+      position: fixed;
+      color: #fff;
+
+      top: 50%;
+      left: 50%;
+      transform: translateX(-50%) translateY(-50%);
     }
   }
 </style>
