@@ -75,7 +75,8 @@
       </div>
     </div>
 
-    <div v-if="mobileMessageVisible" v-on:click="mobileMessageClickHandler" class="mobile-message">
+    <!-- TODO: Remove completely if not using anymore -->
+    <div v-if="false" v-on:click="mobileMessageClickHandler" class="mobile-message">
       <h1>This app is only optimized for desktop viewing, sorry! 😪</h1>
     </div>
 
@@ -411,6 +412,8 @@ export default {
     width: 100%;
 
     background: linear-gradient(to bottom, #a8c1ea 0%, $carGray 100%);
+
+    -webkit-overflow-scrolling: touch;
   }
 
   .background-container {
@@ -542,8 +545,8 @@ export default {
   }
 
   .image-carousel-container {
-    position: absolute;
-    width: 50%;
+    position: fixed;
+    width: 80%;
 
     height: 120px;
     bottom: 50px;
@@ -565,6 +568,12 @@ export default {
       padding: 25px;
       color: #fff;
       text-shadow: 2px 1px 0px #000;
+      white-space: normal;
+
+      @include mobile {
+        padding: 0;
+        font-size: 26px;
+      }
     }
   }
 
