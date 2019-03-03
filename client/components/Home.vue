@@ -3,6 +3,7 @@
     <nav>
       <NavBubble
         v-for="bubble in bubbles"
+        :key="bubble.title"
         :title="bubble.title"
         :navBubbleClass="bubble.class"
         :start="bubble.start"
@@ -29,6 +30,8 @@ import workImg from "root/img/work.svg"
 import carImg from "root/img/car.svg"
 
 import content from "root/content/content"
+
+const ROADTRIP_HOST = 'https://theron.dev';
 
 export default {
   components: {
@@ -76,7 +79,7 @@ export default {
         },
         {
           class: "roadtrip",
-          link: "http://theronp.com/roadtrip",
+          link: `${ROADTRIP_HOST}/roadtrip`,
           icon: carImg,
           iconAlt: "roadtrip",
           start: !this.hasActiveRoute(),
@@ -138,7 +141,7 @@ export default {
       console.log("click " , nav);
       // For some routes, just open link and don't 'open' a section
       if (nav === "roadtrip") {
-        window.open("http://theronp.com/roadtrip", "_self");
+        window.open(`${ROADTRIP_HOST}/roadtrip`, "_self");
         return;
       }
 
