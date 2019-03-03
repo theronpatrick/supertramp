@@ -74,7 +74,7 @@ module.exports = {
     new CopyWebpackPlugin([
       {
         from: _.cwd('./static'),
-        // to the roor of dist path
+        // to the root of dist path
         to: './'
       }
     ]),
