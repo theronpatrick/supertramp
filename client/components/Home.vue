@@ -137,8 +137,6 @@ export default {
       return this.$route.params.sectionId ? true : false
     },
     navClick: function(nav) {
-
-      console.log("click " , nav);
       // For some routes, just open link and don't 'open' a section
       if (nav === "roadtrip") {
         window.open(`${ROADTRIP_HOST}/roadtrip`, "_self");
