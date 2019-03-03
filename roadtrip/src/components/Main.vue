@@ -93,7 +93,7 @@ export default {
     display: inline-block;
     max-height: 100%;
     width: 100%;
-    overflow: scroll;
+    overflow-y: scroll;
   }
 
   a {
