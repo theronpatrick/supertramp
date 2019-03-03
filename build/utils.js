@@ -22,12 +22,12 @@ _.cssProcessors = [
 ]
 
 _.outputPath = config.electron ?
-  path.join(__dirname, '../app/dist') :
-  path.join(__dirname, '../dist')
+  path.join(__dirname, '../app/docs') :
+  path.join(__dirname, '../docs')
 
 _.outputIndexPath = config.electron ?
-  path.join(__dirname, '../app/dist/index.html') :
-  path.join(__dirname, '../dist/index.html')
+  path.join(__dirname, '../app/docs/index.html') :
+  path.join(__dirname, '../docs/index.html')
 
 _.target = config.electron ?
   'electron-renderer' :
