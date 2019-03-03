@@ -1,7 +1,6 @@
 <template>
   <div
     class="main"
-    @click="mainContainerClickHandler"
   >
     <div class="background-container"></div>
 
@@ -47,15 +46,6 @@ export default {
         this.$router.replace({ path: this.$route.query.page })
       }
     }
-  },
-  methods: {
-    // Prevent silly users on iOS from losing focus on scrollable container
-    // TODO: Try to fix swipe behavior as well
-    mainContainerClickHandler() {
-      if (this.$refs.linkAligner) {
-        this.$refs.linkAligner.focus()
-      }
-    }
   }
 }
 </script>
@@ -75,7 +65,7 @@ export default {
 .background-container {
   width: 100%;
   height: 100%;
-  position: relative;
+  position: fixed;
 
   background: url("../assets/landscape.jpg") no-repeat center center fixed;
   background-size: cover;
@@ -84,36 +74,13 @@ export default {
 
 }
 
-.globe {
-  position: absolute;
-
-  top: 100%;
-  left: 50%;
-
-  transform-origin: 0;
-  animation: rotation 4s linear infinite;
-}
-
-@keyframes rotation {
-  0% {
-    transform: scaleX(1) translate(-50%)
-  }
-  50% {
-    transform: scaleX(-1) translate(-50%)
-  }
-  100% {
-    transform: scaleX(1) translate(-50%)
-  }
-}
-
 .button-container {
-  width: 100%;
   height: 100%;
-  left: 50%;
-  top: 50%;
-  position: absolute;
+  width: 100%;
 
-  transform: translateX(-50%) translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
 
   -webkit-overflow-scrolling: touch;
@@ -123,19 +90,10 @@ export default {
   }
 
   .link-aligner {
-    position: absolute;
-    top: 50%;
-
-    height: 50%;
+    display: inline-block;
     max-height: 100%;
     width: 100%;
-
-    overflow-y: auto;
-    overflow-x: hidden;
-
-    transform: translateY(-50%);
-
-    text-align: center;
+    overflow: scroll;
   }
 
   a {
