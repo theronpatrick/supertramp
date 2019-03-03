@@ -49,7 +49,7 @@ let router = new Router({
       }
     },
     // Need to prefix routes with 'roadtrip' in history mode since that's where
-    // it'll be hosted on theronp.com
+    // it'll be hosted on theron.dev
     {
       path: '/roadtrip',
       name: 'ProdMain',

@@ -116,14 +116,14 @@
     >
       <div class="content-aligner" :style="{'height': windowHeight}">
         <h1>
-          <a href="http://theronp.com/roadtrip/summerofsnap" target="_blank">
+          <a href="http://theron.dev/roadtrip/summerofsnap" target="_blank">
             <span>Snapchats Taken: {{snapchatsTaken}}</span>
             <img class="no-border fade-in" :class="{'visible': snapchatsVisible}" :src="img.snapGhost"></img>
           </a>
         </h1>
 
         <h1>
-          <a href="http://theronp.com/roadtrip/selfiegallery" target="_blank">
+          <a href="http://theron.dev/roadtrip/selfiegallery" target="_blank">
             <span>Selfies Taken: {{selfiesTaken}} </span>
             <span class="selfie-image-aligner fade-in" :class="{'visible': selfiesVisible}">
               <img class="selfie" src="https://i.imgur.com/CtmHtEW.jpg"></img>
