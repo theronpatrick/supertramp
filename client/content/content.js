@@ -2,13 +2,13 @@ import tpr from "root/content/theron_patrick_resume.pdf"
 
 export default {
   profile:
-    `<p>Who is Theron? A professional web developer, amateur game developer, adventurous cross-country traveler, and enthusastic fat cat lover.</p>
+    `<p>Hello there! My name's Theron, I'm senior UI/UX Engineer at <a href="https://cargurus.com/" target="_blank">Cargurus.Com</a>. I'm also an amateur game developer, adventurous cross-country traveler, and enthusastic fat cat lover.</p>
 
     <p>Client-side web design and development has always been my forté, but I've also dipped my toes into some back-end development (mainly in Node.js). I also love mobile development, and have experience building hybrid apps and native Android and iOS apps, with experience deploying to both respective app stores. </p>
 
     <p>Check out some of <a href="/#/projects">my work</a> for a sense of what I can do, and take a look at <a href="https://github.com/theronpatrick" target="_blank">my GitHub</a> for a sense of how I do it. And be sure to check out some of the animals, plants, and breakfast burritos I found during my <a href="http://theron.dev/roadtrip" target="_blank">three month solo cross-country adventure.</a></p>`,
   contact:
-    `<p>I'm currently open to new clients (remote, contract only). To contact, please visit my <a href="https://www.linkedin.com/in/theronpatrick/" target="_blank">LinkedIn</a> or email at <a href="mailto:therondevelopment@gmail.com" target="_blank">therondevelopment@gmail.com</a> (<i>no recruiters, please</i>).</p>`,
+    `<p>I'm currently emplyed full-time and am not currently open to new clients. But to get in touch, please visit my <a href="https://www.linkedin.com/in/theronpatrick/" target="_blank">LinkedIn</a> or email at <a href="mailto:therondevelopment@gmail.com" target="_blank">therondevelopment@gmail.com</a> (<i>no recruiters, please</i>).</p>`,
   projects:
     `<p><a href="http://theron.dev/roadtrip" target="_blank">Theron's 2017 Cross-Country Extravaganza</a> - Interactive movies, pictures, and stats from my 3 month journey across America in the summer of 2017.</p>
 
