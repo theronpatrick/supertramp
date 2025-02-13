@@ -2,9 +2,9 @@ import tpr from "root/content/theron_patrick_resume.pdf"
 
 export default {
   profile:
-    `<p>Hello there! My name's Theron, I'm senior UI/UX Engineer at <a href="https://cargurus.com/" target="_blank">Cargurus.Com</a>. I'm also an amateur game developer, adventurous cross-country traveler, and enthusastic fat cat lover.</p>
+    `<p>Hello there! My name's Theron, I'm principal engineer and tech lead at <a href="https://cargurus.com/" target="_blank">CarGurus.com</a>. I'm also an amateur game developer, adventurous cross-country traveler, and latin dance enthusiast.</p>
 
-    <p>Client-side web design and development has always been my forté, but I've also dipped my toes into some back-end development (mainly in Node.js). I also love mobile development, and have experience building hybrid apps and native Android and iOS apps, with experience deploying to both respective app stores. </p>
+    <p>Client-side web design and development has always been my forté, but I've also dipped my toes into some back-end development (mainly in Node.js and Remix). I also love mobile development, and have experience building hybrid apps and native Android and iOS apps, with experience deploying to both respective app stores. </p>
 
     <p>Check out some of <a href="/#/projects">my work</a> for a sense of what I can do, and take a look at <a href="https://github.com/theronpatrick" target="_blank">my GitHub</a> for a sense of how I do it. And be sure to check out some of the animals, plants, and breakfast burritos I found during my <a href="http://theron.dev/roadtrip" target="_blank">three month solo cross-country adventure.</a></p>`,
   contact:
