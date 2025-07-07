@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "node build/dev-server.js",
     "start": "node build/dev-server.js",
-    "build": "node build/build.js"
+    "build": "node build/build.js",
+    "build:bison": "cd bison && npm run build && cd .. && cp -R bison/dist ../docs/bison && cd .. && git add docs/bison && git commit -m \"Build and deploy bison section\" && git push origin master"
   },
   "dependencies": {
     "google-maps": "^3.2.1",

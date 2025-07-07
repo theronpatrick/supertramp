@@ -1,0 +1,22 @@
+{
+  "name": "bison",
+  "version": "1.0.0",
+  "description": "Bison Brawl! National Park Guessing Game",
+  "main": "src/main.jsx",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "Theron Patrick <theronbpatrick@gmail.com>",
+  "license": "MIT",
+  "type": "module",
+  "devDependencies": {
+    "@preact/preset-vite": "^2.9.2",
+    "vite": "^5.4.11"
+  },
+  "dependencies": {
+    "preact": "^10.25.2"
+  }
+}
