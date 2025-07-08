@@ -36,6 +36,27 @@ export function App() {
     });
   };
 
+  // Preload single image and return promise
+  const preloadImage = (url) => {
+    return new Promise((resolve, reject) => {
+      if (imageCacheRef.current.has(url)) {
+        resolve(url);
+        return;
+      }
+
+      const img = new Image();
+      img.onload = () => {
+        imageCacheRef.current.add(url);
+        console.log(`First image loaded: ${url.split("/").pop()}`);
+        resolve(url);
+      };
+      img.onerror = () => {
+        reject(new Error(`Failed to load image: ${url}`));
+      };
+      img.src = url;
+    });
+  };
+
   // Fetch all images from all albums
   const fetchAllImages = async () => {
     setLoading(true);
@@ -93,12 +114,22 @@ export function App() {
         } parks`
       );
 
+      if (shuffledImages.length === 0) {
+        setError("No images found");
+        return;
+      }
+
       setAllImages(shuffledImages);
       setCurrentImage(shuffledImages[0]);
 
-      // Preload first 10 images for smooth experience
-      const imagesToPreload = shuffledImages.slice(0, 10).map((img) => img.url);
-      preloadImages(imagesToPreload);
+      // Wait for first image to load before showing UI
+      await preloadImage(shuffledImages[0].url);
+
+      // Preload remaining 9 images in background (don't await this)
+      const remainingImagesToPreload = shuffledImages
+        .slice(1, 10)
+        .map((img) => img.url);
+      preloadImages(remainingImagesToPreload);
     } catch (err) {
       console.error("Error fetching images:", err);
       setError(err.message);
