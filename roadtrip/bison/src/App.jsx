@@ -3,6 +3,8 @@ import { useState } from "preact/hooks";
 export function App() {
   const [count, setCount] = useState(0);
 
+  console.log("version 25.7.8b");
+
   return (
     <div className="app">
       <header className="app-header">
