@@ -169,7 +169,7 @@ import panos from "../data/panoramas.js"
 
 import * as TWEEN from "@tweenjs/tween.js"
 
-console.log("version 25.7.8")
+console.log("version 25.7.8a")
 
 export default {
   components: {
