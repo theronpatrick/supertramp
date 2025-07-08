@@ -3,7 +3,7 @@ import { useState } from "preact/hooks";
 export function App() {
   const [count, setCount] = useState(0);
 
-  console.log("version 25.7.8b");
+  console.log("version 25.7.8c");
 
   return (
     <div className="app">
