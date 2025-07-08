@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "preact/hooks";
 import albums from "./data/albums.js";
+import "./App.less";
 
 export function App() {
   const [allImages, setAllImages] = useState([]);
@@ -135,50 +136,23 @@ export function App() {
 
   if (loading) {
     return (
-      <div
-        className="app"
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-        }}
-      >
-        <div
-          style={{
-            fontSize: "60px",
-            animation: "spin 2s linear infinite",
-          }}
-        >
-          🦬
+      <div className="app">
+        <div className="loading-container">
+          <div className="loading-spinner">🦬</div>
         </div>
-        <style>
-          {`
-            @keyframes spin {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
-            }
-          `}
-        </style>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div
-        className="app"
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-        }}
-      >
-        <div style={{ textAlign: "center", color: "red" }}>
-          <h2>Error</h2>
-          <p>{error}</p>
-          <button onClick={fetchAllImages}>Retry</button>
+      <div className="app">
+        <div className="error-container">
+          <div className="error-content">
+            <h2>Error</h2>
+            <p>{error}</p>
+            <button onClick={fetchAllImages}>Retry</button>
+          </div>
         </div>
       </div>
     );
@@ -186,17 +160,11 @@ export function App() {
 
   if (!currentImage) {
     return (
-      <div
-        className="app"
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-        }}
-      >
-        <div style={{ textAlign: "center" }}>
-          <h2>No images available</h2>
+      <div className="app">
+        <div className="no-images-container">
+          <div className="no-images-content">
+            <h2>No images available</h2>
+          </div>
         </div>
       </div>
     );
@@ -204,40 +172,12 @@ export function App() {
 
   return (
     <div className="app">
-      <main
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-          padding: "20px",
-          textAlign: "center",
-        }}
-      >
-        <div
-          onClick={handleImageClick}
-          style={{
-            cursor: "pointer",
-            maxWidth: "90vw",
-            maxHeight: "70vh",
-            borderRadius: "12px",
-            overflow: "hidden",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
-            transition: "transform 0.2s ease",
-          }}
-          onMouseOver={(e) => (e.target.style.transform = "scale(1.02)")}
-          onMouseOut={(e) => (e.target.style.transform = "scale(1)")}
-        >
+      <main className="main-container">
+        <div className="image-container" onClick={handleImageClick}>
           <img
             src={currentImage.url}
             alt={currentImage.title}
-            style={{
-              maxWidth: "100%",
-              maxHeight: "70vh",
-              objectFit: "contain",
-              display: "block",
-            }}
+            className="gallery-image"
           />
         </div>
       </main>
