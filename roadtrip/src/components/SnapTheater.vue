@@ -905,8 +905,8 @@ export default {
 <style scoped lang="scss">
 
 // TODO: Change loader to not need asset prefix
-@import "~../styles/colors";
-@import "~../styles/variables";
+@import "../styles/colors.scss";
+@import "../styles/variables.scss";
 
 // Just for debugging
 .debug-data-container {

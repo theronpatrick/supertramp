@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="main"
-  >
+  <div class="main">
     <div class="background-container"></div>
 
     <div class="button-container">
@@ -15,11 +13,17 @@
           <label for="selfie-button">Selfie Gallery</label>
         </router-link>
         <router-link :to="'stats'">
-          <button class="link-button infographic-button" id="infographic-button"></button>
+          <button
+            class="link-button infographic-button"
+            id="infographic-button"
+          ></button>
           <label for="infographic-button">Stats</label>
         </router-link>
         <router-link :to="'bumperstickers'">
-          <button class="link-button stickers-button" id="stickers-button"></button>
+          <button
+            class="link-button stickers-button"
+            id="stickers-button"
+          ></button>
           <label for="stickers-button">Bumper Sticker Explorer</label>
         </router-link>
       </div>
@@ -28,14 +32,13 @@
 </template>
 
 <script>
-
-import landscape from "../assets/landscape.jpg"
+import landscape from "../assets/landscape.jpg";
 
 export default {
-  data () {
+  data() {
     return {
-      landscape
-    }
+      landscape,
+    };
   },
   mounted() {
     // Current web server is kinda funky so it doesn't like the way routes are set up without hashes
@@ -43,18 +46,17 @@ export default {
 
     if (this.$route.query) {
       if (this.$route.query.page) {
-        this.$router.replace({ path: this.$route.query.page })
+        this.$router.replace({ path: this.$route.query.page });
       }
     }
-  }
-}
+  },
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-
-@import "~../styles/colors";
-@import "~../styles/variables";
+@import "../styles/colors.scss";
+@import "../styles/variables.scss";
 
 .main {
   width: 100%;
@@ -71,7 +73,6 @@ export default {
   background-size: cover;
 
   filter: brightness(60%) contrast(130%);
-
 }
 
 .button-container {
@@ -108,7 +109,7 @@ export default {
     transform-origin: center;
     transform: scale(1);
 
-    transition: all .25s linear;
+    transition: all 0.25s linear;
 
     cursor: pointer;
 
@@ -142,7 +143,7 @@ h1 {
   left: 50%;
   top: 50%;
   transform: translateX(-50%) translateY(-50%);
-  color: #FFF;
+  color: #fff;
 
   font-size: 34px;
   letter-spacing: 2px;
@@ -156,7 +157,7 @@ h1 {
   background-size: cover;
   background-color: transparent;
 
-  transition: all .25s linear;
+  transition: all 0.25s linear;
 
   cursor: pointer;
 
@@ -175,8 +176,5 @@ h1 {
   &.stickers-button {
     background-image: url("../assets/car.svg");
   }
-
 }
-
-
 </style>

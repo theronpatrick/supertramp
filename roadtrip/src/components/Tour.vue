@@ -85,7 +85,7 @@ import tracks from "../data/snapchat-tracks.js"
 
 <style lang="scss" scoped>
 
-@import "~../styles/colors";
+@import "../styles/colors.scss";
 
 // Animation
 .tour-animation-enter {

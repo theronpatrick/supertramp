@@ -403,8 +403,8 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 
-@import "~../styles/colors";
-@import "~../styles/variables";
+@import "../styles/colors.scss";
+@import "../styles/variables.scss";
 
   .main {
     position: fixed;

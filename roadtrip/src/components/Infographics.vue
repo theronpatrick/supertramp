@@ -167,7 +167,9 @@ import snapGhost from "../assets/snap-ghost.png"
 
 import panos from "../data/panoramas.js"
 
-import tween from "tween"
+import * as TWEEN from "@tweenjs/tween.js"
+
+console.log("version 25.7.8")
 
 export default {
   components: {
@@ -221,8 +223,9 @@ export default {
     }
   },
   mounted() {
-    // Set up initial window bounds
-    this.resizeHandler()
+    // Save absolute total (for calc) and px size (for template)
+    this.windowInnerHeight = window.innerHeight
+    this.windowHeight = `${window.innerHeight}px`
 
     // Store all section DOM elements
     let sections = document.querySelectorAll("section")
@@ -234,7 +237,7 @@ export default {
     this.loadImages()
 
     // Set up tween animation loop
-    requestAnimationFrame(this.tweenAnimate);
+    requestAnimationFrame(this.tweenAnimate.bind(this));
 
   },
   beforeMount() {
@@ -302,8 +305,10 @@ export default {
     },
     // TODO: Read more docs about TWEEN, make sure this is not being called too much
     tweenAnimate(time) {
-      requestAnimationFrame(this.tweenAnimate);
-      tween.update(time);
+      requestAnimationFrame(this.tweenAnimate.bind(this));
+      const tweenCount = TWEEN.getAll ? TWEEN.getAll().length : 0;
+      
+      TWEEN.update(time);
     },
     introBlockHandler() {
 
@@ -314,7 +319,7 @@ export default {
       let time4 = 1200;
 
       setTimeout(() => {
-        this.statsVisible = true
+        this.statsVisible = true 
       })
 
       setTimeout(() => {
@@ -337,7 +342,7 @@ export default {
     distanceBlockHandler() {
       // Animate up miles driven
       let vm = this
-      let start = 0;
+      let start = 0; 
       let distance = 20369;
       let daysOnRoad = 92;
       let speedingTickets = 1;
@@ -348,36 +353,44 @@ export default {
       let time3 = 1000;
       let time4 = 500;
 
-      new tween.Tween({ tweeningNumber: 0 })
+      const milesTarget = { tweeningNumber: 0 };
+      const milesTween = new TWEEN.Tween(milesTarget)
         .easing(TWEEN.Easing.Quadratic.Out)
         .to({ tweeningNumber: distance }, time1)
-        .onUpdate(function () {
-          vm.milesDriven = this.tweeningNumber.toFixed(0)
+        .onUpdate(() => {
+          vm.milesDriven = milesTarget.tweeningNumber.toFixed(0)
         })
         .start()
+      
+      TWEEN.add(milesTween);
 
         // Days
         setTimeout(() => {
-          new tween.Tween({ tweeningNumber: 0 })
+          const daysTarget = { tweeningNumber: 0 };
+          const daysTween = new TWEEN.Tween(daysTarget)
             .easing(TWEEN.Easing.Quadratic.Out)
             .to({ tweeningNumber: daysOnRoad }, time2)
-            .onUpdate(function () {
-              vm.daysOnRoad = this.tweeningNumber.toFixed(0)
+            .onUpdate(() => {
+              vm.daysOnRoad = daysTarget.tweeningNumber.toFixed(0)
             })
             .start()
-
+          
+          TWEEN.add(daysTween);
         }, time1)
 
         // Speeding ticket
         // Days
         setTimeout(() => {
-          new tween.Tween({ tweeningNumber: 0 })
+          const ticketsTarget = { tweeningNumber: 0 };
+          const ticketsTween = new TWEEN.Tween(ticketsTarget)
             .easing(TWEEN.Easing.Quadratic.Out)
             .to({ tweeningNumber: speedingTickets }, time3)
-            .onUpdate(function () {
-              vm.speedingTickets = this.tweeningNumber.toFixed(0)
+            .onUpdate(() => {
+              vm.speedingTickets = ticketsTarget.tweeningNumber.toFixed(0)
             })
             .start()
+          
+          TWEEN.add(ticketsTween);
         }, time1 + time2)
 
         // Oh my
@@ -396,23 +409,29 @@ export default {
       let time1 = 1500;
       let time2 = 1500;
 
-      new tween.Tween({ tweeningNumber: 0 })
+      const citiesTarget = { tweeningNumber: 0 };
+      const citiesTween = new TWEEN.Tween(citiesTarget)
         .easing(TWEEN.Easing.Quadratic.Out)
         .to({ tweeningNumber: citiesVisited }, time1)
-        .onUpdate(function () {
-          vm.citiesVisited = this.tweeningNumber.toFixed(0)
+        .onUpdate(() => {
+          vm.citiesVisited = citiesTarget.tweeningNumber.toFixed(0)
         })
         .start()
+      
+      TWEEN.add(citiesTween);
 
         // Parks
         setTimeout(() => {
-          new tween.Tween({ tweeningNumber: 0 })
+          const parksTarget = { tweeningNumber: 0 };
+          const parksTween = new TWEEN.Tween(parksTarget)
             .easing(TWEEN.Easing.Quadratic.Out)
             .to({ tweeningNumber: nationalParksVisited }, time2)
-            .onUpdate(function () {
-              vm.nationalParksVisited = this.tweeningNumber.toFixed(0)
+            .onUpdate(() => {
+              vm.nationalParksVisited = parksTarget.tweeningNumber.toFixed(0)
             })
             .start()
+          
+          TWEEN.add(parksTween);
         }, time1)
 
         // Map
@@ -435,23 +454,29 @@ export default {
       let time2 = spawner * marathonsWalked.toFixed(0);
       let time3 = 1600;
 
-      new tween.Tween({ tweeningNumber: 0 })
+      const walkedTarget = { tweeningNumber: 0 };
+      const walkedTween = new TWEEN.Tween(walkedTarget)
         .easing(TWEEN.Easing.Quadratic.Out)
         .to({ tweeningNumber: milesWalked }, time1)
-        .onUpdate(function () {
-          vm.milesWalked = this.tweeningNumber.toFixed(2)
+        .onUpdate(() => {
+          vm.milesWalked = walkedTarget.tweeningNumber.toFixed(2)
         })
         .start()
+      
+      TWEEN.add(walkedTween);
 
         // Marathons
         setTimeout(() => {
-          new tween.Tween({ tweeningNumber: 0 })
+          const marathonsTarget = { tweeningNumber: 0 };
+          const marathonsTween = new TWEEN.Tween(marathonsTarget)
             .easing(TWEEN.Easing.Quadratic.Out)
             .to({ tweeningNumber: marathonsWalked }, time2)
-            .onUpdate(function () {
-              vm.marathonsWalked = this.tweeningNumber.toFixed(2)
+            .onUpdate(() => {
+              vm.marathonsWalked = marathonsTarget.tweeningNumber.toFixed(2)
             })
             .start()
+          
+          TWEEN.add(marathonsTween);
           this.marathonsWalkedVisible = true
         }, time1)
 
@@ -465,14 +490,16 @@ export default {
 
         // Weight timeout
         setTimeout(() => {
-          new tween.Tween({ tweeningNumber: 0 })
+          const weightTarget = { tweeningNumber: 0 };
+          const weightTween = new TWEEN.Tween(weightTarget)
             .easing(TWEEN.Easing.Quadratic.Out)
             .to({ tweeningNumber: weightLost }, time3)
-            .onUpdate(function () {
-              vm.weightLost = this.tweeningNumber.toFixed(0)
+            .onUpdate(() => {
+              vm.weightLost = weightTarget.tweeningNumber.toFixed(0)
             })
             .start()
-
+          
+          TWEEN.add(weightTween);
           this.weightLostVisible = true
         }, time1 + time2)
 
@@ -490,13 +517,16 @@ export default {
       let time3 = 1800;
       let time4 = 2400;
 
-      new tween.Tween({ tweeningNumber: 0 })
+      const burritosTarget = { tweeningNumber: 0 };
+      const burritosTween = new TWEEN.Tween(burritosTarget)
         .easing(TWEEN.Easing.Quadratic.Out)
         .to({ tweeningNumber: burritosEaten }, time1)
-        .onUpdate(function () {
-          vm.burritosEaten = this.tweeningNumber.toFixed(0)
+        .onUpdate(() => {
+          vm.burritosEaten = burritosTarget.tweeningNumber.toFixed(0)
         })
         .start()
+      
+      TWEEN.add(burritosTween);
 
       this.burritosEatenVisible = true
 
@@ -531,40 +561,47 @@ export default {
       let time3 = 1800;
 
       setTimeout(() => {
-        new tween.Tween({ tweeningNumber: 0 })
+        const snapchatsTarget = { tweeningNumber: 0 };
+        const snapchatsTween = new TWEEN.Tween(snapchatsTarget)
           .easing(TWEEN.Easing.Quadratic.Out)
           .to({ tweeningNumber: snapchatsTaken }, time1)
-          .onUpdate(function () {
-            vm.snapchatsTaken = this.tweeningNumber.toFixed(0)
+          .onUpdate(() => {
+            vm.snapchatsTaken = snapchatsTarget.tweeningNumber.toFixed(0)
           })
           .start()
-
+        
+        TWEEN.add(snapchatsTween);
         this.snapchatsVisible = true
       }, time1)
 
       setTimeout(() => {
-        new tween.Tween({ tweeningNumber: 0 })
+        const selfiesTarget = { tweeningNumber: 0 };
+        const selfiesTween = new TWEEN.Tween(selfiesTarget)
           .easing(TWEEN.Easing.Quadratic.Out)
           .to({ tweeningNumber: selfiesTaken }, time1)
-          .onUpdate(function () {
-            vm.selfiesTaken = this.tweeningNumber.toFixed(0)
+          .onUpdate(() => {
+            vm.selfiesTaken = selfiesTarget.tweeningNumber.toFixed(0)
           })
           .start()
-
+        
+        TWEEN.add(selfiesTween);
         this.selfiesVisible = true
       }, time1 + time2)
 
       setTimeout(() => {
-        new tween.Tween({ tweeningNumber: 0 })
+        const instagramsTarget = { tweeningNumber: 0 };
+        const instagramsTween = new TWEEN.Tween(instagramsTarget)
           .easing(TWEEN.Easing.Quadratic.Out)
           .to({ tweeningNumber: instagramsTaken }, time1)
-          .onUpdate(function () {
-            vm.instagramsTaken = this.tweeningNumber.toFixed(0)
+          .onUpdate(() => {
+            vm.instagramsTaken = instagramsTarget.tweeningNumber.toFixed(0)
           })
           .start()
-
+        
+        TWEEN.add(instagramsTween);
         this.instagramsVisible = true
       }, time1 + time2 + time3)
+
     },
     shuffleFavoriteImages() {
       // Randomize our image order in a non-optimized way cuz something weird going on with vue arrays
@@ -681,8 +718,8 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 
-@import "~../styles/colors";
-@import "~../styles/variables";
+@import "../styles/colors.scss";
+@import "../styles/variables.scss";
 
 .main {
   overflow-y: auto;

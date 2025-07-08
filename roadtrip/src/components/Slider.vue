@@ -76,7 +76,7 @@
 
 <style lang="scss" scoped>
 
-@import "~../styles/colors";
+@import "../styles/colors.scss";
 
   .slider-info {
     position: absolute;
