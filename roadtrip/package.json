@@ -9,7 +9,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "build:bison": "cd bison && npm run build && cd .. && cp -R bison/dist ../docs/bison && cd .. && git add docs/bison && git commit -m \"Build and deploy bison section\" && git push origin master",
+    "build:bison": "cd bison && npm run build && cd .. && rm -rf ../docs/bison && mkdir -p ../docs/bison && cp -R bison/dist/* ../docs/bison/ && cd .. && git add docs/bison && git commit -m \"Build and deploy bison section\" && git push origin master",
     "build:deploy": "npm run build && rm -rf ../docs/roadtrip && cp -R dist ../docs/roadtrip && cd bison && npm run build && cd .. && rm -rf ../docs/bison && cp -R bison/dist ../docs/bison && cd .. && git add docs/roadtrip docs/bison && git commit -m \"Build and deploy roadtrip project\" && git push origin master"
   },
   "dependencies": {
