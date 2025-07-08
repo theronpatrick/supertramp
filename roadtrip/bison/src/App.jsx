@@ -204,12 +204,23 @@ export function App() {
   return (
     <div className="app">
       <main className="main-container">
-        <div className="image-container" onClick={handleImageClick}>
-          <img
-            src={currentImage.url}
-            alt={currentImage.title}
-            className="gallery-image"
-          />
+        <div className="image-section">
+          <div className="image-container" onClick={handleImageClick}>
+            <img
+              src={currentImage.url}
+              alt={currentImage.title}
+              className="gallery-image"
+            />
+          </div>
+        </div>
+
+        <div className="game-menu">
+          <div className="menu-buttons">
+            <button className="menu-button">First</button>
+            <button className="menu-button">Second</button>
+            <button className="menu-button">Third</button>
+            <button className="menu-button">Fourth</button>
+          </div>
         </div>
       </main>
     </div>
