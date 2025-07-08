@@ -3,12 +3,12 @@ import { useState } from "preact/hooks";
 export function App() {
   const [count, setCount] = useState(0);
 
-  console.log("version 25.7.8d");
+  console.log("version 25.7.8i");
 
   return (
     <div className="app">
       <header className="app-header">
-        <h1>🦬 Bison</h1>
+        <h1>🦬 Bison </h1>
         <p>Welcome to the Bison section of theron.dev</p>
         <button
           className="counter-btn"
