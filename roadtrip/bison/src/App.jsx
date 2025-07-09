@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "preact/hooks";
 import albums from "./data/albums";
 import cachedData from "./data/api/cache.25.7.8";
-import "./App.less";
+import styles from "./App.module.less";
 
 console.log("Version 25.7.8.n");
 
@@ -205,9 +205,9 @@ export function App() {
 
   if (isLoading) {
     return (
-      <div className="app">
-        <div className="loading-container">
-          <div className="loading-spinner">🦬</div>
+      <div className={styles.app}>
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner}>🦬</div>
         </div>
       </div>
     );
@@ -215,9 +215,9 @@ export function App() {
 
   if (error) {
     return (
-      <div className="app">
-        <div className="error-container">
-          <div className="error-content">
+      <div className={styles.app}>
+        <div className={styles.errorContainer}>
+          <div className={styles.errorContent}>
             <h2>Oops! Something went wrong</h2>
             <p>{error}</p>
             <button onClick={handleRetry}>Try Again</button>
@@ -229,9 +229,9 @@ export function App() {
 
   if (allImages.length === 0) {
     return (
-      <div className="app">
-        <div className="no-images-container">
-          <div className="no-images-content">
+      <div className={styles.app}>
+        <div className={styles.noImagesContainer}>
+          <div className={styles.noImagesContent}>
             <h2>No images found</h2>
           </div>
         </div>
@@ -240,23 +240,27 @@ export function App() {
   }
 
   return (
-    <div className="app">
+    <div className={styles.app}>
       {/* Score display in top left */}
-      <div className="score-display">{score.toString().padStart(4, "0")}</div>
+      <div className={styles.scoreDisplay}>
+        {score.toString().padStart(4, "0")}
+      </div>
 
-      <div className="main-container">
-        <div className="image-section">
-          <div className="image-container" onClick={handleImageClick}>
+      <div className={styles.mainContainer}>
+        <div className={styles.imageSection}>
+          <div className={styles.imageContainer} onClick={handleImageClick}>
             <img
               src={currentImageData?.url}
               alt="National Park"
-              className="gallery-image"
+              className={styles.galleryImage}
             />
 
             {/* Feedback animation overlay */}
             {showFeedback && (
-              <div className={`feedback-overlay ${feedbackType}`}>
-                <div className="feedback-emoji">
+              <div
+                className={`${styles.feedbackOverlay} ${styles[feedbackType]}`}
+              >
+                <div className={styles.feedbackEmoji}>
                   {feedbackType === "correct" ? "✅" : "❌"}
                 </div>
               </div>
@@ -264,12 +268,14 @@ export function App() {
           </div>
         </div>
 
-        <div className="game-menu">
-          <div className="menu-buttons">
+        <div className={styles.gameMenu}>
+          <div className={styles.menuButtons}>
             {currentOptions.map((option, index) => (
               <button
                 key={index}
-                className={`menu-button ${buttonsDisabled ? "disabled" : ""}`}
+                className={`${styles.menuButton} ${
+                  buttonsDisabled ? styles.disabled : ""
+                }`}
                 onClick={() => handleButtonClick(index)}
                 disabled={buttonsDisabled}
               >

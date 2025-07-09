@@ -1,4 +1,4 @@
-// App.less - National Parks Gallery Styles with NPS styling
+// App.module.less - National Parks Gallery Styles with CSS modules
 @import "./assets/national-park-font/fonts.css";
 
 // National Park Service Color Palette
@@ -24,7 +24,7 @@
 }
 
 // Score display in top left
-.score-display {
+.scoreDisplay {
   position: absolute;
   top: 20px;
   left: 20px;
@@ -40,7 +40,7 @@
   border: 2px solid rgba(255, 255, 0, 0.3);
 }
 
-.main-container {
+.mainContainer {
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -50,7 +50,7 @@
   box-sizing: border-box;
 }
 
-.image-section {
+.imageSection {
   height: 66.67dvh; // 2/3 of screen
   display: flex;
   justify-content: center;
@@ -60,7 +60,7 @@
   background-color: @background-gray;
 }
 
-.image-container {
+.imageContainer {
   cursor: pointer;
   width: 100%;
   height: 100%;
@@ -73,7 +73,7 @@
 }
 
 // Feedback overlay for correct/incorrect answers
-.feedback-overlay {
+.feedbackOverlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -94,20 +94,20 @@
   }
 }
 
-.feedback-emoji {
+.feedbackEmoji {
   font-size: 8rem;
   animation: bounceIn 0.5s ease-out;
   text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
 }
 
-.gallery-image {
+.galleryImage {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
   display: block;
 }
 
-.game-menu {
+.gameMenu {
   height: 33.33dvh; // 1/3 of screen
   width: 100vw;
   max-width: 414px; // iPhone Pro Max width - mobile constraint for desktop
@@ -121,7 +121,7 @@
   border-top: 4px solid @nps-dark-brown;
 }
 
-.menu-buttons {
+.menuButtons {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
@@ -131,7 +131,7 @@
   height: 100%;
 }
 
-.menu-button {
+.menuButton {
   background-color: @nps-cream;
   border: 2px solid @nps-dark-brown;
   border-radius: 8px;
@@ -167,7 +167,7 @@
 }
 
 // Loading States
-.loading-container {
+.loadingContainer {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -175,12 +175,12 @@
   background-color: @background-gray;
 }
 
-.loading-spinner {
+.loadingSpinner {
   font-size: 10rem;
   animation: spin 2s linear infinite;
 }
 
-.error-container {
+.errorContainer {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -188,7 +188,7 @@
   background-color: @background-gray;
 }
 
-.error-content {
+.errorContent {
   text-align: center;
   color: @nps-dark-brown;
   font-family: "NationalPark", "Times New Roman", Times, serif;
@@ -221,7 +221,7 @@
   }
 }
 
-.no-images-container {
+.noImagesContainer {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -229,7 +229,7 @@
   background-color: @background-gray;
 }
 
-.no-images-content {
+.noImagesContent {
   text-align: center;
   font-family: "NationalPark", "Times New Roman", Times, serif;
 
