@@ -5,6 +5,11 @@ import "./App.less";
 
 console.log("Version 25.7.8.n");
 
+// Customizable timing constants
+const FEEDBACK_ANIMATION_DURATION = 500; // milliseconds
+const POINTS_CORRECT = 100;
+const POINTS_INCORRECT = -50;
+
 const loadAlbumData = async (albumId) => {
   const cachedAlbum = cachedData[albumId];
   if (cachedAlbum) {
@@ -30,8 +35,13 @@ export function App() {
   const [currentImageData, setCurrentImageData] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentOptions, setCurrentOptions] = useState([]);
+  const [correctAnswerIndex, setCorrectAnswerIndex] = useState(0);
+  const [score, setScore] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [feedbackType, setFeedbackType] = useState(null); // 'correct' or 'incorrect'
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [buttonsDisabled, setButtonsDisabled] = useState(false);
   const imageCache = useRef(new Map());
 
   const shuffleArray = (array) => {
@@ -53,8 +63,14 @@ export function App() {
     const shuffledIncorrect = shuffleArray(incorrectOptions);
     const selectedIncorrect = shuffledIncorrect.slice(0, 3);
 
-    // Put correct answer at index 0 for now, then add 3 incorrect ones
-    return [correctParkName, ...selectedIncorrect];
+    // Create options array with correct answer and 3 incorrect ones
+    const options = [correctParkName, ...selectedIncorrect];
+
+    // Shuffle the options and track where the correct answer ended up
+    const shuffledOptions = shuffleArray(options);
+    const correctIndex = shuffledOptions.indexOf(correctParkName);
+
+    return { options: shuffledOptions, correctIndex };
   };
 
   const cacheImages = async (images, startIndex) => {
@@ -70,23 +86,62 @@ export function App() {
     cachedUrls.forEach((url) => imageCache.current.set(url, true));
   };
 
-  const handleImageClick = () => {
+  const handleButtonClick = (selectedIndex) => {
+    if (buttonsDisabled) return;
+
+    setButtonsDisabled(true);
+    const isCorrect = selectedIndex === correctAnswerIndex;
+
+    // Update score
+    setScore(
+      (prevScore) => prevScore + (isCorrect ? POINTS_CORRECT : POINTS_INCORRECT)
+    );
+
+    // Show feedback
+    setFeedbackType(isCorrect ? "correct" : "incorrect");
+    setShowFeedback(true);
+
+    // After animation, proceed to next image
+    setTimeout(() => {
+      setShowFeedback(false);
+      setButtonsDisabled(false);
+      proceedToNextImage();
+    }, FEEDBACK_ANIMATION_DURATION);
+  };
+
+  const proceedToNextImage = () => {
     if (currentImageIndex < allImages.length - 1) {
       const nextIndex = currentImageIndex + 1;
       const nextImageData = allImages[nextIndex];
 
       setCurrentImageIndex(nextIndex);
       setCurrentImageData(nextImageData);
-      setCurrentOptions(generateOptions(nextImageData.parkName, allParkNames));
+
+      const { options, correctIndex } = generateOptions(
+        nextImageData.parkName,
+        allParkNames
+      );
+      setCurrentOptions(options);
+      setCorrectAnswerIndex(correctIndex);
 
       // Cache next 10 images
       cacheImages(allImages, nextIndex + 1);
     }
   };
 
+  const handleImageClick = () => {
+    // Only allow image click if buttons are not disabled and no feedback is showing
+    if (!buttonsDisabled && !showFeedback) {
+      proceedToNextImage();
+    }
+  };
+
   const handleRetry = () => {
     setError(null);
     setIsLoading(true);
+    setScore(0);
+    setShowFeedback(false);
+    setButtonsDisabled(false);
     // Trigger re-fetch by calling the effect again
     window.location.reload();
   };
@@ -126,9 +181,13 @@ export function App() {
           await preloadImage(firstImageData.url);
           setCurrentImageData(firstImageData);
           setCurrentImageIndex(0);
-          setCurrentOptions(
-            generateOptions(firstImageData.parkName, parkNames)
+
+          const { options, correctIndex } = generateOptions(
+            firstImageData.parkName,
+            parkNames
           );
+          setCurrentOptions(options);
+          setCorrectAnswerIndex(correctIndex);
 
           // Cache the first 10 images
           cacheImages(shuffledImages, 1);
@@ -182,6 +241,9 @@ export function App() {
 
   return (
     <div className="app">
+      {/* Score display in top left */}
+      <div className="score-display">{score.toString().padStart(4, "0")}</div>
+
       <div className="main-container">
         <div className="image-section">
           <div className="image-container" onClick={handleImageClick}>
@@ -190,13 +252,27 @@ export function App() {
               alt="National Park"
               className="gallery-image"
             />
+
+            {/* Feedback animation overlay */}
+            {showFeedback && (
+              <div className={`feedback-overlay ${feedbackType}`}>
+                <div className="feedback-emoji">
+                  {feedbackType === "correct" ? "✅" : "❌"}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
         <div className="game-menu">
           <div className="menu-buttons">
             {currentOptions.map((option, index) => (
-              <button key={index} className="menu-button">
+              <button
+                key={index}
+                className={`menu-button ${buttonsDisabled ? "disabled" : ""}`}
+                onClick={() => handleButtonClick(index)}
+                disabled={buttonsDisabled}
+              >
                 {option}
               </button>
             ))}

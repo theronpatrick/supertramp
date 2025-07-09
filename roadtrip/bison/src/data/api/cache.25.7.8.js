@@ -1,4 +1,4 @@
-// Auto-generated cache file Tue Jul  8 20:29:17 EDT 2025
+// Auto-generated cache file Tue Jul  8 21:00:38 EDT 2025
 export default {
   "MLqTy": {
   "title": "trip_2017_park_acadia",
@@ -1646,7 +1646,7 @@ export default {
 },
   "k13am": {
   "title": "trip_2017_crater_lake",
-  "parkName": "2017 Crater Lake",
+  "parkName": "Crater Lake",
   "images": [
     {
       "link": "https://i.imgur.com/AJOXYax.jpeg"
@@ -3782,7 +3782,7 @@ export default {
 },
   "fcojTUy": {
   "title": "trip_2025_indiana_dunes",
-  "parkName": "2025 Indiana Dunes",
+  "parkName": "Indiana Dunes",
   "images": [
     {
       "link": "https://i.imgur.com/l7UDhdH.jpeg"
@@ -3815,7 +3815,7 @@ export default {
 },
   "rcqFNIh": {
   "title": "trip_2025_wind_cave",
-  "parkName": "2025 Wind Cave",
+  "parkName": "Wind Cave",
   "images": [
     {
       "link": "https://i.imgur.com/6kyXi8C.jpeg"
@@ -3869,7 +3869,7 @@ export default {
 },
   "SmKzRoG": {
   "title": "trip_2025_theodore_roosevelt",
-  "parkName": "2025 Theodore Roosevelt",
+  "parkName": "Theodore Roosevelt",
   "images": [
     {
       "link": "https://i.imgur.com/E79Crv5.jpeg"
@@ -3920,7 +3920,7 @@ export default {
 },
   "sAU3k5b": {
   "title": "trip_2025_voyageurs",
-  "parkName": "2025 Voyageurs",
+  "parkName": "Voyageurs",
   "images": [
     {
       "link": "https://i.imgur.com/wGve7tw.jpeg"
