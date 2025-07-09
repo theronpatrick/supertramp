@@ -1,18 +1,35 @@
 import { useState, useEffect, useRef } from "preact/hooks";
-import albums from "./data/albums.js";
+import albums from "./data/albums";
+import cachedData from "./data/api/cache.25.7.8";
 import "./App.less";
+
+const loadAlbumData = async (albumId) => {
+  const cachedAlbum = cachedData[albumId];
+  if (cachedAlbum && cachedAlbum.success) {
+    return cachedAlbum.data;
+  } else {
+    console.error("Album not found in cache:", albumId);
+    return null;
+  }
+};
+
+const preloadImage = (url) => {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(url);
+    img.onerror = () => resolve(url);
+    img.src = url;
+  });
+};
 
 export function App() {
   const [allImages, setAllImages] = useState([]);
+  const [currentImageUrl, setCurrentImageUrl] = useState("");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [currentImage, setCurrentImage] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const imageCacheRef = useRef(new Set());
+  const imageCache = useRef(new Map());
 
-  console.log("version 25.7.8l");
-
-  // Shuffle array using Fisher-Yates algorithm
   const shuffleArray = (array) => {
     const shuffled = [...array];
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -22,150 +39,77 @@ export function App() {
     return shuffled;
   };
 
-  // Preload images for caching
-  const preloadImages = (imageUrls) => {
-    imageUrls.forEach((url) => {
-      if (!imageCacheRef.current.has(url)) {
-        const img = new Image();
-        img.onload = () => {
-          imageCacheRef.current.add(url);
-          console.log(`Cached image: ${url.split("/").pop()}`);
-        };
-        img.src = url;
+  const cacheImages = async (images, startIndex) => {
+    const cachePromises = [];
+    for (let i = 0; i < 10 && startIndex + i < images.length; i++) {
+      const url = images[startIndex + i];
+      if (!imageCache.current.has(url)) {
+        cachePromises.push(preloadImage(url));
       }
-    });
+    }
+
+    const cachedUrls = await Promise.all(cachePromises);
+    cachedUrls.forEach((url) => imageCache.current.set(url, true));
   };
 
-  // Preload single image and return promise
-  const preloadImage = (url) => {
-    return new Promise((resolve, reject) => {
-      if (imageCacheRef.current.has(url)) {
-        resolve(url);
-        return;
-      }
+  const handleImageClick = () => {
+    if (currentImageIndex < allImages.length - 1) {
+      const nextIndex = currentImageIndex + 1;
+      setCurrentImageIndex(nextIndex);
+      setCurrentImageUrl(allImages[nextIndex]);
 
-      const img = new Image();
-      img.onload = () => {
-        imageCacheRef.current.add(url);
-        console.log(`First image loaded: ${url.split("/").pop()}`);
-        resolve(url);
-      };
-      img.onerror = () => {
-        reject(new Error(`Failed to load image: ${url}`));
-      };
-      img.src = url;
-    });
-  };
-
-  // Fetch all images from all albums
-  const fetchAllImages = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      console.log("Fetching all albums...");
-
-      // Fetch all albums concurrently
-      const albumPromises = Object.entries(albums).map(
-        async ([parkName, albumData]) => {
-          try {
-            const response = await fetch(
-              `https://api.imgur.com/3/album/${albumData.url}`,
-              {
-                headers: {
-                  authorization: "Client-ID 27a13f9320a8875",
-                },
-              }
-            );
-
-            if (!response.ok) {
-              console.warn(
-                `Failed to fetch album for ${parkName}: ${response.status}`
-              );
-              return [];
-            }
-
-            const data = await response.json();
-            const images = data.data.images || [];
-
-            // Return images with park context
-            return images.map((img) => ({
-              url: img.link,
-              title: img.title || img.description || `${parkName} Image`,
-              parkName: parkName,
-              id: img.id,
-            }));
-          } catch (err) {
-            console.warn(`Error fetching album for ${parkName}:`, err);
-            return [];
-          }
-        }
-      );
-
-      const albumResults = await Promise.all(albumPromises);
-
-      // Flatten all images into single array and shuffle
-      const allImagesArray = albumResults.flat();
-      const shuffledImages = shuffleArray(allImagesArray);
-
-      console.log(
-        `Loaded ${shuffledImages.length} total images from ${
-          Object.keys(albums).length
-        } parks`
-      );
-
-      if (shuffledImages.length === 0) {
-        setError("No images found");
-        return;
-      }
-
-      setAllImages(shuffledImages);
-      setCurrentImage(shuffledImages[0]);
-
-      // Wait for first image to load before showing UI
-      await preloadImage(shuffledImages[0].url);
-
-      // Preload remaining 9 images in background (don't await this)
-      const remainingImagesToPreload = shuffledImages
-        .slice(1, 10)
-        .map((img) => img.url);
-      preloadImages(remainingImagesToPreload);
-    } catch (err) {
-      console.error("Error fetching images:", err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
+      // Cache next 10 images
+      cacheImages(allImages, nextIndex + 1);
     }
   };
 
-  // Handle image click - go to next image
-  const handleImageClick = () => {
-    if (allImages.length === 0) return;
-
-    const nextIndex = (currentImageIndex + 1) % allImages.length;
-    setCurrentImageIndex(nextIndex);
-    setCurrentImage(allImages[nextIndex]);
-
-    // Preload next batch of images
-    const startPreload = nextIndex + 1;
-    const endPreload = Math.min(startPreload + 10, allImages.length);
-    const imagesToPreload = allImages
-      .slice(startPreload, endPreload)
-      .map((img) => img.url);
-    preloadImages(imagesToPreload);
-
-    console.log(
-      `Showing image ${nextIndex + 1} of ${allImages.length}: ${
-        allImages[nextIndex].parkName
-      }`
-    );
+  const handleRetry = () => {
+    setError(null);
+    setIsLoading(true);
+    // Trigger re-fetch by calling the effect again
+    window.location.reload();
   };
 
   useEffect(() => {
+    const fetchAllImages = async () => {
+      try {
+        const imageUrls = [];
+
+        // Convert albums object to array of entries and iterate
+        for (const [parkName, albumInfo] of Object.entries(albums)) {
+          const albumData = await loadAlbumData(albumInfo.url);
+          if (albumData && albumData.images) {
+            albumData.images.forEach((img) => {
+              imageUrls.push(img.link);
+            });
+          }
+        }
+
+        if (imageUrls.length > 0) {
+          const shuffledImages = shuffleArray(imageUrls);
+          setAllImages(shuffledImages);
+
+          // Preload the first image before showing the UI
+          const firstImageUrl = shuffledImages[0];
+          await preloadImage(firstImageUrl);
+          setCurrentImageUrl(firstImageUrl);
+          setCurrentImageIndex(0);
+
+          // Cache the first 10 images
+          cacheImages(shuffledImages, 1);
+        }
+      } catch (err) {
+        console.error("Error fetching album data:", err);
+        setError("Failed to load images");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchAllImages();
   }, []);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="app">
         <div className="loading-container">
@@ -180,21 +124,21 @@ export function App() {
       <div className="app">
         <div className="error-container">
           <div className="error-content">
-            <h2>Error</h2>
+            <h2>Oops! Something went wrong</h2>
             <p>{error}</p>
-            <button onClick={fetchAllImages}>Retry</button>
+            <button onClick={handleRetry}>Try Again</button>
           </div>
         </div>
       </div>
     );
   }
 
-  if (!currentImage) {
+  if (allImages.length === 0) {
     return (
       <div className="app">
         <div className="no-images-container">
           <div className="no-images-content">
-            <h2>No images available</h2>
+            <h2>No images found</h2>
           </div>
         </div>
       </div>
@@ -203,12 +147,12 @@ export function App() {
 
   return (
     <div className="app">
-      <main className="main-container">
+      <div className="main-container">
         <div className="image-section">
           <div className="image-container" onClick={handleImageClick}>
             <img
-              src={currentImage.url}
-              alt={currentImage.title}
+              src={currentImageUrl}
+              alt="National Park"
               className="gallery-image"
             />
           </div>
@@ -222,7 +166,7 @@ export function App() {
             <button className="menu-button">Fourth</button>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
