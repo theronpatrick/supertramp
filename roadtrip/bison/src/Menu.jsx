@@ -15,11 +15,6 @@ export function Menu() {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleTimelessClick = () => {
-    // TODO: Implement timeless mode
-    console.log("Timeless mode clicked");
-  };
-
   const handleInstructionsClick = () => {
     // TODO: Implement instructions
     console.log("Instructions clicked");
@@ -41,17 +36,17 @@ export function Menu() {
         <div className={styles.container}>
           <div className={styles.buttons}>
             <Link
-              to="/game"
+              to="/game?mode=timed"
               className={`${styles.button} ${styles.startButton}`}
             >
               START
             </Link>
-            <button
+            <Link
+              to="/game?mode=timeless"
               className={`${styles.button} ${styles.timelessButton}`}
-              onClick={handleTimelessClick}
             >
               TIMELESS
-            </button>
+            </Link>
             <button
               className={`${styles.button} ${styles.instructionsButton}`}
               onClick={handleInstructionsClick}
