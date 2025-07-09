@@ -5,7 +5,7 @@ export default defineConfig({
   base: "/bison/",
   plugins: [preact()],
   build: {
-    outDir: "../../docs/bison",
+    outDir: "dist",
     emptyOutDir: true,
     minify: "terser",
     terserOptions: {
