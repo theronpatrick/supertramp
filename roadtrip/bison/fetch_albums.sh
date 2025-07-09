@@ -54,7 +54,30 @@ for album in "${albums[@]}"; do
   
   # Check if response is valid JSON
   if echo "$response" | jq . >/dev/null 2>&1; then
-    echo "  \"$album_id\": $response," >> src/data/api/cache.25.7.8.js
+    # Extract only title and image links using jq, and add parkName field
+    simplified_data=$(echo "$response" | jq '{
+      title: .data.title,
+      parkName: (.data.title | 
+        split("_") | 
+        # Find index of "park" and get everything after it
+        (if (index("park") // -1) >= 0 then 
+          .[((index("park") // -1) + 1):] 
+        else 
+          # For trip_YYYY_name format, skip "trip" and year, take everything after
+          .[(index("trip") + 2):] 
+        end) |
+        # Join with spaces and capitalize each word
+        join(" ") | 
+        split(" ") | 
+        map(. as $word | 
+          ($word[0:1] | ascii_upcase) + ($word[1:] | ascii_downcase)
+        ) | 
+        join(" ")
+      ),
+      images: [.data.images[]? | {link: .link}]
+    }')
+    
+    echo "  \"$album_id\": $simplified_data," >> src/data/api/cache.25.7.8.js
   else
     echo "Error fetching $park_name ($album_id)"
   fi
