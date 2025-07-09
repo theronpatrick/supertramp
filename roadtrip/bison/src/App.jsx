@@ -42,6 +42,8 @@ export function App() {
   const [feedbackType, setFeedbackType] = useState(null); // 'correct' or 'incorrect'
   const [showFeedback, setShowFeedback] = useState(false);
   const [buttonsDisabled, setButtonsDisabled] = useState(false);
+  const [clickedButtonIndex, setClickedButtonIndex] = useState(null);
+  const [showButtonFeedback, setShowButtonFeedback] = useState(false);
   const imageCache = useRef(new Map());
 
   const shuffleArray = (array) => {
@@ -90,6 +92,8 @@ export function App() {
     if (buttonsDisabled) return;
 
     setButtonsDisabled(true);
+    setClickedButtonIndex(selectedIndex);
+    setShowButtonFeedback(true);
     const isCorrect = selectedIndex === correctAnswerIndex;
 
     // Update score
@@ -105,6 +109,8 @@ export function App() {
     setTimeout(() => {
       setShowFeedback(false);
       setButtonsDisabled(false);
+      setClickedButtonIndex(null);
+      setShowButtonFeedback(false);
       proceedToNextImage();
     }, FEEDBACK_ANIMATION_DURATION);
   };
@@ -243,7 +249,9 @@ export function App() {
     <div className={styles.app}>
       {/* Score display in top left */}
       <div className={styles.scoreDisplay}>
-        {score.toString().padStart(4, "0")}
+        {score >= 0
+          ? score.toString().padStart(4, "0")
+          : `-${Math.abs(score).toString().padStart(4, "0")}`}
       </div>
 
       <div className={styles.mainContainer}>
@@ -270,18 +278,30 @@ export function App() {
 
         <div className={styles.gameMenu}>
           <div className={styles.menuButtons}>
-            {currentOptions.map((option, index) => (
-              <button
-                key={index}
-                className={`${styles.menuButton} ${
-                  buttonsDisabled ? styles.disabled : ""
-                }`}
-                onClick={() => handleButtonClick(index)}
-                disabled={buttonsDisabled}
-              >
-                {option}
-              </button>
-            ))}
+            {currentOptions.map((option, index) => {
+              let buttonClass = styles.menuButton;
+
+              if (showButtonFeedback) {
+                if (index === correctAnswerIndex) {
+                  buttonClass += ` ${styles.correct}`;
+                } else if (index === clickedButtonIndex) {
+                  buttonClass += ` ${styles.incorrect}`;
+                }
+              } else if (index === clickedButtonIndex) {
+                buttonClass += ` ${styles.clicked}`;
+              }
+
+              return (
+                <button
+                  key={index}
+                  className={buttonClass}
+                  onClick={() => handleButtonClick(index)}
+                  disabled={buttonsDisabled}
+                >
+                  {option}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
