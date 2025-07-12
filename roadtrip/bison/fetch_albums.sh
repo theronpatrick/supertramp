@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Initialize cache file
-echo "// Auto-generated cache file $(date)" > src/data/api/cache.25.7.8.js
-echo "export default {" >> src/data/api/cache.25.7.8.js
+# Generate cache filename with current date (YY.M.D format)
+CACHE_DATE=$(date +"%y.%-m.%-d")
+CACHE_FILE="src/data/api/cache.$CACHE_DATE.js"
 
 # Array of album IDs and names
 albums=(
@@ -42,7 +42,24 @@ albums=(
   "SmKzRoG:Theodore_Roosevelt"
   "sAU3k5b:Voyageurs"
   "6Y3XxLK:New_River_Gorge"
+  "Q7GwBjO:Wrangell_St_Elias"
+  "9cCBMQX:Lake_Clark"
+  "L6AAqDw:Kenai_Fjords"
+  "QPjoBSk:Katmai"
+  "E0lyPHf:Glacier_Bay"
+  "jiFwIj8:Denali"
+  "esOvcw5:Everglades"
+  "X1CN1mO:Dry_Tortugas"
+  "E18EeZp:Biscayne"
 )
+
+# Count total albums
+TOTAL_ALBUMS=${#albums[@]}
+
+# Initialize cache file
+echo "// Auto-generated cache file $(date)" > $CACHE_FILE
+echo "// Total albums fetched: $TOTAL_ALBUMS" >> $CACHE_FILE
+echo "export default {" >> $CACHE_FILE
 
 # Fetch each album
 for album in "${albums[@]}"; do
@@ -77,7 +94,7 @@ for album in "${albums[@]}"; do
       images: [.data.images[]? | {link: .link}]
     }')
     
-    echo "  \"$album_id\": $simplified_data," >> src/data/api/cache.25.7.8.js
+    echo "  \"$album_id\": $simplified_data," >> $CACHE_FILE
   else
     echo "Error fetching $park_name ($album_id)"
   fi
@@ -87,7 +104,7 @@ for album in "${albums[@]}"; do
 done
 
 # Close the object and remove trailing comma
-sed -i '' '$s/,$//' src/data/api/cache.25.7.8.js
-echo "};" >> src/data/api/cache.25.7.8.js
+sed -i '' '$s/,$//' $CACHE_FILE
+echo "};" >> $CACHE_FILE
 
-echo "Cache file created successfully!"
+echo "Cache file created successfully: $CACHE_FILE"

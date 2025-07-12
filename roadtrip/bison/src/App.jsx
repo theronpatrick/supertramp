@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "preact/hooks";
 import { useLocation } from "react-router-dom";
 import albums from "./data/albums";
-import cachedData from "./data/api/cache.25.7.8";
+import cachedData from "./data/api/cache.25.7.12";
 import styles from "./App.module.less";
 
 console.log("Version 25.7.8.n");
