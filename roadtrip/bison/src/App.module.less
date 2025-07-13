@@ -57,6 +57,59 @@
   border: 2px solid rgba(255, 107, 107, 0.3);
 }
 
+// Time bonus animation (appears to the left of timer)
+.timeBonusDisplay {
+  position: absolute;
+  top: 30px;
+  right: 100px; // Position to the left of timer
+  color: #ffff00;
+  -webkit-text-stroke: 1px #8b4513;
+  font-family: "NationalPark", "Times New Roman", Times, serif;
+  font-size: 24px;
+  font-weight: 800;
+  z-index: 1001;
+  letter-spacing: 2px;
+  animation: timeBonusAnimation 2s ease-out forwards;
+  opacity: 0;
+}
+
+// Skip button floating on image
+.skipButton {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: @nps-cream;
+  border: 2px solid @nps-dark-brown;
+  border-radius: 8px;
+  color: @nps-dark-brown;
+  font-family: "NationalPark", "Times New Roman", Times, serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 8px 16px;
+  z-index: 500;
+  min-width: 80px;
+
+  &:hover {
+    transform: translateX(-50%) translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  &:active {
+    transform: translateX(-50%) translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  &.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #e0e0e0;
+    color: #999;
+  }
+}
+
 // Game Over Overlay
 .gameOverOverlay {
   position: absolute;
@@ -174,7 +227,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 10px;
   box-sizing: border-box;
   background-color: @background-gray;
 }
@@ -439,5 +491,23 @@
   100% {
     transform: translateY(0);
     opacity: 1;
+  }
+}
+
+@keyframes timeBonusAnimation {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.8);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(0) scale(1.1);
+  }
+  40% {
+    transform: translateY(-5px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.9);
   }
 }

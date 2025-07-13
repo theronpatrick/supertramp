@@ -42,6 +42,7 @@ export function App() {
   const [timeLeft, setTimeLeft] = useState(TIMER_DURATION);
   const [gameOver, setGameOver] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
+  const [showTimeBonus, setShowTimeBonus] = useState(false);
 
   const imageCache = useRef(new Map());
   const timerRef = useRef(null);
@@ -139,6 +140,13 @@ export function App() {
       (prevScore) => prevScore + (isCorrect ? POINTS_CORRECT : POINTS_INCORRECT)
     );
 
+    // Add 5 seconds to timer and show bonus animation if correct in timed mode
+    if (isCorrect && gameMode === "timed") {
+      setTimeLeft((prev) => prev + 5);
+      setShowTimeBonus(true);
+      setTimeout(() => setShowTimeBonus(false), 2000); // Hide after animation
+    }
+
     // Show feedback
     setFeedbackType(isCorrect ? "correct" : "incorrect");
     setShowFeedback(true);
@@ -173,8 +181,8 @@ export function App() {
     }
   };
 
-  const handleImageClick = () => {
-    // Only allow image click if buttons are not disabled and no feedback is showing
+  const handleSkipClick = () => {
+    // Only allow skip if buttons are not disabled and no feedback is showing
     if (!buttonsDisabled && !showFeedback && !gameOver) {
       proceedToNextImage();
     }
@@ -189,6 +197,7 @@ export function App() {
     setGameOver(false);
     setGameStarted(false);
     setTimeLeft(TIMER_DURATION);
+    setShowTimeBonus(false);
     // Trigger re-fetch by calling the effect again
     window.location.reload();
   };
@@ -200,6 +209,7 @@ export function App() {
     setGameOver(false);
     setGameStarted(false);
     setTimeLeft(TIMER_DURATION);
+    setShowTimeBonus(false);
     setCurrentImageIndex(0);
 
     // Reset to first image
@@ -356,6 +366,16 @@ export function App() {
         </div>
       )}
 
+      {/* Time bonus animation */}
+      {showTimeBonus && (
+        <div
+          style={{ animationIterationCount: "infinite" }}
+          className={styles.timeBonusDisplay}
+        >
+          +5
+        </div>
+      )}
+
       {/* Game Over Overlay */}
       {gameOver && (
         <div className={styles.gameOverOverlay}>
@@ -387,12 +407,25 @@ export function App() {
 
       <div className={styles.mainContainer}>
         <div className={styles.imageSection}>
-          <div className={styles.imageContainer} onClick={handleImageClick}>
+          <div className={styles.imageContainer}>
             <img
               src={currentImageData?.url}
               alt="National Park"
               className={styles.galleryImage}
             />
+
+            {/* Skip button floating on image */}
+            <button
+              className={`${styles.skipButton} ${
+                buttonsDisabled || showFeedback || gameOver
+                  ? styles.disabled
+                  : ""
+              }`}
+              onClick={handleSkipClick}
+              disabled={buttonsDisabled || showFeedback || gameOver}
+            >
+              Skip
+            </button>
 
             {/* Feedback animation overlay */}
             {showFeedback && (
