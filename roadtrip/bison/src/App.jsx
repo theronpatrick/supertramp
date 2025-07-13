@@ -527,7 +527,8 @@ export function App() {
                     {LEADERBOARD_CATEGORIES.map((category, index) => {
                       const userCategory = getUserCategory(score);
                       const isUserCategory =
-                        category.threshold === userCategory.threshold;
+                        category.threshold === userCategory.threshold ||
+                        (score < -1000 && category.threshold === -1000);
 
                       return (
                         <div
