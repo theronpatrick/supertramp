@@ -4,6 +4,10 @@
 
     <div class="button-container">
       <div class="link-aligner" ref="linkAligner">
+        <a href="/bison/">
+          <button class="link-button bison-button" id="bison-button"></button>
+          <label for="bison-button">Bison Brawl!</label>
+        </a>
         <router-link :to="'summerofsnap'">
           <button class="link-button snap-button" id="snap-button"></button>
           <label for="snap-button">Summer of Snap</label>
@@ -25,10 +29,6 @@
             id="stickers-button"
           ></button>
           <label for="stickers-button">Bumper Sticker Explorer</label>
-        </router-link>
-        <router-link :to="'/bison/'">
-          <button class="link-button bison-button" id="bison-button"></button>
-          <label for="bison-button">Bison Brawl!</label>
         </router-link>
       </div>
     </div>
