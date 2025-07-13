@@ -43,11 +43,11 @@ export function App() {
   const [gameOver, setGameOver] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
   const [showTimeBonus, setShowTimeBonus] = useState(false);
-  const [showScoreBonus, setShowScoreBonus] = useState(false);
-  const [scoreBonusType, setScoreBonusType] = useState("correct"); // 'correct' or 'incorrect'
+  const [scoreBonusInstances, setScoreBonusInstances] = useState([]);
 
   const imageCache = useRef(new Map());
   const timerRef = useRef(null);
+  const scoreBonusIdCounter = useRef(0);
 
   // Check URL parameters for game mode
   useEffect(() => {
@@ -142,10 +142,22 @@ export function App() {
       (prevScore) => prevScore + (isCorrect ? POINTS_CORRECT : POINTS_INCORRECT)
     );
 
-    // Show score bonus animation
-    setScoreBonusType(isCorrect ? "correct" : "incorrect");
-    setShowScoreBonus(true);
-    setTimeout(() => setShowScoreBonus(false), 2000); // Hide after animation
+    // Add new score bonus animation instance
+    const bonusId = scoreBonusIdCounter.current++;
+    const newBonusInstance = {
+      id: bonusId,
+      type: isCorrect ? "correct" : "incorrect",
+      points: isCorrect ? POINTS_CORRECT : POINTS_INCORRECT,
+    };
+
+    setScoreBonusInstances((prev) => [...prev, newBonusInstance]);
+
+    // Remove this instance after animation completes
+    setTimeout(() => {
+      setScoreBonusInstances((prev) =>
+        prev.filter((instance) => instance.id !== bonusId)
+      );
+    }, 2000);
 
     // Add 5 seconds to timer and show bonus animation if correct in timed mode
     if (isCorrect && gameMode === "timed") {
@@ -383,14 +395,20 @@ export function App() {
         </div>
       )}
 
-      {/* Score bonus animation */}
-      {showScoreBonus && (
+      {/* Score bonus animations */}
+      {scoreBonusInstances.map((instance, index) => (
         <div
-          className={`${styles.scoreBonusDisplay} ${styles[scoreBonusType]}`}
+          key={instance.id}
+          className={`${styles.scoreBonusDisplay} ${styles[instance.type]}`}
+          style={{
+            top: `${30 + index * 10}px`, // Stagger vertically
+            left: `${140 + index * 5}px`, // Stagger horizontally slightly
+            animationDelay: `${index * 0.1}s`, // Slight delay between animations
+          }}
         >
-          {scoreBonusType === "correct" ? "+100" : "-50"}
+          {instance.points > 0 ? `+${instance.points}` : instance.points}
         </div>
-      )}
+      ))}
 
       {/* Game Over Overlay */}
       {gameOver && (
