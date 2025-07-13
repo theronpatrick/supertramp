@@ -3,13 +3,45 @@ import { useLocation } from "react-router-dom";
 import cachedData from "./data/api/cache.25.7.12";
 import styles from "./App.module.less";
 
-console.log("Version 25.7.12.a");
+console.log("Version 25.7.13.a");
 
 // Customizable timing constants
 const FEEDBACK_ANIMATION_DURATION = 500; // milliseconds
 const POINTS_CORRECT = 100;
 const POINTS_INCORRECT = -50;
 const TIMER_DURATION = 30; // seconds for timed mode
+const LEADERBOARD_FLIP_DELAY = 2500; // milliseconds before flipping to leaderboard
+
+// Animal leaderboard categories
+const LEADERBOARD_CATEGORIES = [
+  { threshold: 2000, name: "Best Buffalo", emoji: "🐃" },
+  { threshold: 1500, name: "Hype Hippo", emoji: "🦛" },
+  { threshold: 1000, name: "Dang Good Deer", emoji: "🦌" },
+  { threshold: 500, name: "Reasonable Rabbit", emoji: "🐰" },
+  { threshold: 200, name: "Okay Otter", emoji: "🦦" },
+  { threshold: 0, name: "Mediocre Moose", emoji: "🫎" },
+  { threshold: -500, name: "Slow Sloth", emoji: "🦥" },
+  { threshold: -1000, name: "Pathetic Pig", emoji: "🐷" },
+];
+
+// High score management
+const getHighScore = () => {
+  const stored = localStorage.getItem("bisonBrawlHighScore");
+  return stored ? parseInt(stored, 10) : -9999;
+};
+
+const setHighScore = (score) => {
+  localStorage.setItem("bisonBrawlHighScore", score.toString());
+};
+
+const getUserCategory = (score) => {
+  for (const category of LEADERBOARD_CATEGORIES) {
+    if (score >= category.threshold) {
+      return category;
+    }
+  }
+  return LEADERBOARD_CATEGORIES[LEADERBOARD_CATEGORIES.length - 1];
+};
 
 const preloadImage = (url) => {
   return new Promise((resolve) => {
@@ -45,6 +77,11 @@ export function App() {
   const [showTimeBonus, setShowTimeBonus] = useState(false);
   const [scoreBonusInstances, setScoreBonusInstances] = useState([]);
 
+  // Leaderboard states
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [isNewHighScore, setIsNewHighScore] = useState(false);
+  const [highScore, setHighScoreState] = useState(getHighScore());
+
   const imageCache = useRef(new Map());
   const timerRef = useRef(null);
   const scoreBonusIdCounter = useRef(0);
@@ -79,6 +116,25 @@ export function App() {
       }
     };
   }, [gameMode, gameStarted, gameOver, timeLeft]);
+
+  // Handle game over and high score logic
+  useEffect(() => {
+    if (gameOver) {
+      const currentHighScore = getHighScore();
+      if (score > currentHighScore) {
+        setHighScore(score);
+        setHighScoreState(score);
+        setIsNewHighScore(true);
+      }
+
+      // Show leaderboard after delay
+      const timer = setTimeout(() => {
+        setShowLeaderboard(true);
+      }, LEADERBOARD_FLIP_DELAY);
+
+      return () => clearTimeout(timer);
+    }
+  }, [gameOver, score]);
 
   // Start the game timer when images are loaded
   useEffect(() => {
@@ -230,6 +286,8 @@ export function App() {
     setTimeLeft(TIMER_DURATION);
     setShowTimeBonus(false);
     setCurrentImageIndex(0);
+    setShowLeaderboard(false);
+    setIsNewHighScore(false);
 
     // Reset to first image
     if (allImages.length > 0) {
@@ -414,26 +472,82 @@ export function App() {
       {gameOver && (
         <div className={styles.gameOverOverlay}>
           <div className={styles.gameOverContent}>
-            <h2>Time's Up!</h2>
-            <p>Final Score</p>
-            <div className={styles.finalScore}>
-              {score >= 0
-                ? score.toString().padStart(4, "0")
-                : `-${Math.abs(score).toString().padStart(4, "0")}`}
-            </div>
-            <div className={styles.gameOverButtons}>
-              <button
-                onClick={handlePlayAgain}
-                className={styles.playAgainButton}
-              >
-                Play Again
-              </button>
-              <button
-                onClick={handleBackToMenu}
-                className={styles.backToMenuButton}
-              >
-                Back to Menu
-              </button>
+            <div
+              className={`${styles.flipContainer} ${
+                showLeaderboard ? styles.flipped : ""
+              }`}
+            >
+              {/* Front side - Final Score */}
+              <div className={styles.gameOverFront}>
+                <h2>Time's Up!</h2>
+                <p>Final Score</p>
+                <div className={styles.finalScore}>
+                  {score >= 0
+                    ? score.toString().padStart(4, "0")
+                    : `-${Math.abs(score).toString().padStart(4, "0")}`}
+                </div>
+              </div>
+
+              {/* Back side - Leaderboard */}
+              <div className={styles.gameOverBack}>
+                {/* Final score on leaderboard side */}
+                <div className={styles.leaderboardFinalScore}>
+                  Final Score:{" "}
+                  {score >= 0
+                    ? score.toString().padStart(4, "0")
+                    : `-${Math.abs(score).toString().padStart(4, "0")}`}
+                </div>
+
+                {/* New High Score banner */}
+                {isNewHighScore && (
+                  <div className={styles.newHighScoreBanner}>
+                    ⭐ New High Score! ⭐
+                  </div>
+                )}
+
+                {/* Buttons on leaderboard side */}
+                <div className={styles.gameOverButtons}>
+                  <button
+                    onClick={handlePlayAgain}
+                    className={styles.playAgainButton}
+                  >
+                    Play Again
+                  </button>
+                  <button
+                    onClick={handleBackToMenu}
+                    className={styles.backToMenuButton}
+                  >
+                    Back to Menu
+                  </button>
+                </div>
+
+                <h2>Leaderboard</h2>
+                <div className={styles.leaderboardContent}>
+                  <div className={styles.leaderboardTable}>
+                    {LEADERBOARD_CATEGORIES.map((category, index) => {
+                      const userCategory = getUserCategory(score);
+                      const isUserCategory =
+                        category.threshold === userCategory.threshold;
+
+                      return (
+                        <div
+                          key={index}
+                          className={`${styles.leaderboardRow} ${
+                            isUserCategory ? styles.userRow : ""
+                          }`}
+                        >
+                          <div className={styles.leaderboardThreshold}>
+                            {category.threshold}
+                          </div>
+                          <div className={styles.leaderboardCategory}>
+                            {`${category.emoji}  ${category.name}`}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
