@@ -43,6 +43,8 @@ export function App() {
   const [gameOver, setGameOver] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
   const [showTimeBonus, setShowTimeBonus] = useState(false);
+  const [showScoreBonus, setShowScoreBonus] = useState(false);
+  const [scoreBonusType, setScoreBonusType] = useState("correct"); // 'correct' or 'incorrect'
 
   const imageCache = useRef(new Map());
   const timerRef = useRef(null);
@@ -139,6 +141,11 @@ export function App() {
     setScore(
       (prevScore) => prevScore + (isCorrect ? POINTS_CORRECT : POINTS_INCORRECT)
     );
+
+    // Show score bonus animation
+    setScoreBonusType(isCorrect ? "correct" : "incorrect");
+    setShowScoreBonus(true);
+    setTimeout(() => setShowScoreBonus(false), 2000); // Hide after animation
 
     // Add 5 seconds to timer and show bonus animation if correct in timed mode
     if (isCorrect && gameMode === "timed") {
@@ -373,6 +380,15 @@ export function App() {
           className={styles.timeBonusDisplay}
         >
           +5
+        </div>
+      )}
+
+      {/* Score bonus animation */}
+      {showScoreBonus && (
+        <div
+          className={`${styles.scoreBonusDisplay} ${styles[scoreBonusType]}`}
+        >
+          {scoreBonusType === "correct" ? "+100" : "-50"}
         </div>
       )}
 

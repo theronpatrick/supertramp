@@ -40,6 +40,30 @@
   border: 2px solid rgba(255, 255, 0, 0.3);
 }
 
+// Score bonus animation (appears to the right of score)
+.scoreBonusDisplay {
+  position: absolute;
+  top: 30px;
+  left: 140px; // Position to the right of score display
+  font-family: "NationalPark", "Times New Roman", Times, serif;
+  font-size: 24px;
+  font-weight: 800;
+  z-index: 1001;
+  letter-spacing: 2px;
+  animation: scoreBonusAnimation 2s ease-out forwards;
+  opacity: 0;
+
+  &.correct {
+    color: #4caf50;
+    -webkit-text-stroke: 1px #2e7d32;
+  }
+
+  &.incorrect {
+    color: #f44336;
+    -webkit-text-stroke: 1px #d32f2f;
+  }
+}
+
 // Timer display in top right (for timed mode)
 .timerDisplay {
   position: absolute;
@@ -495,6 +519,24 @@
 }
 
 @keyframes timeBonusAnimation {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.8);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(0) scale(1.1);
+  }
+  40% {
+    transform: translateY(-5px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.9);
+  }
+}
+
+@keyframes scoreBonusAnimation {
   0% {
     opacity: 0;
     transform: translateY(10px) scale(0.8);
