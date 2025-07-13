@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "preact/hooks";
 import { useLocation } from "react-router-dom";
-import albums from "./data/albums";
 import cachedData from "./data/api/cache.25.7.12";
 import styles from "./App.module.less";
 
@@ -11,16 +10,6 @@ const FEEDBACK_ANIMATION_DURATION = 500; // milliseconds
 const POINTS_CORRECT = 100;
 const POINTS_INCORRECT = -50;
 const TIMER_DURATION = 30; // seconds for timed mode
-
-const loadAlbumData = async (albumId) => {
-  const cachedAlbum = cachedData[albumId];
-  if (cachedAlbum) {
-    return cachedAlbum;
-  } else {
-    console.error("Album not found in cache:", albumId);
-    return null;
-  }
-};
 
 const preloadImage = (url) => {
   return new Promise((resolve) => {
@@ -242,10 +231,20 @@ export function App() {
         const imageData = [];
         const parkNames = [];
 
-        // Convert albums object to array of entries and iterate
-        for (const [parkName, albumInfo] of Object.entries(albums)) {
-          const albumData = await loadAlbumData(albumInfo.url);
-          if (albumData && albumData.images) {
+        // Iterate directly over the cached data
+        console.log("Starting to load albums...");
+        console.log("Total albums to process:", Object.keys(cachedData).length);
+
+        for (const [albumId, albumData] of Object.entries(cachedData)) {
+          console.log(
+            `Processing album: ${albumData.parkName} (ID: ${albumId})`
+          );
+
+          if (albumData && albumData.images && albumData.parkName) {
+            console.log(
+              `✅ Successfully loaded album: ${albumData.parkName} (${albumData.images.length} images)`
+            );
+
             // Add park name to our collection
             if (!parkNames.includes(albumData.parkName)) {
               parkNames.push(albumData.parkName);
@@ -258,8 +257,20 @@ export function App() {
                 parkName: albumData.parkName,
               });
             });
+          } else {
+            console.log(
+              `❌ Failed to load album: ${
+                albumData.parkName || albumId
+              } - missing data`
+            );
           }
         }
+
+        console.log(
+          `Finished loading albums. Successfully loaded: ${parkNames.length} albums`
+        );
+        console.log("Loaded album names:", parkNames);
+        console.log("Total images:", imageData.length);
 
         if (imageData.length > 0) {
           const shuffledImages = shuffleArray(imageData);
