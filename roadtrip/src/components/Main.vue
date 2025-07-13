@@ -26,6 +26,10 @@
           ></button>
           <label for="stickers-button">Bumper Sticker Explorer</label>
         </router-link>
+        <router-link :to="'/bison'">
+          <button class="link-button bison-button" id="bison-button"></button>
+          <label for="bison-button">Bison Brawl!</label>
+        </router-link>
       </div>
     </div>
   </div>
@@ -175,6 +179,13 @@ h1 {
 
   &.stickers-button {
     background-image: url("../assets/car.svg");
+  }
+
+  &.bison-button {
+    background-image: url("../assets/bison.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
   }
 }
 </style>
