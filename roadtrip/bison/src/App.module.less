@@ -13,17 +13,19 @@
 .app {
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
-  max-height: 100dvh;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
   overflow: hidden;
   padding: 0;
   margin: 0;
   background-color: @background-gray;
   font-family: "NationalPark", "Times New Roman", Times, serif;
   position: relative;
+  box-sizing: border-box;
 }
 
-// Score display in top left
+// Score display in top left (positioned relative to mainContainer)
 .scoreDisplay {
   position: absolute;
   top: 20px;
@@ -42,7 +44,7 @@
   width: 105px;
 }
 
-// Score bonus animation (appears to the right of score)
+// Score bonus animation (appears to the right of score, positioned relative to mainContainer)
 .scoreBonusDisplay {
   position: absolute;
   top: 30px;
@@ -66,7 +68,7 @@
   }
 }
 
-// Timer display in top right (for timed mode)
+// Timer display in top right (for timed mode, positioned relative to mainContainer)
 .timerDisplay {
   position: absolute;
   top: 20px;
@@ -85,7 +87,7 @@
   text-align: center;
 }
 
-// Time bonus animation (appears to the left of timer)
+// Time bonus animation (appears to the left of timer, positioned relative to mainContainer)
 .timeBonusDisplay {
   position: absolute;
   top: 30px;
@@ -371,6 +373,8 @@
   height: 100dvh;
   margin: 0 auto; // Center on desktop
   box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
 }
 
 .imageSection {
@@ -430,7 +434,7 @@
 
 .gameMenu {
   height: 33.33dvh; // 1/3 of screen
-  width: 100vw;
+  width: 100%;
   max-width: 414px; // iPhone Pro Max width - mobile constraint for desktop
   background-color: @nps-brown;
   display: flex;
@@ -440,6 +444,7 @@
   padding: 20px;
   box-sizing: border-box;
   border-top: 4px solid @nps-dark-brown;
+  overflow: hidden;
 }
 
 .menuButtons {

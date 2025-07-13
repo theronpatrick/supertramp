@@ -14,6 +14,24 @@
   -webkit-text-size-adjust: 100%;
 }
 
+html {
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
 a {
   font-weight: 500;
   color: #646cff;
@@ -25,13 +43,15 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
+  padding: 0;
   min-width: 320px;
-  min-height: 100vh;
-
-  align-items: center;
-  justify-content: center;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
 }
 
 h1 {

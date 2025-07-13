@@ -438,45 +438,6 @@ export function App() {
 
   return (
     <div className={styles.app}>
-      {/* Score display in top left */}
-      <div className={styles.scoreDisplay}>
-        {score >= 0
-          ? score.toString().padStart(4, "0")
-          : `-${Math.abs(score).toString().padStart(4, "0")}`}
-      </div>
-
-      {/* Timer display in top right for timed mode */}
-      {gameMode === "timed" && (
-        <div className={styles.timerDisplay}>
-          {timeLeft.toString().padStart(2, "0")}
-        </div>
-      )}
-
-      {/* Time bonus animation */}
-      {showTimeBonus && (
-        <div
-          style={{ animationIterationCount: "infinite" }}
-          className={styles.timeBonusDisplay}
-        >
-          +5
-        </div>
-      )}
-
-      {/* Score bonus animations */}
-      {scoreBonusInstances.map((instance, index) => (
-        <div
-          key={instance.id}
-          className={`${styles.scoreBonusDisplay} ${styles[instance.type]}`}
-          style={{
-            top: `${30 + index * 10}px`, // Stagger vertically
-            left: `${140 + index * 5}px`, // Stagger horizontally slightly
-            animationDelay: `${index * 0.1}s`, // Slight delay between animations
-          }}
-        >
-          {instance.points > 0 ? `+${instance.points}` : instance.points}
-        </div>
-      ))}
-
       {/* Game Over Overlay */}
       {gameOver && (
         <div className={styles.gameOverOverlay}>
@@ -564,6 +525,44 @@ export function App() {
       )}
 
       <div className={styles.mainContainer}>
+        {/* Score display in top left */}
+        <div className={styles.scoreDisplay}>
+          {score >= 0
+            ? score.toString().padStart(4, "0")
+            : `-${Math.abs(score).toString().padStart(4, "0")}`}
+        </div>
+
+        {/* Timer display in top right for timed mode */}
+        {gameMode === "timed" && (
+          <div className={styles.timerDisplay}>
+            {timeLeft.toString().padStart(2, "0")}
+          </div>
+        )}
+
+        {/* Time bonus animation */}
+        {showTimeBonus && (
+          <div
+            style={{ animationIterationCount: "infinite" }}
+            className={styles.timeBonusDisplay}
+          >
+            +5
+          </div>
+        )}
+
+        {/* Score bonus animations */}
+        {scoreBonusInstances.map((instance, index) => (
+          <div
+            key={instance.id}
+            className={`${styles.scoreBonusDisplay} ${styles[instance.type]}`}
+            style={{
+              top: `${30 + index * 10}px`, // Stagger vertically
+              left: `${140 + index * 5}px`, // Stagger horizontally slightly
+              animationDelay: `${index * 0.1}s`, // Slight delay between animations
+            }}
+          >
+            {instance.points > 0 ? `+${instance.points}` : instance.points}
+          </div>
+        ))}
         <div className={styles.imageSection}>
           <div className={styles.imageContainer}>
             <img
