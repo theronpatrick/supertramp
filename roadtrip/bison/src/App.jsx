@@ -14,7 +14,7 @@ const LEADERBOARD_FLIP_DELAY = 2500; // milliseconds before flipping to leaderbo
 
 // Animal leaderboard categories
 const LEADERBOARD_CATEGORIES = [
-  { threshold: 2000, name: "Best Buffalo", emoji: "🐃" },
+  { threshold: 2000, name: "Best Buffalo", emoji: "🦬" },
   { threshold: 1500, name: "Hype Hippo", emoji: "🦛" },
   { threshold: 1000, name: "Dang Good Deer", emoji: "🦌" },
   { threshold: 500, name: "Reasonable Rabbit", emoji: "🐰" },
