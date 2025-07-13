@@ -277,7 +277,7 @@ export function App() {
     window.location.reload();
   };
 
-  const handlePlayAgain = () => {
+  const handlePlayAgain = async () => {
     setScore(0);
     setShowFeedback(false);
     setButtonsDisabled(false);
@@ -288,10 +288,16 @@ export function App() {
     setCurrentImageIndex(0);
     setShowLeaderboard(false);
     setIsNewHighScore(false);
+    setScoreBonusInstances([]);
 
-    // Reset to first image
+    // Re-shuffle the images to get a new random order
     if (allImages.length > 0) {
-      const firstImageData = allImages[0];
+      const newlyShuffledImages = shuffleArray(allImages);
+      setAllImages(newlyShuffledImages);
+
+      // Preload the first image before showing the UI
+      const firstImageData = newlyShuffledImages[0];
+      await preloadImage(firstImageData.url);
       setCurrentImageData(firstImageData);
 
       const { options, correctIndex } = generateOptions(
@@ -300,6 +306,9 @@ export function App() {
       );
       setCurrentOptions(options);
       setCorrectAnswerIndex(correctIndex);
+
+      // Cache the first 10 images from the new order
+      cacheImages(newlyShuffledImages, 1);
 
       // Restart timer if in timed mode
       if (gameMode === "timed") {

@@ -26,7 +26,7 @@
           ></button>
           <label for="stickers-button">Bumper Sticker Explorer</label>
         </router-link>
-        <router-link :to="'/bison'">
+        <router-link :to="'/bison/'">
           <button class="link-button bison-button" id="bison-button"></button>
           <label for="bison-button">Bison Brawl!</label>
         </router-link>
