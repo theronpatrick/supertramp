@@ -13,9 +13,9 @@
   "license": "MIT",
   "dependencies": {
     "babel-runtime": "^6.18.0",
-    "node-sass": "^4.5.0",
+    "sass": "^1.32.0",
     "promise-polyfill": "^6.0.2",
-    "sass-loader": "^6.0.2",
+    "sass-loader": "^7.3.1",
     "vue": "^2.1.0",
     "vue-router": "^2.0.0",
     "vuex": "^2.0.0",
@@ -51,5 +51,6 @@
     "webpack": "2.2.0",
     "webpack-dev-middleware": "^1.8.1",
     "webpack-hot-middleware": "^2.12.2"
-  }
+  },
+  "packageManager": "yarn@4.9.2"
 }
