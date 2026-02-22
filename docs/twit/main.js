@@ -1,4 +1,4 @@
-console.log("Gunnison v2")
+console.log("Gunnison v3")
 
 const WORKER_URL = "https://gunnison.therondevelopment.workers.dev"
 
@@ -34,7 +34,7 @@ async function download() {
     })
     const json = await res.json()
     if (!res.ok) throw new Error(json.error || res.status)
-    setStatus("ok", `done!\nkey: ${json.key}`)
+    setStatus("ok", `done! <a href="${json.url}" target="_blank">${json.url}</a>`, true)
   } catch (err) {
     setStatus("error", `failed:\n${err.message}`)
   } finally {
@@ -42,8 +42,9 @@ async function download() {
   }
 }
 
-function setStatus(type, msg) {
+function setStatus(type, msg, html = false) {
   const el = document.getElementById("status")
   el.className = type
-  el.textContent = msg
+  if (html) el.innerHTML = msg
+  else el.textContent = msg
 }

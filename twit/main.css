@@ -40,3 +40,4 @@ button:disabled { background: #444; cursor: default; }
 }
 #status.error { color: #f66; }
 #status.ok { color: #4d4; }
+#status a { color: #4d4; }
