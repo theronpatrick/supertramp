@@ -1,4 +1,4 @@
-const WORKER_URL = "https://gunnison.workers.dev"
+const WORKER_URL = "https://gunnison.therondevelopment.workers.dev"
 
 const secretEl = document.getElementById("secret")
 secretEl.value = sessionStorage.getItem("upload_secret") || ""
