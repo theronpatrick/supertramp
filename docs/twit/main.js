@@ -6,44 +6,35 @@ secretEl.addEventListener("input", () => {
   sessionStorage.setItem("upload_secret", secretEl.value)
 })
 
-async function upload() {
+async function download() {
   const secret = secretEl.value.trim()
-  const blobUrl = document.getElementById("blobUrl").value.trim()
+  const tweetUrl = document.getElementById("tweetUrl").value.trim()
   const name = document.getElementById("name").value.trim()
   const btn = document.getElementById("btn")
 
   setStatus("", "")
 
   if (!secret) return setStatus("error", "enter your secret")
-  if (!blobUrl.startsWith("blob:")) return setStatus("error", "url must start with blob:")
+  if (!tweetUrl.includes("/status/")) return setStatus("error", "enter a valid tweet url")
   if (!name) return setStatus("error", "enter a filename")
 
   btn.disabled = true
-  setStatus("", "fetching blob from browser...")
-
-  let blob
-  try {
-    const res = await fetch(blobUrl)
-    if (!res.ok) throw new Error(`fetch failed: ${res.status}`)
-    blob = await res.blob()
-  } catch (err) {
-    btn.disabled = false
-    return setStatus("error", `could not fetch blob:\n${err.message}`)
-  }
-
-  setStatus("", `uploading ${(blob.size / 1024 / 1024).toFixed(1)} MB to r2...`)
+  setStatus("", "fetching video...")
 
   try {
-    const res = await fetch(`${WORKER_URL}/upload?name=${encodeURIComponent(name)}`, {
+    const res = await fetch(`${WORKER_URL}/download`, {
       method: "POST",
-      headers: { "X-Upload-Secret": secret },
-      body: blob,
+      headers: {
+        "X-Upload-Secret": secret,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ tweetUrl, name }),
     })
     const json = await res.json()
     if (!res.ok) throw new Error(json.error || res.status)
     setStatus("ok", `done!\nkey: ${json.key}`)
   } catch (err) {
-    return setStatus("error", `upload failed:\n${err.message}`)
+    setStatus("error", `failed:\n${err.message}`)
   } finally {
     btn.disabled = false
   }
