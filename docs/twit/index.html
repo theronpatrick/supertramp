@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>twit upload</title>
+  <link rel="stylesheet" href="main.css">
+</head>
+<body>
+  <h1>twit / upload to r2</h1>
+
+  <label for="secret">secret</label>
+  <input id="secret" type="password" placeholder="upload secret" autocomplete="current-password">
+
+  <label for="blobUrl">blob url</label>
+  <input id="blobUrl" type="text" placeholder="blob:https://...">
+
+  <label for="name">filename <span style="color:#555">(no .mp4)</span></label>
+  <input id="name" type="text" placeholder="my-video">
+
+  <button id="btn" onclick="upload()">upload</button>
+  <div id="status"></div>
+
+  <script src="main.js"></script>
+</body>
+</html>
