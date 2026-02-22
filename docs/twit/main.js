@@ -1,4 +1,4 @@
-console.log("Gunnison v4")
+console.log("Gunnison v5")
 
 const WORKER_URL = "https://gunnison.therondevelopment.workers.dev"
 
