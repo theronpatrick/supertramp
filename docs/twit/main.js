@@ -1,3 +1,5 @@
+console.log("Gunnison v2")
+
 const WORKER_URL = "https://gunnison.therondevelopment.workers.dev"
 
 const secretEl = document.getElementById("secret")

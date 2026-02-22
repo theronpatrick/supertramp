@@ -6,7 +6,7 @@
   "scripts": {
     "test": "testcafe all tests/index.js --app \"npm run dev\" --app-init-delay 10000",
     "build": "webpack --config build/webpack.prod.js && cp CNAME docs/CNAME && cp -R twit docs/twit && cd roadtrip && node build/build.js && cp -R dist ../docs/roadtrip && cp -r build/redirects/* ../docs/roadtrip",
-    "build-twit": "if [ -d docs/twit ]; then rm -rf docs/twit && mkdir docs/twit; else mkdir docs/twit; fi && cp -R twit/* docs/twit/",
+    "build-twit": "node -e \"const fs=require('fs');const f='twit/main.js';const c=fs.readFileSync(f,'utf8');const m=c.match(/Gunnison v(\\\\d+)/);const v=parseInt(m[1])+1;fs.writeFileSync(f,c.replace(/Gunnison v\\\\d+/,'Gunnison v'+v));console.log('bumped to Gunnison v'+v);\" && if [ -d docs/twit ]; then rm -rf docs/twit && mkdir docs/twit; else mkdir docs/twit; fi && cp -R twit/* docs/twit/",
     "dev": "node build/server.js",
     "lint": "eslint client/* --ext .js --ext .vue"
   },
