@@ -51,6 +51,10 @@ albums=(
   "esOvcw5:Everglades"
   "X1CN1mO:Dry_Tortugas"
   "E18EeZp:Biscayne"
+  "t1IrQhw:Great_Basin"
+  "kZZjOHX:Death_Valley"
+  "MNtXpXg:Black_Canyon_of_the_Gunnison"
+  "iekZLJy:US_Virgin_Islands"
 )
 
 # Count total albums

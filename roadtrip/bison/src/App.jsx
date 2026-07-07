@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "preact/hooks";
 import { useLocation } from "react-router-dom";
-import cachedData from "./data/api/cache.25.7.12";
+import cachedData from "./data/api/cache.26.7.7";
 import styles from "./App.module.less";
 
-console.log("Version 25.7.13.a");
+console.log("Version 26.7.7.a");
 
 // Customizable timing constants
 const FEEDBACK_ANIMATION_DURATION = 500; // milliseconds
